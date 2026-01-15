@@ -1,22 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaCalendarAlt, FaMapMarkerAlt, FaUser, FaClock, FaArrowRight } from 'react-icons/fa';
+import { FaCalendarAlt, FaMapMarkerAlt, FaUser, FaClock, FaArrowRight, FaPlus, FaEdit, FaTrash, FaTimes } from 'react-icons/fa';
 import EditableText from '../components/cms/EditableText';
 import ImageWithFallback from '../components/common/ImageWithFallback';
+import { useAuth } from '../context/AuthContext';
 
-const ExpandCard = ({ item, type }) => {
+const ExpandCard = ({ item, type, isAdmin, onEdit, onDelete }) => {
     return (
         <div className="group relative h-96 min-w-[60px] md:min-w-[80px] flex-1 cursor-pointer overflow-hidden rounded-2xl transition-all duration-500 hover:flex-[3] hover:shadow-2xl">
             {/* Background Image */}
-            {/* Background Image */}
             <ImageWithFallback
-                src={item.image || (type === 'blog' ? 'https://via.placeholder.com/600x400?text=Blog' : 'https://via.placeholder.com/600x400?text=Event')}
+                src={item.image || item.coverImage || (type === 'blog' ? 'https://via.placeholder.com/600x400?text=Blog' : 'https://via.placeholder.com/600x400?text=Event')}
                 alt={item.title}
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
             />
 
             {/* Overlay Gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent md:bg-gradient-to-r md:from-black/80 md:via-black/20 md:to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+
+            {/* Admin Controls */}
+            {isAdmin && (
+                <div className="absolute top-4 right-4 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity delay-200">
+                    <button
+                        onClick={(e) => { e.stopPropagation(); onEdit(item, type); }}
+                        className="p-2 bg-white/20 hover:bg-white text-white hover:text-blue-600 rounded-full backdrop-blur-sm transition-all"
+                        title="Edit"
+                    >
+                        <FaEdit />
+                    </button>
+                    <button
+                        onClick={(e) => { e.stopPropagation(); onDelete(item._id, type); }}
+                        className="p-2 bg-white/20 hover:bg-white text-white hover:text-red-600 rounded-full backdrop-blur-sm transition-all"
+                        title="Delete"
+                    >
+                        <FaTrash />
+                    </button>
+                </div>
+            )}
 
             {/* Content - Vertical Title (Collapsed) */}
             <div className="absolute bottom-6 left-6 md:left-4 md:bottom-auto md:top-1/2 md:-translate-y-1/2 w-full origin-left -rotate-90 md:rotate-0 transition-all duration-300 md:group-hover:opacity-0 group-hover:opacity-0 whitespace-nowrap z-10">
@@ -42,7 +62,7 @@ const ExpandCard = ({ item, type }) => {
 
                     {type === 'blog' && (
                         <div className="flex items-center gap-2 text-gray-300 mb-4 text-sm">
-                            <FaUser /> <span>{item.author || 'Admin'}</span>
+                            <FaUser /> <span>{item.authorName || 'Admin'}</span>
                             •
                             <FaClock /> <span>5 min read</span>
                         </div>
@@ -62,39 +82,88 @@ const ExpandCard = ({ item, type }) => {
 };
 
 const BlogsEvents = () => {
+    const { user } = useAuth();
+    const isAdmin = user?.role?.name === 'Admin';
     const [blogs, setBlogs] = useState([]);
     const [events, setEvents] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    // Dummy Data to visualize if API empty
-    const dummyEvents = [
-        { id: 1, title: 'Charity Marathon 2026', date: '2026-03-15', location: 'City Park', description: 'Join us for a 5k run to raise funds for education.', image: 'https://images.unsplash.com/photo-1595821557929-e1ae6724a7d6?q=80&w=800&auto=format&fit=crop' },
-        { id: 2, title: 'Medical Camp', date: '2026-04-10', location: 'Rural Center', description: 'Free checkups and medicine distribution for villagers.', image: 'https://images.unsplash.com/photo-1584515933487-779824d29309?q=80&w=800&auto=format&fit=crop' },
-        { id: 3, title: 'Tree Plantation Drive', date: '2026-06-05', location: 'Green Belt Area', description: 'Planting 1000 trees this World Environment Day.', image: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?q=80&w=800&auto=format&fit=crop' },
-        { id: 4, title: 'Education Seminar', date: '2026-07-20', location: 'Community Hall', description: 'Discussing the future of rural education.', image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=800&auto=format&fit=crop' },
-    ];
+    // Modal State
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalType, setModalType] = useState('blog'); // 'blog' or 'event'
+    const [editItem, setEditItem] = useState(null);
+    const [formData, setFormData] = useState({});
 
-    const dummyBlogs = [
-        { id: 1, title: 'Empowering Women', author: 'Sarah J.', content: 'Women empowerment is not just a buzzword...', image: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=800&auto=format&fit=crop' },
-        { id: 2, title: 'Clean Water Initiative', author: 'Mike T.', content: 'Access to clean water changes everything...', image: 'https://images.unsplash.com/photo-1563974465492-cce7d5d7e5d8?q=80&w=800&auto=format&fit=crop' },
-        { id: 3, title: 'Digital Literacy', author: 'Anita R.', content: 'Bridging the digital divide one tablet at a time.', image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800&auto=format&fit=crop' },
-    ];
+    // Fetch Data
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const [resBlogs, resEvents] = await Promise.all([
+                axios.get('/api/media/blogs'),
+                axios.get('/api/media/events')
+            ]);
+            setBlogs(resBlogs.data);
+            setEvents(resEvents.data);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        // Fetch real data, fallback to dummy
-        const fetchData = async () => {
-            try {
-                const resBlogs = await axios.get('/api/media/blogs');
-                setBlogs(resBlogs.data.length ? resBlogs.data : dummyBlogs);
-
-                const resEvents = await axios.get('/api/media/events');
-                setEvents(resEvents.data.length ? resEvents.data : dummyEvents);
-            } catch (err) {
-                setBlogs(dummyBlogs);
-                setEvents(dummyEvents);
-            }
-        };
         fetchData();
     }, []);
+
+    // Handlers
+    const handleAdd = (type) => {
+        setModalType(type);
+        setEditItem(null);
+        setFormData(type === 'blog' ? { title: '', content: '', image: '', authorName: 'Admin', published: true } : { title: '', description: '', date: '', location: '', image: '' });
+        setIsModalOpen(true);
+    };
+
+    const handleEdit = (item, type) => {
+        setModalType(type);
+        setEditItem(item);
+        setFormData(type === 'blog' ? {
+            title: item.title,
+            content: item.content,
+            image: item.image || item.coverImage,
+            authorName: item.authorName || 'Admin',
+            published: item.published
+        } : {
+            title: item.title,
+            description: item.description,
+            date: item.date ? item.date.split('T')[0] : '',
+            location: item.location,
+            image: item.image || (item.images && item.images[0])
+        });
+        setIsModalOpen(true);
+    };
+
+    const handleDelete = async (id, type) => {
+        if (!window.confirm('Are you sure you want to delete this item?')) return;
+        try {
+            await axios.delete(`/api/media/${type}s/${id}`);
+            fetchData();
+        } catch (error) {
+            alert('Failed to delete item.');
+        }
+    };
+
+    const handleSave = async (e) => {
+        e.preventDefault();
+        try {
+            const url = `/api/media/${modalType}s${editItem ? `/${editItem._id}` : ''}`;
+            const method = editItem ? 'put' : 'post';
+            await axios[method](url, formData);
+            setIsModalOpen(false);
+            fetchData();
+        } catch (error) {
+            alert('Failed to save item.');
+        }
+    };
 
     return (
         <div className="bg-gray-100 min-h-screen pb-20">
@@ -112,43 +181,170 @@ const BlogsEvents = () => {
 
                 {/* Upcoming Events Section */}
                 <section>
-                    <div className="flex items-center gap-4 mb-8">
-                        <div className="h-10 w-2 bg-primary"></div>
-                        <h2 className="text-3xl font-bold text-gray-800">
-                            <EditableText contentKey="media_events_title" section="BlogsEvents" defaultText="Upcoming Events" />
-                        </h2>
+                    <div className="flex justify-between items-center mb-8">
+                        <div className="flex items-center gap-4">
+                            <div className="h-10 w-2 bg-primary"></div>
+                            <h2 className="text-3xl font-bold text-gray-800">
+                                <EditableText contentKey="media_events_title" section="BlogsEvents" defaultText="Upcoming Events" />
+                            </h2>
+                        </div>
+                        {isAdmin && (
+                            <button onClick={() => handleAdd('event')} className="bg-primary text-white px-4 py-2 rounded-full shadow hover:bg-blue-700 flex items-center gap-2">
+                                <FaPlus /> Add Event
+                            </button>
+                        )}
                     </div>
 
                     {/* Horizontal Accordion */}
                     <div className="flex flex-col md:flex-row gap-4 h-[800px] md:h-96 w-full">
-                        {events.map((event, idx) => (
-                            <ExpandCard key={idx} item={event} type="event" />
-                        ))}
+                        {events.length > 0 ? events.map((event, idx) => (
+                            <ExpandCard
+                                key={event._id || idx}
+                                item={event}
+                                type="event"
+                                isAdmin={isAdmin}
+                                onEdit={handleEdit}
+                                onDelete={handleDelete}
+                            />
+                        )) : (
+                            <div className="w-full h-full flex items-center justify-center bg-white rounded-2xl shadow-sm text-gray-400">
+                                No events found.
+                            </div>
+                        )}
                     </div>
                 </section>
 
                 {/* Recent Blogs Section */}
                 <section>
-                    <div className="flex items-center gap-4 mb-8">
-                        <div className="h-10 w-2 bg-secondary"></div>
-                        <h2 className="text-3xl font-bold text-gray-800">
-                            <EditableText contentKey="media_blogs_title" section="BlogsEvents" defaultText="Recent Articles" />
-                        </h2>
+                    <div className="flex justify-between items-center mb-8">
+                        <div className="flex items-center gap-4">
+                            <div className="h-10 w-2 bg-secondary"></div>
+                            <h2 className="text-3xl font-bold text-gray-800">
+                                <EditableText contentKey="media_blogs_title" section="BlogsEvents" defaultText="Recent Articles" />
+                            </h2>
+                        </div>
+                        {isAdmin && (
+                            <button onClick={() => handleAdd('blog')} className="bg-secondary text-white px-4 py-2 rounded-full shadow hover:bg-green-700 flex items-center gap-2">
+                                <FaPlus /> Add Article
+                            </button>
+                        )}
                     </div>
 
-                    {/* Reuse Accordion or Grid? Let's generic Accordion again for consistency or Grid? 
-                        User asked for "image on left details on right" hover effect. 
-                        The Accordion fits this perfectly: Image strip -> Expands to show details on right (in desktop row).
-                        Let's use the same cool component.
-                    */}
                     <div className="flex flex-col md:flex-row gap-4 h-[800px] md:h-96 w-full">
-                        {blogs.map((blog, idx) => (
-                            <ExpandCard key={idx} item={blog} type="blog" />
-                        ))}
+                        {blogs.length > 0 ? blogs.map((blog, idx) => (
+                            <ExpandCard
+                                key={blog._id || idx}
+                                item={blog}
+                                type="blog"
+                                isAdmin={isAdmin}
+                                onEdit={handleEdit}
+                                onDelete={handleDelete}
+                            />
+                        )) : (
+                            <div className="w-full h-full flex items-center justify-center bg-white rounded-2xl shadow-sm text-gray-400">
+                                No articles found.
+                            </div>
+                        )}
                     </div>
                 </section>
 
             </div>
+
+            {/* Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in">
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <div className="p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10">
+                            <h2 className="text-2xl font-bold text-gray-800">
+                                {editItem ? 'Edit' : 'Add'} {modalType === 'blog' ? 'Article' : 'Event'}
+                            </h2>
+                            <button onClick={() => setIsModalOpen(false)} className="text-gray-500 hover:text-red-500">
+                                <FaTimes size={24} />
+                            </button>
+                        </div>
+                        <form onSubmit={handleSave} className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Title</label>
+                                <input
+                                    className="w-full border p-2 rounded focus:ring-2 focus:ring-primary/20 outline-none"
+                                    value={formData.title}
+                                    onChange={e => setFormData({ ...formData, title: e.target.value })}
+                                    required
+                                />
+                            </div>
+
+                            {modalType === 'blog' ? (
+                                <>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">Content</label>
+                                        <textarea
+                                            className="w-full border p-2 rounded h-32 focus:ring-2 focus:ring-primary/20 outline-none"
+                                            value={formData.content}
+                                            onChange={e => setFormData({ ...formData, content: e.target.value })}
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">Author Name</label>
+                                        <input
+                                            className="w-full border p-2 rounded focus:ring-2 focus:ring-primary/20 outline-none"
+                                            value={formData.authorName}
+                                            onChange={e => setFormData({ ...formData, authorName: e.target.value })}
+                                        />
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
+                                        <textarea
+                                            className="w-full border p-2 rounded h-24 focus:ring-2 focus:ring-primary/20 outline-none"
+                                            value={formData.description}
+                                            onChange={e => setFormData({ ...formData, description: e.target.value })}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-1">Date</label>
+                                            <input
+                                                type="date"
+                                                className="w-full border p-2 rounded focus:ring-2 focus:ring-primary/20 outline-none"
+                                                value={formData.date}
+                                                onChange={e => setFormData({ ...formData, date: e.target.value })}
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-1">Location</label>
+                                            <input
+                                                className="w-full border p-2 rounded focus:ring-2 focus:ring-primary/20 outline-none"
+                                                value={formData.location}
+                                                onChange={e => setFormData({ ...formData, location: e.target.value })}
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Image URL</label>
+                                <input
+                                    className="w-full border p-2 rounded focus:ring-2 focus:ring-primary/20 outline-none"
+                                    value={formData.image}
+                                    onChange={e => setFormData({ ...formData, image: e.target.value })}
+                                    placeholder="https://..."
+                                />
+                            </div>
+
+                            <button type="submit" className="w-full bg-primary text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-lg">
+                                Save {modalType === 'blog' ? 'Article' : 'Event'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -1,6 +1,7 @@
 const Volunteer = require('../models/Volunteer');
 const VolunteerTask = require('../models/VolunteerTask');
 const User = require('../models/User');
+const Role = require('../models/Role');
 
 // @desc    Register as Volunteer
 // @route   POST /api/volunteers/register
@@ -25,7 +26,6 @@ const registerVolunteer = async (req, res) => {
         });
 
         // Assign Role 'Volunteer' to User
-        const Role = require('../models/Role'); // Lazy load or move to top
         let volunteerRole = await Role.findOne({ name: 'Volunteer' });
 
         if (!volunteerRole) {

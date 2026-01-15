@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaPhoneAlt, FaEnvelope, FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa';
-import EditableText from '../cms/EditableText';
 
 const Footer = () => {
     return (
@@ -10,34 +9,25 @@ const Footer = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
                     {/* Column 1: Info */}
                     <div className="space-y-6">
-                        <h3 className="text-2xl font-bold text-white">
-                            <EditableText contentKey="footer_ngo_name" section="Footer" defaultText="YRDS NGO" />
-                        </h3>
+                        <h3 className="text-2xl font-bold text-white">YRDS NGO</h3>
                         <div className="text-gray-400">
-                            <EditableText
-                                contentKey="footer_description"
-                                section="Footer"
-                                type="textarea"
-                                defaultText="Empowering communities and building a sustainable future for all."
-                            />
+                            Empowering communities and building a sustainable future for all.
                         </div>
                         <div className="space-y-3">
                             <div className="flex items-center gap-3">
                                 <FaPhoneAlt className="text-primary" />
-                                <EditableText contentKey="footer_phone" section="Footer" defaultText="+91 98765 43210" />
+                                +91 98765 43210
                             </div>
                             <div className="flex items-center gap-3">
                                 <FaEnvelope className="text-primary" />
-                                <EditableText contentKey="footer_email" section="Footer" defaultText="contact@ngo.org" />
+                                contact@ngo.org
                             </div>
                         </div>
                     </div>
 
                     {/* Column 2: Quick Links */}
                     <div>
-                        <h4 className="text-lg font-bold text-white mb-6">
-                            <EditableText contentKey="footer_title_links" section="Footer" defaultText="Quick Links" />
-                        </h4>
+                        <h4 className="text-lg font-bold text-white mb-6">Quick Links</h4>
                         <ul className="space-y-3">
                             <li><Link to="/" className="hover:text-primary transition-colors">Home</Link></li>
                             <li><Link to="/about" className="hover:text-primary transition-colors">About Us</Link></li>
@@ -49,9 +39,7 @@ const Footer = () => {
 
                     {/* Column 3: Resources */}
                     <div>
-                        <h4 className="text-lg font-bold text-white mb-6">
-                            <EditableText contentKey="footer_title_resources" section="Footer" defaultText="Resources" />
-                        </h4>
+                        <h4 className="text-lg font-bold text-white mb-6">Resources</h4>
                         <ul className="space-y-3">
                             <li><Link to="/reports" className="hover:text-primary transition-colors">Annual Reports</Link></li>
                             <li><Link to="/policies" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
@@ -62,15 +50,9 @@ const Footer = () => {
 
                     {/* Column 4: Newsletter / Social */}
                     <div>
-                        <h4 className="text-lg font-bold text-white mb-6">
-                            <EditableText contentKey="footer_title_social" section="Footer" defaultText="Connect With Us" />
-                        </h4>
+                        <h4 className="text-lg font-bold text-white mb-6">Connect With Us</h4>
                         <div className="mb-6 text-gray-400">
-                            <EditableText
-                                contentKey="footer_social_text"
-                                section="Footer"
-                                defaultText="Follow us on social media for updates and stories."
-                            />
+                            Follow us on social media for updates and stories.
                         </div>
                         <div className="flex gap-4">
                             <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors">
@@ -90,7 +72,9 @@ const Footer = () => {
                 </div>
 
                 <div className="border-t border-gray-800 pt-8 text-center text-sm text-gray-500">
-                    <p>&copy; {new Date().getFullYear()} <EditableText contentKey="footer_copyright" section="Footer" defaultText="YRDS NGO" className="inline" />. All rights reserved.</p>
+                    <div className="text-center md:text-left text-gray-400 mt-4 md:mt-0">
+                        &copy; {new Date().getFullYear()} <span className="inline">YRDS NGO</span>. All rights reserved.
+                    </div>
                 </div>
             </div>
         </footer>

@@ -227,9 +227,109 @@ const Projects = () => {
         }
     };
 
-    // ... (getDemoProjects remains same)
+    const openModal = (project = null, mode = 'details') => {
+        setEditProject(project);
+        setViewMode(mode);
+        if (project && mode === 'edit') {
+            setFormData({
+                title: project.title || '',
+                description: project.description || '',
+                category: project.category || 'Government',
+                status: project.status || 'Upcoming',
+                startDate: project.startDate || '',
+                location: project.location || '',
+                image1: project.images?.[0] || '',
+                image2: project.images?.[1] || '',
+                members: project.members ? project.members.map(m => typeof m === 'string' ? { name: m, position: 'Member' } : m) : [],
+                beneficiaries: project.beneficiaries || '',
+                sponsor: project.sponsor || '',
+                projectReport: project.projectReport || '',
+                financialReport: project.financialReport || ''
+            });
+        } else if (mode === 'edit') {
+            // New Project
+            setFormData({
+                title: '',
+                description: '',
+                category: 'Government',
+                status: 'Upcoming',
+                startDate: '',
+                location: '',
+                image1: '',
+                image2: '',
+                members: [],
+                beneficiaries: '',
+                sponsor: '',
+                projectReport: '',
+                financialReport: ''
+            });
+        } else if (project) {
+            setFormData({
+                ...project,
+                image1: project.images?.[0] || '',
+                image2: project.images?.[1] || ''
+            });
+        }
+        setIsModalOpen(true);
+    };
 
-    // ... (handlers remain same)
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setEditProject(null);
+        setViewMode('details');
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleMemberChange = (index, field, value) => {
+        const updatedMembers = [...formData.members];
+        if (!updatedMembers[index]) updatedMembers[index] = { name: '', position: '' };
+        updatedMembers[index] = { ...updatedMembers[index], [field]: value };
+        setFormData(prev => ({ ...prev, members: updatedMembers }));
+    };
+
+    const addMember = () => {
+        setFormData(prev => ({ ...prev, members: [...prev.members, { name: '', position: '' }] }));
+    };
+
+    const removeMember = (index) => {
+        setFormData(prev => ({ ...prev, members: prev.members.filter((_, i) => i !== index) }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const projectData = {
+                ...formData,
+                images: [formData.image1, formData.image2].filter(Boolean)
+            };
+
+            // Check if it's a real backend project or demo
+            // Demo IDs are usually short strings like '1', '11'
+            // Mongo IDs are 24 chars
+            const isDemo = editProject && editProject._id && editProject._id.length < 10;
+
+            if (editProject && editProject._id) {
+                if (isDemo) {
+                    alert("Demo projects cannot be updated in this version.");
+                    return;
+                }
+                await axios.put(`/api/projects/${editProject._id}`, projectData);
+            } else {
+                await axios.post('/api/projects', projectData);
+            }
+
+            fetchProjects();
+            closeModal();
+            alert('Project saved successfully!');
+        } catch (error) {
+            console.error('Error saving project:', error);
+            alert('Failed to save project. Ensure backend is running.');
+        }
+    };
 
     return (
         <div className="bg-gray-50 min-h-screen py-10">

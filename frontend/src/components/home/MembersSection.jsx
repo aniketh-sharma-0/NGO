@@ -161,9 +161,9 @@ const MembersSection = () => {
                     <h3 className="text-2xl md:text-3xl font-bold text-gray-900">
                         <EditableText contentKey="founder_name" section="Home" defaultText="Dr. A. Founder" />
                     </h3>
-                    <p className="text-primary font-medium text-lg uppercase tracking-wide">
+                    <div className="text-primary font-medium text-lg uppercase tracking-wide">
                         <EditableText contentKey="founder_role" section="Home" defaultText="Founder & President" />
-                    </p>
+                    </div>
                     <div className="max-w-2xl text-center mt-4 text-gray-600 italic">
                         <EditableText
                             contentKey="founder_bio"
@@ -188,9 +188,9 @@ const MembersSection = () => {
                     <h3 className="text-xl md:text-2xl font-bold text-gray-900">
                         <EditableText contentKey="ceo_name" section="Home" defaultText="Mr. B. CEO" />
                     </h3>
-                    <p className="text-secondary font-medium text-base uppercase tracking-wide">
+                    <div className="text-secondary font-medium text-base uppercase tracking-wide">
                         <EditableText contentKey="ceo_role" section="Home" defaultText="Chief Executive Officer" />
-                    </p>
+                    </div>
                     <div className="max-w-xl text-center mt-3 text-gray-600">
                         <EditableText
                             contentKey="ceo_bio"

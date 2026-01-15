@@ -58,13 +58,13 @@ const SummarySection = () => {
                                         defaultText="10+"
                                     />
                                 </h4>
-                                <p className="text-gray-500">
+                                <div className="text-gray-500">
                                     <EditableText
                                         contentKey="stat_1_label"
                                         section="Home"
                                         defaultText="Years of Service"
                                     />
-                                </p>
+                                </div>
                             </div>
                             <div className="border-l-4 border-secondary pl-4">
                                 <h4 className="text-2xl font-bold text-gray-800">
@@ -74,13 +74,13 @@ const SummarySection = () => {
                                         defaultText="5000+"
                                     />
                                 </h4>
-                                <p className="text-gray-500">
+                                <div className="text-gray-500">
                                     <EditableText
                                         contentKey="stat_2_label"
                                         section="Home"
                                         defaultText="Lives Impacted"
                                     />
-                                </p>
+                                </div>
                             </div>
                         </div>
                     </div>

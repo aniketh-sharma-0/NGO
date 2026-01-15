@@ -239,88 +239,126 @@ Challenges/Notes: ${reportData.challenges}
             </div>
 
             {/* Daily Report Modal */}
+            {/* Daily Report Modal */}
             {selectedTask && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
-                        <div className="bg-gray-50 p-6 border-b border-gray-100">
-                            <h3 className="text-xl font-bold text-gray-800">Daily Report Submission</h3>
-                            <p className="text-sm text-gray-500">Task: {selectedTask.title}</p>
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh]">
+
+                        {/* Modal Header */}
+                        <div className="flex-none bg-gray-50 p-5 border-b border-gray-100 flex justify-between items-center rounded-t-2xl">
+                            <div>
+                                <h3 className="text-xl font-bold text-gray-800">Submit Daily Report</h3>
+                                <p className="text-sm text-gray-500 mt-1">Task: <span className="font-medium text-primary">{selectedTask.title}</span></p>
+                            </div>
+                            <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 transition-colors">
+                                <FaTimes className="w-5 h-5" />
+                            </button>
                         </div>
 
-                        <form onSubmit={handleSubmitTask} className="p-6 space-y-6">
+                        {/* Modal Body (Scrollable Form) */}
+                        <form onSubmit={handleSubmitTask} className="flex flex-col min-h-0 flex-1">
+                            <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                                {/* Structured Questionnaire */}
+                                <div className="space-y-5">
+                                    {/* Hours */}
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">
+                                            Hours Worked Today <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="number"
+                                            name="hours"
+                                            value={reportData.hours}
+                                            onChange={handleReportChange}
+                                            placeholder="e.g. 4"
+                                            className="w-full border border-gray-200 bg-gray-50/50 p-3 rounded-xl focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
+                                            required
+                                            min="0"
+                                            step="0.5"
+                                        />
+                                    </div>
 
-                            {/* Structured Questionnaire */}
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">Hours Worked Today</label>
-                                    <input
-                                        type="number"
-                                        name="hours"
-                                        value={reportData.hours}
-                                        onChange={handleReportChange}
-                                        placeholder="e.g. 4"
-                                        className="w-full border border-gray-300 p-3 rounded-xl focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                                        required
-                                    />
-                                </div>
+                                    {/* Accomplishments */}
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">
+                                            What did you accomplish? <span className="text-red-500">*</span>
+                                        </label>
+                                        <textarea
+                                            name="work"
+                                            value={reportData.work}
+                                            onChange={handleReportChange}
+                                            placeholder="Briefly describe the activities completed..."
+                                            className="w-full border border-gray-200 bg-gray-50/50 p-3 rounded-xl h-28 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all resize-none"
+                                            required
+                                        />
+                                    </div>
 
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">What did you accomplish?</label>
-                                    <textarea
-                                        name="work"
-                                        value={reportData.work}
-                                        onChange={handleReportChange}
-                                        placeholder="Briefly describe the activities completed..."
-                                        className="w-full border border-gray-300 p-3 rounded-xl h-24 focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                                        required
-                                    />
-                                </div>
+                                    {/* Challenges */}
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">Challenges faced (if any)</label>
+                                        <textarea
+                                            name="challenges"
+                                            value={reportData.challenges}
+                                            onChange={handleReportChange}
+                                            placeholder="Note any issues or support needed..."
+                                            className="w-full border border-gray-200 bg-gray-50/50 p-3 rounded-xl h-24 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all resize-none"
+                                        />
+                                    </div>
 
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">Challenges faced (if any)</label>
-                                    <textarea
-                                        name="challenges"
-                                        value={reportData.challenges}
-                                        onChange={handleReportChange}
-                                        placeholder="Note any issues or support needed..."
-                                        className="w-full border border-gray-300 p-3 rounded-xl h-20 focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Photo Upload */}
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Upload Proof of Work (Photo)</label>
-                                <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:bg-gray-50 transition-colors relative group">
-                                    <input
-                                        type="file"
-                                        onChange={handleFileChange}
-                                        accept="image/*"
-                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                    />
-                                    <div className="flex flex-col items-center">
-                                        <FaUpload className="text-3xl text-gray-400 group-hover:text-primary transition-colors mb-2" />
-                                        <p className="text-sm text-gray-600 font-medium">
-                                            {submissionImage ? (
-                                                <span className="text-green-600 font-bold">{submissionImage.name}</span>
-                                            ) : (
-                                                "Click to upload or drag & drop"
-                                            )}
-                                        </p>
+                                    {/* Photo Upload */}
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">Upload Proof of Work (Photo)</label>
+                                        <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-all relative group bg-gray-50/30">
+                                            <input
+                                                type="file"
+                                                onChange={handleFileChange}
+                                                accept="image/*"
+                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                            />
+                                            <div className="flex flex-col items-center">
+                                                <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                                    <FaUpload className="text-lg text-primary" />
+                                                </div>
+                                                <p className="text-sm text-gray-600 font-medium">
+                                                    {submissionImage ? (
+                                                        <span className="text-green-600 font-bold flex items-center gap-1">
+                                                            <FaCheckCircle /> {submissionImage.name}
+                                                        </span>
+                                                    ) : (
+                                                        <span><span className="text-primary font-bold">Click to upload</span> or drag & drop</span>
+                                                    )}
+                                                </p>
+                                                <p className="text-xs text-gray-400 mt-1">SVG, PNG, JPG or GIF (max. 5MB)</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                                <button type="button" onClick={closeModal} className="px-6 py-3 border border-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-50 transition-colors">
+                            {/* Modal Footer (Fixed Actions) */}
+                            <div className="flex-none p-5 border-t border-gray-100 bg-gray-50 rounded-b-2xl flex justify-end gap-3">
+                                <button
+                                    type="button"
+                                    onClick={closeModal}
+                                    className="px-6 py-2.5 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-100 transition-colors focus:ring-2 focus:ring-gray-200"
+                                >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={submitting}
-                                    className="px-6 py-3 bg-primary text-white font-bold rounded-xl hover:bg-blue-800 transition-colors shadow-lg disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
+                                    className={`px-8 py-2.5 bg-gradient-to-r from-primary to-blue-600 text-white font-bold rounded-xl shadow-md hover:shadow-lg transform active:scale-95 transition-all flex items-center gap-2 ${submitting ? 'opacity-70 cursor-not-allowed' : 'hover:from-blue-700 hover:to-blue-800'}`}
                                 >
-                                    {submitting ? 'Submitting...' : 'Submit Report'}
+                                    {submitting ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                            Submitting...
+                                        </>
+                                    ) : (
+                                        <>
+                                            Submit Report <FaCheckCircle />
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         </form>
