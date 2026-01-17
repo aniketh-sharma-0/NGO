@@ -6,11 +6,11 @@ import EditableImage from '../components/cms/EditableImage';
 const About = () => {
     // Default compliance documents
     const defaultDocs = [
-        { id: 1, title: 'Registration Certificate', image: 'https://via.placeholder.com/200x280?text=Reg+Cert' },
-        { id: 2, title: '12A Certificate', image: 'https://via.placeholder.com/200x280?text=12A' },
-        { id: 3, title: '80G Certificate', image: 'https://via.placeholder.com/200x280?text=80G' },
-        { id: 4, title: 'CSR Registration', image: 'https://via.placeholder.com/200x280?text=CSR' },
-        { id: 5, title: 'FCRA Registration', image: 'https://via.placeholder.com/200x280?text=FCRA' },
+        { id: 1, title: 'Registration Certificate', image: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400&h=560' }, // Certificate like
+        { id: 2, title: '12A Certificate', image: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=400&h=560' }, // Document
+        { id: 3, title: '80G Certificate', image: 'https://images.unsplash.com/photo-1626178793926-22b28830aa30?auto=format&fit=crop&q=80&w=400&h=560' }, // Paper
+        { id: 4, title: 'CSR Registration', image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80&w=400&h=560' }, // Signing
+        { id: 5, title: 'FCRA Registration', image: 'https://images.unsplash.com/photo-1618044733300-9472054094ee?auto=format&fit=crop&q=80&w=400&h=560' }, // Official
     ];
 
     return (
@@ -57,6 +57,7 @@ const About = () => {
                         section="About"
                         defaultItems={defaultDocs}
                         className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6"
+                        newItemTemplate={{ title: 'New Document', image: 'https://via.placeholder.com/200x280' }}
                         renderItem={(doc, updateDoc) => (
                             <div className="bg-white p-4 rounded-xl shadow-md hover:shadow-xl transition-shadow flex flex-col items-center group">
                                 <div className="w-full aspect-[3/4] bg-gray-100 rounded-lg overflow-hidden relative mb-4 border border-gray-200">

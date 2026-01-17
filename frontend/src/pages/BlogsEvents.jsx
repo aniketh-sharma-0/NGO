@@ -10,7 +10,8 @@ const ExpandCard = ({ item, type, isAdmin, onEdit, onDelete }) => {
         <div className="group relative h-96 min-w-[60px] md:min-w-[80px] flex-1 cursor-pointer overflow-hidden rounded-2xl transition-all duration-500 hover:flex-[3] hover:shadow-2xl">
             {/* Background Image */}
             <ImageWithFallback
-                src={item.image || item.coverImage || (type === 'blog' ? 'https://via.placeholder.com/600x400?text=Blog' : 'https://via.placeholder.com/600x400?text=Event')}
+                src={type === 'blog' ? (item.coverImage || item.image) : (item.images?.[0] || item.image)}
+                fallbackSrc={type === 'blog' ? 'https://placehold.co/800x600/e2e8f0/1e293b?text=Blog+Image' : 'https://placehold.co/800x600/e2e8f0/1e293b?text=Event+Image'}
                 alt={item.title}
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
             />
@@ -119,7 +120,7 @@ const BlogsEvents = () => {
     const handleAdd = (type) => {
         setModalType(type);
         setEditItem(null);
-        setFormData(type === 'blog' ? { title: '', content: '', image: '', authorName: 'Admin', published: true } : { title: '', description: '', date: '', location: '', image: '' });
+        setFormData(type === 'blog' ? { title: '', content: '', coverImage: '', authorName: 'Admin', published: true } : { title: '', description: '', date: '', location: '', images: [] });
         setIsModalOpen(true);
     };
 
@@ -129,7 +130,7 @@ const BlogsEvents = () => {
         setFormData(type === 'blog' ? {
             title: item.title,
             content: item.content,
-            image: item.image || item.coverImage,
+            coverImage: item.coverImage || '',
             authorName: item.authorName || 'Admin',
             published: item.published
         } : {
@@ -137,15 +138,45 @@ const BlogsEvents = () => {
             description: item.description,
             date: item.date ? item.date.split('T')[0] : '',
             location: item.location,
-            image: item.image || (item.images && item.images[0])
+            images: item.images || []
         });
         setIsModalOpen(true);
+    };
+
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formDataUpload = new FormData();
+        formDataUpload.append('image', file);
+
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.post('/api/admin/upload', formDataUpload, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            // Handle different field names
+            if (modalType === 'blog') {
+                setFormData(prev => ({ ...prev, coverImage: res.data.filePath }));
+            } else {
+                setFormData(prev => ({ ...prev, images: [res.data.filePath] })); // Overwrite for single image simplicity
+            }
+        } catch (error) {
+            console.error('Upload failed', error);
+            alert('Image upload failed');
+        }
     };
 
     const handleDelete = async (id, type) => {
         if (!window.confirm('Are you sure you want to delete this item?')) return;
         try {
-            await axios.delete(`/api/media/${type}s/${id}`);
+            const token = localStorage.getItem('token');
+            await axios.delete(`/api/media/${type}s/${id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             fetchData();
         } catch (error) {
             alert('Failed to delete item.');
@@ -155,18 +186,24 @@ const BlogsEvents = () => {
     const handleSave = async (e) => {
         e.preventDefault();
         try {
+            const token = localStorage.getItem('token');
             const url = `/api/media/${modalType}s${editItem ? `/${editItem._id}` : ''}`;
             const method = editItem ? 'put' : 'post';
-            await axios[method](url, formData);
+            await axios[method](url, formData, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             setIsModalOpen(false);
             fetchData();
         } catch (error) {
+            console.error(error);
             alert('Failed to save item.');
         }
     };
 
     return (
         <div className="bg-gray-100 min-h-screen pb-20">
+            {/* ... (Header and Sections remain same until Modal) ... */}
+
             {/* Header */}
             <div className="bg-gray-900 text-white py-20 px-4 text-center">
                 <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in-down">
@@ -177,7 +214,7 @@ const BlogsEvents = () => {
                 </p>
             </div>
 
-            <div className="container mx-auto px-4 -mt-10 relative z-10 space-y-20">
+            <div className="container mx-auto px-4 mt-8 relative z-10 space-y-20">
 
                 {/* Upcoming Events Section */}
                 <section>
@@ -329,13 +366,26 @@ const BlogsEvents = () => {
                             )}
 
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">Image URL</label>
-                                <input
-                                    className="w-full border p-2 rounded focus:ring-2 focus:ring-primary/20 outline-none"
-                                    value={formData.image}
-                                    onChange={e => setFormData({ ...formData, image: e.target.value })}
-                                    placeholder="https://..."
-                                />
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Image source (URL or Upload)</label>
+                                <div className="flex gap-2">
+                                    <input
+                                        className="flex-1 border p-2 rounded focus:ring-2 focus:ring-primary/20 outline-none"
+                                        value={modalType === 'blog' ? formData.coverImage : (formData.images && formData.images[0] || '')}
+                                        onChange={e => {
+                                            const val = e.target.value;
+                                            if (modalType === 'blog') {
+                                                setFormData({ ...formData, coverImage: val });
+                                            } else {
+                                                setFormData({ ...formData, images: [val] });
+                                            }
+                                        }}
+                                        placeholder="https://... or upload"
+                                    />
+                                    <label className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded cursor-pointer transition-colors flex items-center">
+                                        Upload
+                                        <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                                    </label>
+                                </div>
                             </div>
 
                             <button type="submit" className="w-full bg-primary text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-lg">

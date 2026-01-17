@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useCMS } from '../../context/CMSContext';
 import { FaBars, FaTimes, FaUserCircle } from 'react-icons/fa';
 import EditableText from '../cms/EditableText';
 import EditableImage from '../cms/EditableImage';
 
 const Header = () => {
     const { user, logout } = useAuth();
+    const { setIsEditMode } = useCMS();
     const navigate = useNavigate();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const handleLogout = () => {
+        setIsEditMode(false); // Turn off edit mode
         logout();
         navigate('/login');
         setIsMobileMenuOpen(false);

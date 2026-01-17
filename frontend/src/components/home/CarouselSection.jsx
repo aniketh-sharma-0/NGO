@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaChevronLeft, FaChevronRight, FaPlus, FaTrash } from 'react-icons/fa';
+import { FaChevronLeft, FaChevronRight, FaPlus, FaTrash, FaTimes } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { useCMS } from '../../context/CMSContext';
 import EditableImage from '../cms/EditableImage';
@@ -114,111 +114,92 @@ const CarouselSection = () => {
     const slide = slides[currentSlide];
 
     return (
-        <section className="relative w-full h-[500px] md:h-[600px] bg-gray-50 flex items-center overflow-hidden">
-            {slides.length > 0 && (
-                <div className="container mx-auto px-4 flex flex-col-reverse md:flex-row h-full items-center">
+        <div className="flex flex-col">
+            <section className="relative w-full h-[500px] md:h-[600px] bg-gray-50 flex items-center overflow-hidden">
+                {slides.length > 0 && (
+                    <div className="container mx-auto px-4 flex flex-col-reverse md:flex-row h-full items-center">
 
-                    {/* Text Content (Left 40%) */}
-                    <div className="w-full md:w-2/5 flex flex-col justify-center p-6 md:p-12 z-10 bg-white/90 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none absolute bottom-0 md:relative md:bottom-auto rounded-t-xl md:rounded-none">
-                        {isAdmin && isEditMode ? (
-                            <input
-                                className="text-3xl md:text-5xl font-bold text-gray-800 mb-4 bg-transparent border-b border-gray-300 focus:outline-none focus:border-primary w-full"
-                                value={slide.title}
-                                onChange={(e) => updateSlideContent(slide.id, 'title', e.target.value)}
-                            />
-                        ) : (
-                            <h2 className="text-3xl md:text-5xl font-bold text-gray-800 mb-4">{slide.title}</h2>
-                        )}
-
-                        {isAdmin && isEditMode ? (
-                            <textarea
-                                className="text-lg text-gray-600 mb-8 bg-transparent border-b border-gray-300 focus:outline-none focus:border-primary w-full resize-none"
-                                value={slide.description}
-                                onChange={(e) => updateSlideContent(slide.id, 'description', e.target.value)}
-                                rows={3}
-                            />
-                        ) : (
-                            <p className="text-lg text-gray-600 mb-8">{slide.description}</p>
-                        )}
-
-                        <div className="flex gap-4">
-                            <button className="px-6 py-3 bg-primary text-white rounded-md font-semibold hover:bg-blue-800 transition-colors">
-                                Explore More
-                            </button>
-                            {isAdmin && isEditMode && (
-                                <button onClick={() => deleteSlide(slide.id)} className="px-4 py-3 bg-red-100 text-red-600 rounded-md hover:bg-red-200">
-                                    <FaTrash />
-                                </button>
+                        {/* Text Content (Left 40%) */}
+                        <div className="w-full md:w-2/5 flex flex-col justify-center p-6 md:p-12 z-10 bg-white/90 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none absolute bottom-0 md:relative md:bottom-auto rounded-t-xl md:rounded-none">
+                            {isAdmin && isEditMode ? (
+                                <input
+                                    className="text-3xl md:text-5xl font-bold text-gray-800 mb-4 bg-transparent border-b border-gray-300 focus:outline-none focus:border-primary w-full"
+                                    value={slide.title}
+                                    onChange={(e) => updateSlideContent(slide.id, 'title', e.target.value)}
+                                />
+                            ) : (
+                                <h2 className="text-3xl md:text-5xl font-bold text-gray-800 mb-4">{slide.title}</h2>
                             )}
+
+                            {isAdmin && isEditMode ? (
+                                <textarea
+                                    className="text-lg text-gray-600 mb-8 bg-transparent border-b border-gray-300 focus:outline-none focus:border-primary w-full resize-none"
+                                    value={slide.description}
+                                    onChange={(e) => updateSlideContent(slide.id, 'description', e.target.value)}
+                                    rows={3}
+                                />
+                            ) : (
+                                <p className="text-lg text-gray-600 mb-8">{slide.description}</p>
+                            )}
+
+                            <div className="flex gap-4">
+                                <button className="px-6 py-3 bg-primary text-white rounded-md font-semibold hover:bg-blue-800 transition-colors">
+                                    Explore More
+                                </button>
+                                {isAdmin && isEditMode && (
+                                    <button onClick={() => deleteSlide(slide.id)} className="px-4 py-3 bg-red-100 text-red-600 rounded-md hover:bg-red-200">
+                                        <FaTrash />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Image Content (Right 60%) */}
+                        <div className="w-full md:w-3/5 h-full absolute top-0 right-0 md:relative group">
+                            <EditableImage
+                                defaultSrc={slide.image}
+                                alt={slide.title}
+                                className="w-full h-full"
+                                onSave={(newSrc) => updateSlideContent(slide.id, 'image', newSrc)}
+                            />
                         </div>
                     </div>
+                )}
 
-                    {/* Image Content (Right 60%) */}
-                    <div className="w-full md:w-3/5 h-full absolute top-0 right-0 md:relative">
-                        {/* We can utilize EditableImage if we adapt it to return the URL or handle it, 
-                            but since we are managing the 'slides' array state directly here, 
-                            EditableImage component is designed to manage its own state key.
-                            
-                            We will use a specialized Image uploader/input here or 
-                            if EditableImage supports 'value' and 'onChange' props, we can use it.
-                            Looking at EditableImage.jsx (which I haven't read fully but assume standard pattern),
-                            let's check.
-                            
-                            Wait, I can just use a simple approach for now:
-                            If admin, click image to change URL?
-                            Or standard file upload.
-                        */}
-                        <ImageWithFallback
-                            src={slide.image}
-                            alt={slide.title}
-                            className="w-full h-full object-cover"
+                {/* Navigation Arrows */}
+                <button onClick={prevSlide} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/50 p-3 rounded-full hover:bg-white transition-colors z-20">
+                    <FaChevronLeft size={24} />
+                </button>
+                <button onClick={nextSlide} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/50 p-3 rounded-full hover:bg-white transition-colors z-20">
+                    <FaChevronRight size={24} />
+                </button>
+
+                {/* Dots */}
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3 z-30">
+                    {slides.map((_, index) => (
+                        <button
+                            key={index}
+                            onClick={() => setCurrentSlide(index)}
+                            className={`h-3 rounded-full transition-all duration-500 ease-in-out shadow-sm
+                                ${index === currentSlide ? 'w-10 bg-primary' : 'w-3 bg-gray-400 hover:bg-gray-600'}`}
+                            aria-label={`Go to slide ${index + 1}`}
                         />
-                        {isAdmin && isEditMode && (
-                            <div className="absolute top-4 right-4 bg-white p-2 rounded shadow">
-                                <label className="block text-xs font-bold text-gray-700 mb-1">Image URL</label>
-                                <input
-                                    type="text"
-                                    value={slide.image}
-                                    onChange={(e) => updateSlideContent(slide.id, 'image', e.target.value)}
-                                    className="border rounded px-2 py-1 text-sm w-64"
-                                />
-                            </div>
-                        )}
-                    </div>
+                    ))}
+                </div>
+            </section>
+
+            {/* Add Slide Button (Admin) - Moved Below Carousel */}
+            {isAdmin && isEditMode && slides.length < 5 && (
+                <div className="container mx-auto px-4 py-4 flex justify-end border-b border-gray-100 bg-gray-50/50">
+                    <button
+                        onClick={addSlide}
+                        className="bg-green-600 text-white px-6 py-2 rounded-full shadow-md hover:bg-green-700 flex items-center gap-2 transition-all transform hover:scale-105"
+                    >
+                        <FaPlus /> Add New Slide
+                    </button>
                 </div>
             )}
-
-            {/* Navigation Arrows */}
-            <button onClick={prevSlide} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/50 p-3 rounded-full hover:bg-white transition-colors z-20">
-                <FaChevronLeft size={24} />
-            </button>
-            <button onClick={nextSlide} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/50 p-3 rounded-full hover:bg-white transition-colors z-20">
-                <FaChevronRight size={24} />
-            </button>
-
-            {/* Dots */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3 z-30">
-                {slides.map((_, index) => (
-                    <button
-                        key={index}
-                        onClick={() => setCurrentSlide(index)}
-                        className={`h-3 rounded-full transition-all duration-500 ease-in-out shadow-sm
-                            ${index === currentSlide ? 'w-10 bg-primary' : 'w-3 bg-gray-400 hover:bg-gray-600'}`}
-                        aria-label={`Go to slide ${index + 1}`}
-                    />
-                ))}
-            </div>
-
-            {/* Add Slide Button (Admin) */}
-            {isAdmin && isEditMode && slides.length < 5 && (
-                <button
-                    onClick={addSlide}
-                    className="absolute top-4 left-1/2 -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-full shadow-lg hover:bg-green-600 flex items-center gap-2 z-30"
-                >
-                    <FaPlus /> Add Slide
-                </button>
-            )}
-        </section>
+        </div>
     );
 };
 

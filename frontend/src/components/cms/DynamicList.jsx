@@ -2,10 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
+import { useCMS } from '../../context/CMSContext';
+import { FaTrash } from 'react-icons/fa';
 import EditableText from './EditableText';
 
-const DynamicList = ({ contentKey, section, defaultItems, renderItem, className, maxItems }) => {
+const DynamicList = ({ contentKey, section, defaultItems, renderItem, className, maxItems, newItemTemplate }) => {
     const { user } = useAuth();
+    const { isEditMode } = useCMS();
     const [items, setItems] = useState(defaultItems || []);
     const isAdmin = user?.role?.name === 'Admin';
 
@@ -35,7 +38,10 @@ const DynamicList = ({ contentKey, section, defaultItems, renderItem, className,
 
     const addItem = () => {
         if (maxItems && items.length >= maxItems) return;
-        const newItem = { id: Date.now(), title: 'New Slide', desc: 'Description', image: 'https://via.placeholder.com/800x400' };
+        const newItem = {
+            id: Date.now(),
+            ...(newItemTemplate || { title: 'New Slide', desc: 'Description', image: 'https://via.placeholder.com/800x400' })
+        };
         const newItems = [...items, newItem];
         setItems(newItems);
         persistList(newItems);
@@ -50,13 +56,27 @@ const DynamicList = ({ contentKey, section, defaultItems, renderItem, className,
     };
 
     const updateItem = (id, field, value) => {
-        const newItems = items.map(item => item.id === id ? { ...item, [field]: value } : item);
-        setItems(newItems); // Immediate update
+        setItems(prevItems => {
+            let newItems;
+            if (typeof field === 'object') {
+                // Batch update
+                newItems = prevItems.map(item => item.id === id ? { ...item, ...field } : item);
+            } else {
+                // Single field update
+                newItems = prevItems.map(item => item.id === id ? { ...item, [field]: value } : item);
+            }
 
-        if (debounceTimer.current) clearTimeout(debounceTimer.current);
-        debounceTimer.current = setTimeout(() => {
-            persistList(newItems);
-        }, 1000);
+            // Side effect: Persist after delay (Debounce)
+            // Note: putting side effects in setter is risky but works for simple cases. 
+            // Better to use useEffect but requires refactoring.
+            // We'll reset the timer here.
+            if (debounceTimer.current) clearTimeout(debounceTimer.current);
+            debounceTimer.current = setTimeout(() => {
+                persistList(newItems);
+            }, 1000);
+
+            return newItems;
+        });
     };
 
     return (
@@ -66,18 +86,19 @@ const DynamicList = ({ contentKey, section, defaultItems, renderItem, className,
                     {/* Render Slot */}
                     {renderItem(item, (field, val) => updateItem(item.id, field, val))}
 
-                    {isAdmin && (
+                    {isAdmin && isEditMode && (
                         <button
                             onClick={() => deleteItem(item.id)}
-                            className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute top-2 right-2 bg-white/90 text-red-600 p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 hover:text-white"
+                            title="Delete Item"
                         >
-                            X
+                            <FaTrash size={12} />
                         </button>
                     )}
                 </div>
             ))}
-            {isAdmin && (
-                <button onClick={addItem} className="bg-blue-500 text-white px-4 py-2 rounded mt-2">
+            {isAdmin && isEditMode && (
+                <button onClick={addItem} className="bg-blue-500 text-white px-4 py-2 rounded mt-2 hover:bg-blue-600 transition-colors">
                     + Add Item
                 </button>
             )}

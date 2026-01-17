@@ -30,9 +30,14 @@ const MemberItem = ({ member, updateMember, isAdmin, isEditMode }) => {
     };
 
     const handleSave = () => {
-        if (tempName !== member.name) updateMember('name', tempName);
-        if (tempRole !== member.role) updateMember('role', tempRole);
-        if (tempImage !== member.image) updateMember('image', tempImage);
+        const updates = {};
+        if (tempName !== member.name) updates.name = tempName;
+        if (tempRole !== member.role) updates.role = tempRole;
+        if (tempImage !== member.image) updates.image = tempImage;
+
+        if (Object.keys(updates).length > 0) {
+            updateMember(updates);
+        }
         setIsEditing(false);
     };
 
@@ -45,14 +50,54 @@ const MemberItem = ({ member, updateMember, isAdmin, isEditMode }) => {
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
 
-                {/* Image URL Input - Only visible when Editing */}
+                {/* Image URL Input & Upload - Only visible when Editing */}
                 {isEditing && (
-                    <input
-                        value={tempImage}
-                        onChange={(e) => setTempImage(e.target.value)}
-                        className="absolute bottom-2 left-2 right-2 text-xs bg-white/90 p-1 rounded border shadow-sm outline-none focus:ring-2 focus:ring-primary"
-                        placeholder="Image URL..."
-                    />
+                    <div className="absolute bottom-2 left-2 right-2 flex gap-1">
+                        <input
+                            value={tempImage}
+                            onChange={(e) => setTempImage(e.target.value)}
+                            className="flex-1 text-xs bg-white/90 p-1 rounded border shadow-sm outline-none focus:ring-2 focus:ring-primary"
+                            placeholder="Image URL..."
+                        />
+                        <label className="bg-primary text-white p-1 rounded cursor-pointer hover:bg-blue-700 shadow-sm flex items-center justify-center w-8" title="Upload Image">
+                            <span className="text-xs font-bold">+</span>
+                            <input
+                                type="file"
+                                className="hidden"
+                                accept="image/*"
+                                onChange={async (e) => {
+                                    const file = e.target.files[0];
+                                    if (!file) return;
+                                    const formData = new FormData();
+                                    formData.append('image', file);
+                                    try {
+                                        const token = localStorage.getItem('token');
+                                        const res = await axios.post('/api/admin/upload', formData, {
+                                            headers: {
+                                                'Content-Type': 'multipart/form-data',
+                                                Authorization: `Bearer ${token}`
+                                            }
+                                        });
+                                        setTempImage(res.data.filePath);
+                                    } catch (err) {
+                                        console.error(err);
+                                        alert('Upload Failed');
+                                    }
+                                }}
+                            />
+                        </label>
+                    </div>
+                )}
+
+                {/* Edit Trigger Button - Pushed inside image container per user request */}
+                {isAdmin && isEditMode && !isEditing && (
+                    <button
+                        onClick={handleEdit}
+                        className="absolute bottom-2 right-2 bg-white/80 p-2 rounded-full text-gray-800 shadow-md hover:bg-white hover:text-primary transition-all opacity-0 group-hover:opacity-100 z-10"
+                        title="Edit Member"
+                    >
+                        <FaPen size={12} />
+                    </button>
                 )}
             </div>
 
@@ -94,17 +139,6 @@ const MemberItem = ({ member, updateMember, isAdmin, isEditMode }) => {
                     </div>
                 )}
             </div>
-
-            {/* Edit Trigger Button - Only for Admin in Edit Mode */}
-            {isAdmin && isEditMode && !isEditing && (
-                <button
-                    onClick={handleEdit}
-                    className="absolute top-2 right-2 bg-white/80 p-2 rounded-full text-gray-800 shadow-md hover:bg-white hover:text-primary transition-all opacity-0 group-hover:opacity-100"
-                    title="Edit Member"
-                >
-                    <FaPen size={12} />
-                </button>
-            )}
         </div>
     );
 };
@@ -113,6 +147,7 @@ const MembersSection = () => {
     const { user } = useAuth();
     const { isEditMode } = useCMS();
     const isAdmin = user?.role?.name === 'Admin';
+    const [homeContent, setHomeContent] = useState({});
 
     const defaultTeam = [
         { id: 1, name: 'John Doe', role: 'Operations Manager', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1000&auto=format&fit=crop' },
@@ -127,6 +162,7 @@ const MembersSection = () => {
         const fetchContent = async () => {
             try {
                 const res = await axios.get('/api/content/Home');
+                setHomeContent(res.data || {}); // Store full content for founder/ceo images
                 if (res.data.team_members) {
                     setMembers(res.data.team_members);
                 }
@@ -149,13 +185,15 @@ const MembersSection = () => {
 
                 {/* Founder / President */}
                 <div className="flex flex-col items-center mb-16">
-                    <div className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden shadow-2xl border-4 border-white mb-6 relative group">
+                    <div className="w-48 h-48 md:w-64 md:h-64 shadow-2xl border-4 border-white mb-6 relative group rounded-full"> {/* Removed overflow-hidden */}
                         <EditableImage
                             contentKey="founder_image"
                             section="Home"
                             alt="Founder"
-                            className="w-full h-full object-cover"
-                            defaultSrc="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop"
+                            className="w-full h-full"
+                            imgClassName="w-full h-full object-cover rounded-full"
+                            defaultSrc={homeContent.founder_image || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop"}
+                            editPosition="right"
                         />
                     </div>
                     <h3 className="text-2xl md:text-3xl font-bold text-gray-900">
@@ -176,13 +214,15 @@ const MembersSection = () => {
 
                 {/* CEO */}
                 <div className="flex flex-col items-center mb-20">
-                    <div className="w-40 h-40 md:w-48 md:h-48 rounded-full overflow-hidden shadow-xl border-4 border-gray-100 mb-5 relative group">
+                    <div className="w-40 h-40 md:w-48 md:h-48 shadow-xl border-4 border-gray-100 mb-5 relative group rounded-full"> {/* Removed overflow-hidden */}
                         <EditableImage
                             contentKey="ceo_image"
                             section="Home"
                             alt="CEO"
-                            className="w-full h-full object-cover"
-                            defaultSrc="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=1000&auto=format&fit=crop"
+                            className="w-full h-full"
+                            imgClassName="w-full h-full object-cover rounded-full"
+                            editPosition="right"
+                            defaultSrc={homeContent.ceo_image || "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=1000&auto=format&fit=crop"}
                         />
                     </div>
                     <h3 className="text-xl md:text-2xl font-bold text-gray-900">
@@ -212,6 +252,7 @@ const MembersSection = () => {
                         section="Home"
                         defaultItems={members}
                         className="flex overflow-x-auto gap-8 pb-8 no-scrollbar scroll-smooth"
+                        newItemTemplate={{ name: 'New Member', role: 'Role', image: 'https://via.placeholder.com/150' }}
                         renderItem={(member, updateMember) => (
                             <MemberItem
                                 member={member}

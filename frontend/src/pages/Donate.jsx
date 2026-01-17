@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { FaHandHoldingHeart, FaBuilding, FaGlobe, FaUserFriends, FaTimes, FaRupeeSign, FaLandmark, FaHandshake, FaHeart } from 'react-icons/fa';
+import { FaHandHoldingHeart, FaBuilding, FaGlobe, FaUserFriends, FaTimes, FaRupeeSign, FaLandmark, FaHandshake, FaHeart, FaCheck } from 'react-icons/fa';
 import EditableText from '../components/cms/EditableText';
 
 const Donate = () => {
@@ -126,9 +126,10 @@ const Donate = () => {
                         <div className="p-6">
                             {status === 'success' ? (
                                 <div className="text-center py-8 text-green-600">
-                                    <FaHandHoldingHeart className="text-6xl mx-auto mb-4" />
-                                    <h3 className="text-2xl font-bold">Thank You!</h3>
-                                    <p>Your details have been recorded. We will contact you shortly.</p>
+                                    <FaCheck className="text-6xl mx-auto mb-4" />
+                                    <h3 className="text-2xl font-bold">It's Done!</h3>
+                                    <p className="mt-2 text-gray-600">Your donation details have been submitted successfully.</p>
+                                    <p className="text-sm text-gray-500 mt-1">Our admin team has received your request.</p>
                                 </div>
                             ) : (
                                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -143,6 +144,19 @@ const Donate = () => {
                                             name="name"
                                             value={formData.name} onChange={handleInputChange}
                                             className="w-full bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">Donation Amount (₹)</label>
+                                        <input
+                                            name="amount"
+                                            type="number"
+                                            min="1"
+                                            value={formData.amount} onChange={handleInputChange}
+                                            className="w-full bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-bold text-lg"
+                                            placeholder="e.g. 1000"
                                             required
                                         />
                                     </div>

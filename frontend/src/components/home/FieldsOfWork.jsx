@@ -144,6 +144,7 @@ const FieldsOfWork = () => {
                     section="Home"
                     defaultItems={fields}
                     className="flex overflow-x-auto gap-6 pb-8 no-scrollbar md:justify-center md:flex-wrap lg:flex-nowrap lg:justify-start"
+                    newItemTemplate={{ title: 'New Field', image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=600&auto=format&fit=crop' }}
                     renderItem={(field, updateField) => (
                         <FieldItem
                             field={field}

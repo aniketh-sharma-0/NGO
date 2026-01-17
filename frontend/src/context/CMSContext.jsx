@@ -14,7 +14,7 @@ export const CMSProvider = ({ children }) => {
     };
 
     return (
-        <CMSContext.Provider value={{ isEditMode, toggleEditMode }}>
+        <CMSContext.Provider value={{ isEditMode, toggleEditMode, setIsEditMode }}>
             {children}
         </CMSContext.Provider>
     );

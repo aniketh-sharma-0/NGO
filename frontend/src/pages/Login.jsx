@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { FcGoogle } from 'react-icons/fc';
-import { FaEnvelope, FaLock } from 'react-icons/fa';
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Login = () => {
     const [isLogin, setIsLogin] = useState(true);
-    const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+    const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
+    const [showPassword, setShowPassword] = useState(false);
     const { login, register } = useAuth();
     const navigate = useNavigate();
     const [error, setError] = useState('');
@@ -18,6 +19,13 @@ const Login = () => {
         e.preventDefault();
         setError('');
         setLoading(true);
+
+        if (!isLogin && formData.password !== formData.confirmPassword) {
+            setError('Passwords do not match');
+            setLoading(false);
+            return;
+        }
+
         try {
             let result;
             if (isLogin) {
@@ -44,9 +52,8 @@ const Login = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-2xl flex flex-col md:flex-row w-full max-w-4xl overflow-hidden h-[600px]">
+            <div className="bg-white rounded-2xl shadow-2xl flex flex-col md:flex-row w-full max-w-4xl overflow-hidden h-[650px]">
 
-                {/* Visual Side */}
                 {/* Visual Side */}
                 <div className="w-full md:w-1/2 bg-gray-900 relative hidden md:block">
                     <img
@@ -63,8 +70,8 @@ const Login = () => {
                 </div>
 
                 {/* Form Side */}
-                <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center relative">
-                    <div className="mb-8 text-center">
+                <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center relative bg-white overflow-y-auto">
+                    <div className="mb-6 text-center">
                         <h1 className="text-3xl font-bold text-gray-800">{isLogin ? 'Welcome Back' : 'Create Account'}</h1>
                         <p className="text-gray-500 mt-2">{isLogin ? 'Please enter your details to sign in.' : 'Register to start your journey.'}</p>
                     </div>
@@ -95,23 +102,49 @@ const Login = () => {
                                 autoComplete="username"
                             />
                         </div>
+
+                        {/* Password Field */}
                         <div className="relative">
-                            <FaLock className="absolute top-3.5 left-3 text-gray-400" />
+                            <FaLock className="absolute top-3.5 left-3 text-gray-400 z-10" />
                             <input
-                                type="password" name="password"
+                                type={showPassword ? "text" : "password"}
+                                name="password"
                                 placeholder="Password"
                                 value={formData.password} onChange={handleChange}
-                                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-gray-50"
+                                className="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-gray-50"
                                 required
                                 autoComplete={isLogin ? "current-password" : "new-password"}
                             />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute top-3.5 right-4 text-gray-400 hover:text-gray-600 focus:outline-none z-10"
+                            >
+                                {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
+                            </button>
                         </div>
 
-                        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+                        {/* Confirm Password Field - Only for Register */}
+                        {!isLogin && (
+                            <div className="relative">
+                                <FaLock className="absolute top-3.5 left-3 text-gray-400" />
+                                <input
+                                    type="password"
+                                    name="confirmPassword"
+                                    placeholder="Confirm Password"
+                                    value={formData.confirmPassword} onChange={handleChange}
+                                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-gray-50"
+                                    required
+                                    autoComplete="new-password"
+                                />
+                            </div>
+                        )}
+
+                        {error && <p className="text-red-500 text-sm text-center font-medium bg-red-50 p-2 rounded">{error}</p>}
 
                         <button
                             type="submit"
-                            className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-800 transition-all shadow-lg hover:shadow-xl disabled:opacity-50"
+                            className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-800 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 mt-2"
                             disabled={loading}
                         >
                             {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')}
@@ -129,10 +162,14 @@ const Login = () => {
                         {isLogin ? 'Sign in with Google' : 'Sign up with Google'}
                     </button>
 
-                    <div className="mt-8 text-center text-sm">
+                    <div className="mt-6 text-center text-sm pb-4">
                         <span className="text-gray-600">{isLogin ? "Don't have an account?" : "Already have an account?"}</span>
                         <button
-                            onClick={() => setIsLogin(!isLogin)}
+                            onClick={() => {
+                                setIsLogin(!isLogin);
+                                setError('');
+                                setFormData({ name: '', email: '', password: '', confirmPassword: '' });
+                            }}
                             className="text-primary font-bold ml-1 hover:underline outline-none"
                         >
                             {isLogin ? 'Sign Up' : 'Log in'}
