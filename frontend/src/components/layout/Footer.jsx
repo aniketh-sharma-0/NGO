@@ -9,17 +9,17 @@ const Footer = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
                     {/* Column 1: Info */}
                     <div className="space-y-6">
-                        <h3 className="text-2xl font-bold text-white">YRDS NGO</h3>
+                        <h3 className="text-2xl font-bold text-white font-heading">YRDS NGO</h3>
                         <div className="text-gray-400">
                             Empowering communities and building a sustainable future for all.
                         </div>
                         <div className="space-y-3">
                             <div className="flex items-center gap-3">
-                                <FaPhoneAlt className="text-primary" />
+                                <FaPhoneAlt className="text-accent" />
                                 +91 98765 43210
                             </div>
                             <div className="flex items-center gap-3">
-                                <FaEnvelope className="text-primary" />
+                                <FaEnvelope className="text-accent" />
                                 contact@ngo.org
                             </div>
                         </div>
@@ -27,30 +27,30 @@ const Footer = () => {
 
                     {/* Column 2: Quick Links */}
                     <div>
-                        <h4 className="text-lg font-bold text-white mb-6">Quick Links</h4>
+                        <h4 className="text-lg font-bold text-white mb-6 font-heading">Quick Links</h4>
                         <ul className="space-y-3">
-                            <li><Link to="/" className="hover:text-primary transition-colors">Home</Link></li>
-                            <li><Link to="/about" className="hover:text-primary transition-colors">About Us</Link></li>
-                            <li><Link to="/projects" className="hover:text-primary transition-colors">Projects</Link></li>
-                            <li><Link to="/contact" className="hover:text-primary transition-colors">Contact</Link></li>
-                            <li><Link to="/donate" className="hover:text-primary transition-colors">Donate</Link></li>
+                            <li><Link to="/" className="hover:text-accent transition-colors">Home</Link></li>
+                            <li><Link to="/about" className="hover:text-accent transition-colors">About Us</Link></li>
+                            <li><Link to="/projects" className="hover:text-accent transition-colors">Projects</Link></li>
+                            <li><Link to="/contact" className="hover:text-accent transition-colors">Contact</Link></li>
+                            <li><Link to="/donate" className="hover:text-accent transition-colors">Donate</Link></li>
                         </ul>
                     </div>
 
                     {/* Column 3: Resources */}
                     <div>
-                        <h4 className="text-lg font-bold text-white mb-6">Resources</h4>
+                        <h4 className="text-lg font-bold text-white mb-6 font-heading">Resources</h4>
                         <ul className="space-y-3">
-                            <li><Link to="/reports" className="hover:text-primary transition-colors">Annual Reports</Link></li>
-                            <li><Link to="/policies" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
-                            <li><Link to="/terms" className="hover:text-primary transition-colors">Terms of Use</Link></li>
-                            <li><Link to="/careers" className="hover:text-primary transition-colors">Careers</Link></li>
+                            <li><Link to="/reports" className="hover:text-accent transition-colors">Annual Reports</Link></li>
+                            <li><Link to="/policies" className="hover:text-accent transition-colors">Privacy Policy</Link></li>
+                            <li><Link to="/terms" className="hover:text-accent transition-colors">Terms of Use</Link></li>
+                            <li><Link to="/careers" className="hover:text-accent transition-colors">Careers</Link></li>
                         </ul>
                     </div>
 
                     {/* Column 4: Newsletter / Social */}
                     <div>
-                        <h4 className="text-lg font-bold text-white mb-6">Connect With Us</h4>
+                        <h4 className="text-lg font-bold text-white mb-6 font-heading">Connect With Us</h4>
                         <div className="mb-6 text-gray-400">
                             Follow us on social media for updates and stories.
                         </div>

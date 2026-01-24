@@ -4,7 +4,7 @@ import EditableImage from '../cms/EditableImage';
 
 const SummarySection = () => {
     return (
-        <section className="py-16 bg-white">
+        <section className="py-24 bg-white">
             <div className="container mx-auto px-4">
                 <div className="flex flex-col md:flex-row gap-12 items-center">
                     {/* Image Column */}
@@ -14,7 +14,7 @@ const SummarySection = () => {
                                 contentKey="summary_image"
                                 section="Home"
                                 alt="About Our NGO"
-                                className="w-full h-[400px] object-cover"
+                                className="w-full h-[500px] object-cover"
                                 defaultSrc="https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?q=80&w=1000&auto=format&fit=crop"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none"></div>
@@ -22,8 +22,8 @@ const SummarySection = () => {
                     </div>
 
                     {/* Content Column */}
-                    <div className="w-full md:w-1/2 space-y-6">
-                        <div className="inline-block px-4 py-1 bg-blue-100 text-primary rounded-full text-sm font-semibold tracking-wide uppercase">
+                    <div className="w-full md:w-1/2 space-y-8">
+                        <div className="inline-block px-4 py-1 bg-blue-50 text-primary rounded-full text-sm font-semibold tracking-wide uppercase font-heading shadow-sm">
                             <EditableText
                                 contentKey="summary_badge"
                                 section="Home"
@@ -31,15 +31,22 @@ const SummarySection = () => {
                             />
                         </div>
 
-                        <h2 className="text-3xl md:text-4xl font-bold text-gray-800 leading-tight">
+                        <h2 className="text-4xl md:text-5xl font-bold text-gray-800 leading-tight font-heading">
                             <EditableText
-                                contentKey="summary_title"
+                                contentKey="summary_title_prefix"
                                 section="Home"
-                                defaultText="Driving Change Through Community Action"
+                                defaultText="Driving Change Through"
                             />
+                            <span className="text-accent block mt-2">
+                                <EditableText
+                                    contentKey="summary_title_suffix"
+                                    section="Home"
+                                    defaultText="Community Action"
+                                />
+                            </span>
                         </h2>
 
-                        <div className="text-lg text-gray-600 leading-relaxed">
+                        <div className="text-lg text-gray-700 leading-relaxed font-light">
                             <EditableText
                                 contentKey="summary_content"
                                 section="Home"
@@ -49,16 +56,16 @@ const SummarySection = () => {
                             />
                         </div>
 
-                        <div className="pt-4 grid grid-cols-2 gap-6">
-                            <div className="border-l-4 border-primary pl-4">
-                                <h4 className="text-2xl font-bold text-gray-800">
+                        <div className="pt-6 grid grid-cols-2 gap-8 border-t border-blue-100">
+                            <div>
+                                <h4 className="text-4xl font-bold text-accent font-heading">
                                     <EditableText
                                         contentKey="stat_1_number"
                                         section="Home"
                                         defaultText="10+"
                                     />
                                 </h4>
-                                <div className="text-gray-500">
+                                <div className="text-gray-600 font-medium mt-1">
                                     <EditableText
                                         contentKey="stat_1_label"
                                         section="Home"
@@ -66,15 +73,15 @@ const SummarySection = () => {
                                     />
                                 </div>
                             </div>
-                            <div className="border-l-4 border-secondary pl-4">
-                                <h4 className="text-2xl font-bold text-gray-800">
+                            <div>
+                                <h4 className="text-4xl font-bold text-accent font-heading">
                                     <EditableText
                                         contentKey="stat_2_number"
                                         section="Home"
                                         defaultText="5000+"
                                     />
                                 </h4>
-                                <div className="text-gray-500">
+                                <div className="text-gray-600 font-medium mt-1">
                                     <EditableText
                                         contentKey="stat_2_label"
                                         section="Home"

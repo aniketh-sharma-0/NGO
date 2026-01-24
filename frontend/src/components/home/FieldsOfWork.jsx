@@ -126,17 +126,25 @@ const FieldsOfWork = () => {
     }, []);
 
     return (
-        <section className="py-16 bg-gray-50">
+        <section className="py-12 bg-gray-100 border-y border-gray-200">
             <div className="container mx-auto px-4">
-                <div className="text-center mb-12">
-                    <h2 className="text-3xl font-bold text-gray-800">
+                <div className="text-center mb-16">
+                    <h2 className="text-4xl md:text-5xl font-bold text-gray-800 font-heading">
                         <EditableText
-                            contentKey="fields_title"
+                            contentKey="fields_title_prefix"
                             section="Home"
-                            defaultText="Our Fields of Work"
+                            defaultText="Our Fields"
+                            className="inline-block"
                         />
+                        <span className="text-accent ml-3 inline-block">
+                            <EditableText
+                                contentKey="fields_title_suffix"
+                                section="Home"
+                                defaultText="of Work"
+                                className="inline-block"
+                            />
+                        </span>
                     </h2>
-                    <div className="w-24 h-1 bg-primary mx-auto mt-4 rounded"></div>
                 </div>
 
                 <DynamicList

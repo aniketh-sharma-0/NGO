@@ -49,41 +49,41 @@ const Donate = () => {
     const cards = [
         {
             id: 'Government',
-            icon: <FaLandmark className="text-4xl text-blue-600" />,
+            icon: <FaLandmark className="text-4xl text-primary" />,
             title: 'Government Funding',
             description: 'Support for state and central government initiatives and partnerships.',
-            gradient: 'bg-gradient-to-r from-blue-400 to-blue-600',
+            gradient: 'hidden',
             iconBg: 'bg-blue-50',
-            btnColor: 'bg-blue-600 hover:bg-blue-700',
-            ringColor: 'hover:ring-blue-200'
+            btnColor: 'bg-gray-900 hover:bg-black',
+            ringColor: 'hover:ring-gray-200'
         },
         {
             id: 'Corporate',
-            icon: <FaHandshake className="text-4xl text-purple-600" />,
+            icon: <FaHandshake className="text-4xl text-primary" />,
             title: 'CSR & Corporate',
             description: 'Corporate Social Responsibility partnerships and grants.',
-            gradient: 'bg-gradient-to-r from-purple-400 to-purple-600',
-            iconBg: 'bg-purple-50',
-            btnColor: 'bg-purple-600 hover:bg-purple-700',
-            ringColor: 'hover:ring-purple-200'
+            gradient: 'hidden',
+            iconBg: 'bg-blue-50',
+            btnColor: 'bg-gray-900 hover:bg-black',
+            ringColor: 'hover:ring-gray-200'
         },
         {
             id: 'Voluntary',
-            icon: <FaHeart className="text-4xl text-red-600" />,
+            icon: <FaHeart className="text-4xl text-primary" />,
             title: 'Individual / Voluntary',
             description: 'Make a personal contribution to change lives directly.',
-            gradient: 'bg-gradient-to-r from-red-400 to-red-600',
-            iconBg: 'bg-red-50',
-            btnColor: 'bg-red-600 hover:bg-red-700',
-            ringColor: 'hover:ring-red-200'
+            gradient: 'hidden',
+            iconBg: 'bg-blue-50',
+            btnColor: 'bg-gray-900 hover:bg-black',
+            ringColor: 'hover:ring-gray-200'
         }
     ];
 
     return (
-        <div className="bg-gray-50 min-h-screen py-16">
+        <div className="min-h-screen py-20 bg-gray-100 font-sans">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-16">
-                    <h1 className="text-4xl font-bold text-gray-800 mb-4">
+                    <h1 className="text-5xl font-bold text-gray-800 mb-4 font-heading">
                         <EditableText contentKey="donate_title" section="Donate" defaultText="Make a Difference" />
                     </h1>
                     <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -133,7 +133,7 @@ const Donate = () => {
                                 </div>
                             ) : (
                                 <form onSubmit={handleSubmit} className="space-y-4">
-                                    <div className="bg-blue-50 p-4 rounded-lg flex items-center gap-3 text-blue-800 text-sm mb-4">
+                                    <div className="bg-blue-50 p-4 rounded-lg flex items-center gap-3 text-blue-900 text-sm mb-4">
                                         <FaHandHoldingHeart className="text-xl shrink-0" />
                                         <p>Thank you for choosing to support us. Please fill in your details to proceed.</p>
                                     </div>
@@ -206,7 +206,7 @@ const Donate = () => {
 
                                     <button
                                         type="submit"
-                                        className="w-full bg-blue-600 text-white py-4 rounded-lg font-bold shadow-lg hover:bg-blue-800 hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                        className="w-full bg-blue-900 text-white py-4 rounded-lg font-bold shadow-lg hover:bg-opacity-90 hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                                         disabled={status === 'submitting'}
                                     >
                                         {status === 'submitting' ? 'Processing...' : 'Proceed'}

@@ -174,70 +174,100 @@ const MembersSection = () => {
     }, []);
 
     return (
-        <section className="py-20 bg-white">
+        <section className="py-12 bg-white">
             <div className="container mx-auto px-4">
-                <div className="text-center mb-16">
-                    <h2 className="text-4xl font-bold text-gray-800 mb-4">
-                        <EditableText contentKey="team_section_title" section="Home" defaultText="Our Leadership" />
+                <div className="text-center mb-24">
+                    <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4 font-heading">
+                        <EditableText
+                            contentKey="team_section_title_prefix"
+                            section="Home"
+                            defaultText="Our"
+                            className="inline-block"
+                        />
+                        <span className="text-accent ml-3 inline-block">
+                            <EditableText
+                                contentKey="team_section_title_suffix"
+                                section="Home"
+                                defaultText="Leadership"
+                                className="inline-block"
+                            />
+                        </span>
                     </h2>
-                    <div className="w-24 h-1 bg-primary mx-auto rounded"></div>
                 </div>
 
-                {/* Founder / President */}
-                <div className="flex flex-col items-center mb-16">
-                    <div className="w-48 h-48 md:w-64 md:h-64 shadow-2xl border-4 border-white mb-6 relative group rounded-full"> {/* Removed overflow-hidden */}
-                        <EditableImage
-                            contentKey="founder_image"
-                            section="Home"
-                            alt="Founder"
-                            className="w-full h-full"
-                            imgClassName="w-full h-full object-cover rounded-full"
-                            defaultSrc={homeContent.founder_image || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop"}
-                            editPosition="right"
-                        />
-                    </div>
-                    <h3 className="text-2xl md:text-3xl font-bold text-gray-900">
-                        <EditableText contentKey="founder_name" section="Home" defaultText="Dr. A. Founder" />
-                    </h3>
-                    <div className="text-primary font-medium text-lg uppercase tracking-wide">
-                        <EditableText contentKey="founder_role" section="Home" defaultText="Founder & President" />
-                    </div>
-                    <div className="max-w-2xl text-center mt-4 text-gray-600 italic">
-                        <EditableText
-                            contentKey="founder_bio"
-                            section="Home"
-                            type="textarea"
-                            defaultText="Dedicated to serving the community for over 30 years. Believes in the power of collective action to bring about chang."
-                        />
+                {/* Founder / President Section */}
+                <div className="mb-24">
+                    <div className="flex flex-col md:flex-row items-center gap-12 max-w-5xl mx-auto">
+                        <div className="w-full md:w-1/3 flex justify-center md:justify-end">
+                            <div className="w-64 h-64 shadow-2xl border-4 border-white relative group rounded-full overflow-hidden">
+                                <EditableImage
+                                    contentKey="founder_image"
+                                    section="Home"
+                                    alt="Founder"
+                                    className="w-full h-full"
+                                    imgClassName="w-full h-full object-cover"
+                                    defaultSrc={homeContent.founder_image || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop"}
+                                    editPosition="center"
+                                />
+                            </div>
+                        </div>
+                        <div className="w-full md:w-2/3 text-center md:text-left">
+                            <div className="text-secondary font-bold text-sm tracking-widest uppercase mb-2">
+                                <EditableText contentKey="founder_role" section="Home" defaultText="Founder & President" />
+                            </div>
+                            <h3 className="text-4xl font-bold text-gray-900 mb-6 font-heading">
+                                <EditableText contentKey="founder_name" section="Home" defaultText="Dr. A. Founder" />
+                            </h3>
+                            <div className="text-xl text-gray-600 leading-relaxed font-light">
+                                <EditableText
+                                    contentKey="founder_bio"
+                                    section="Home"
+                                    type="textarea"
+                                    defaultText="Dedicated to serving the community for over 30 years. Believes in the power of collective action to bring about change."
+                                />
+                            </div>
+                            <div className="mt-8">
+                                <div className="h-1 w-20 bg-secondary rounded mx-auto md:mx-0"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                {/* CEO */}
-                <div className="flex flex-col items-center mb-20">
-                    <div className="w-40 h-40 md:w-48 md:h-48 shadow-xl border-4 border-gray-100 mb-5 relative group rounded-full"> {/* Removed overflow-hidden */}
-                        <EditableImage
-                            contentKey="ceo_image"
-                            section="Home"
-                            alt="CEO"
-                            className="w-full h-full"
-                            imgClassName="w-full h-full object-cover rounded-full"
-                            editPosition="right"
-                            defaultSrc={homeContent.ceo_image || "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=1000&auto=format&fit=crop"}
-                        />
-                    </div>
-                    <h3 className="text-xl md:text-2xl font-bold text-gray-900">
-                        <EditableText contentKey="ceo_name" section="Home" defaultText="Mr. B. CEO" />
-                    </h3>
-                    <div className="text-secondary font-medium text-base uppercase tracking-wide">
-                        <EditableText contentKey="ceo_role" section="Home" defaultText="Chief Executive Officer" />
-                    </div>
-                    <div className="max-w-xl text-center mt-3 text-gray-600">
-                        <EditableText
-                            contentKey="ceo_bio"
-                            section="Home"
-                            type="textarea"
-                            defaultText="Leading the organization towards sustainable growth and impact."
-                        />
+                {/* CEO Section */}
+                <div className="mb-24">
+                    <div className="flex flex-col md:flex-row-reverse items-center gap-12 max-w-5xl mx-auto">
+                        <div className="w-full md:w-1/3 flex justify-center md:justify-start">
+                            <div className="w-56 h-56 shadow-2xl border-4 border-white relative group rounded-full overflow-hidden">
+                                <EditableImage
+                                    contentKey="ceo_image"
+                                    section="Home"
+                                    alt="CEO"
+                                    className="w-full h-full"
+                                    imgClassName="w-full h-full object-cover"
+                                    editPosition="center"
+                                    defaultSrc={homeContent.ceo_image || "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=1000&auto=format&fit=crop"}
+                                />
+                            </div>
+                        </div>
+                        <div className="w-full md:w-2/3 text-center md:text-right">
+                            <div className="text-primary font-bold text-sm tracking-widest uppercase mb-2">
+                                <EditableText contentKey="ceo_role" section="Home" defaultText="Chief Executive Officer" />
+                            </div>
+                            <h3 className="text-3xl font-bold text-gray-900 mb-6 font-heading">
+                                <EditableText contentKey="ceo_name" section="Home" defaultText="Mr. B. CEO" />
+                            </h3>
+                            <div className="text-xl text-gray-600 leading-relaxed font-light">
+                                <EditableText
+                                    contentKey="ceo_bio"
+                                    section="Home"
+                                    type="textarea"
+                                    defaultText="Leading the organization towards sustainable growth and impact."
+                                />
+                            </div>
+                            <div className="mt-8 flex justify-center md:justify-end">
+                                <div className="h-1 w-20 bg-primary rounded"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

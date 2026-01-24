@@ -45,8 +45,8 @@ const Contact = () => {
             title: 'Call Us',
             action: '+91 987 654 3210',
             link: 'tel:+919876543210',
-            bg: 'bg-blue-500',
-            hover: 'hover:bg-blue-600',
+            bg: 'bg-blue-900',
+            hover: 'hover:bg-opacity-90',
             text: 'text-blue-600'
         },
         {
@@ -70,18 +70,18 @@ const Contact = () => {
     ];
 
     return (
-        <div className="bg-white min-h-screen">
+        <div className="min-h-screen">
             {/* Header */}
-            <div className="bg-gray-900 text-white py-20 text-center px-4">
-                <h1 className="text-4xl font-bold mb-4">
+            <div className="bg-gray-900 text-white py-24 text-center px-4 font-heading">
+                <h1 className="text-4xl md:text-5xl font-bold mb-4">
                     <EditableText contentKey="contact_title" section="Contact" defaultText="Get in Touch" />
                 </h1>
-                <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+                <p className="text-xl text-gray-300 max-w-2xl mx-auto font-sans font-light">
                     <EditableText contentKey="contact_subtitle" section="Contact" defaultText="Have questions? We'd love to hear from you." />
                 </p>
             </div>
 
-            <div className="container mx-auto px-4 -mt-10 relative z-10 pb-20">
+            <div className="container mx-auto px-4 -mt-16 relative z-10 pb-20 font-sans">
 
                 {/* Contact Channels Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
@@ -91,42 +91,43 @@ const Contact = () => {
                             href={channel.link}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="group bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 flex flex-col items-center text-center border border-gray-100"
+                            className="group bg-white p-6 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 flex flex-col items-center text-center border border-gray-50"
                         >
-                            <div className={`w-16 h-16 ${channel.bg} rounded-full flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                            <div className={`w-16 h-16 ${channel.bg} rounded-full flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300 text-white`}>
                                 {channel.icon}
                             </div>
-                            <h3 className="font-bold text-gray-800 text-lg mb-1">{channel.title}</h3>
+                            <h3 className="font-bold text-gray-800 text-lg mb-1 font-heading">{channel.title}</h3>
                             <p className="text-gray-500 font-medium group-hover:text-primary transition-colors">{channel.action}</p>
                         </a>
                     ))}
                 </div>
 
                 {/* Main Content Layout */}
-                <div className="grid md:grid-cols-2 gap-12 items-start">
+                <div className="grid md:grid-cols-2 gap-12 items-start max-w-6xl mx-auto">
 
                     {/* Map / Image Section */}
-                    <div className="bg-gray-100 rounded-2xl h-[500px] w-full overflow-hidden shadow-inner relative">
+                    <div className="rounded-3xl h-[600px] w-full overflow-hidden shadow-2xl relative group">
                         {/* Placeholder for Map */}
                         <img
                             src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=2068&auto=format&fit=crop"
                             alt="Our Team"
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         />
-                        <div className="absolute inset-0 bg-blue-900/40 flex items-center justify-center">
-                            <div className="text-white text-center p-6">
-                                <h3 className="text-3xl font-bold mb-2">Let's Make a Difference</h3>
-                                <p className="text-lg opacity-90">Reach out to us and start your journey of impact today.</p>
+                        <div className="absolute inset-0 bg-blue-900/60 flex items-center justify-center backdrop-blur-[2px]">
+                            <div className="text-white text-center p-8">
+                                <h3 className="text-3xl font-bold mb-3 font-heading">Let's Make a Difference</h3>
+                                <p className="text-lg opacity-90 font-light">Reach out to us and start your journey of impact today.</p>
                             </div>
                         </div>
                     </div>
 
-                    {/* Contact Form */}
-                    <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
-                        <h2 className="text-3xl font-bold text-gray-800 mb-6">Send a Message</h2>
+                    {/* Contact Form - Removed Card Wrapper */}
+                    <div className="pl-0 md:pl-8">
+                        <h2 className="text-4xl font-bold text-gray-800 mb-8 font-heading">Send a Message</h2>
+                        <p className="text-gray-600 mb-8">We are here to help and answer any question you might have. We look forward to hearing from you.</p>
 
                         {status === 'success' ? (
-                            <div className="text-center py-20">
+                            <div className="text-center py-20 bg-green-50 rounded-3xl border border-green-100">
                                 <FaPaperPlane className="text-primary text-6xl mx-auto mb-4 animate-bounce" />
                                 <h3 className="text-2xl font-bold text-gray-800 mb-2">Message Sent!</h3>
                                 <p className="text-gray-600">We will get back to you as soon as possible.</p>
@@ -135,12 +136,12 @@ const Contact = () => {
                         ) : (
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">Inquiry Type</label>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Inquiry Type</label>
                                     <select
                                         name="inquiryType"
                                         value={formData.inquiryType || 'General'}
                                         onChange={(e) => setFormData({ ...formData, inquiryType: e.target.value })}
-                                        className="w-full bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-sm appearance-none"
+                                        className="w-full bg-white border-b-2 border-gray-200 text-gray-800 text-lg py-3 focus:outline-none focus:border-primary transition-colors appearance-none"
                                     >
                                         <option value="General">General Inquiry</option>
                                         <option value="Government">Government Project</option>
@@ -150,60 +151,65 @@ const Contact = () => {
 
                                 {(formData.inquiryType === 'Government' || formData.inquiryType === 'Corporate') && (
                                     <div className="col-span-2">
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">Organization Name</label>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Organization Name</label>
                                         <input
                                             name="organization"
                                             value={formData.organization || ''}
                                             onChange={handleChange}
-                                            className="w-full bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                                            className="w-full bg-transparent border-b-2 border-gray-200 text-gray-800 text-lg py-3 focus:outline-none focus:border-primary transition-colors"
+                                            placeholder="Enter organization name"
                                             required
                                         />
                                     </div>
                                 )}
 
-                                <div className="grid grid-cols-2 gap-6">
+                                <div className="grid grid-cols-2 gap-8">
                                     <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">Name</label>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Name</label>
                                         <input
                                             name="name"
                                             value={formData.name} onChange={handleChange}
-                                            className="w-full bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                                            className="w-full bg-transparent border-b-2 border-gray-200 text-gray-800 text-lg py-3 focus:outline-none focus:border-primary transition-colors"
+                                            placeholder="Your Name"
                                             required
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">Email</label>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Email</label>
                                         <input
                                             type="email" name="email"
                                             value={formData.email} onChange={handleChange}
-                                            className="w-full bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                                            className="w-full bg-transparent border-b-2 border-gray-200 text-gray-800 text-lg py-3 focus:outline-none focus:border-primary transition-colors"
+                                            placeholder="email@example.com"
                                             required
                                         />
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">Phone</label>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Phone</label>
                                     <input
                                         name="phone"
                                         value={formData.phone} onChange={handleChange}
-                                        className="w-full bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                                        className="w-full bg-transparent border-b-2 border-gray-200 text-gray-800 text-lg py-3 focus:outline-none focus:border-primary transition-colors"
+                                        placeholder="+91 ..."
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">Message</label>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Message</label>
                                     <textarea
                                         name="message"
                                         value={formData.message} onChange={handleChange}
-                                        className="w-full bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-3 h-32 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-sm resize-none"
+                                        className="w-full bg-gray-50 border-b-2 border-gray-200 text-gray-800 text-lg p-4 rounded-t-lg h-40 focus:outline-none focus:border-primary transition-colors resize-none"
+                                        placeholder="How can we help you?"
                                         required
                                     ></textarea>
                                 </div>
 
                                 <button
                                     type="submit"
-                                    className="w-full bg-blue-600 text-white font-bold py-4 rounded-lg shadow-lg hover:shadow-xl hover:bg-blue-800 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                                    className="px-10 py-4 bg-gray-900 text-white font-bold rounded-full hover:bg-black transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center gap-3 disabled:opacity-50"
                                     disabled={status === 'submitting'}
                                 >
                                     {status === 'submitting' ? 'Sending...' : <><FaPaperPlane /> Send Message</>}

@@ -27,7 +27,7 @@ const TopMarquee = () => {
     }
 
     return (
-        <div className="bg-blue-900 text-white shadow-md overflow-hidden relative flex items-center h-10">
+        <div className="bg-slate-800 text-white shadow-md overflow-hidden relative flex items-center h-10">
             {/* Scrolling Left Section */}
             <div className="flex-1 overflow-hidden relative h-full flex items-center mask-image-gradient">
                 <div className="animate-marquee whitespace-nowrap flex items-center gap-8 text-sm md:text-base font-medium tracking-wide">
@@ -43,7 +43,7 @@ const TopMarquee = () => {
             </div>
 
             {/* Static Right Section */}
-            <div className="flex-shrink-0 bg-blue-900 z-10 px-4 h-full flex items-center gap-6 shadow-[-5px_0_10px_rgba(0,0,0,0.1)]">
+            <div className="flex-shrink-0 bg-slate-800 z-10 px-4 h-full flex items-center gap-6 shadow-[-5px_0_10px_rgba(0,0,0,0.1)]">
                 <div className="hidden md:flex items-center gap-2">
                     <FaPhoneAlt size={14} className="text-blue-200" />
                     <EditableText

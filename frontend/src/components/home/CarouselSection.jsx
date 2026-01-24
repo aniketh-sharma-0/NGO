@@ -115,51 +115,58 @@ const CarouselSection = () => {
 
     return (
         <div className="flex flex-col">
-            <section className="relative w-full h-[500px] md:h-[600px] bg-gray-50 flex items-center overflow-hidden">
+            <section className="relative w-full h-[500px] md:h-[600px] flex items-center overflow-hidden">
                 {slides.length > 0 && (
-                    <div className="container mx-auto px-4 flex flex-col-reverse md:flex-row h-full items-center">
+                    <div className="container mx-auto px-4 flex flex-col-reverse md:flex-row h-full items-center relative z-10">
 
-                        {/* Text Content (Left 40%) */}
-                        <div className="w-full md:w-2/5 flex flex-col justify-center p-6 md:p-12 z-10 bg-white/90 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none absolute bottom-0 md:relative md:bottom-auto rounded-t-xl md:rounded-none">
+                        {/* Text Content (Left 50%) - Removed Card Styling */}
+                        <div className="w-full md:w-1/2 flex flex-col justify-center p-6 md:p-12 z-10 text-left">
                             {isAdmin && isEditMode ? (
                                 <input
-                                    className="text-3xl md:text-5xl font-bold text-gray-800 mb-4 bg-transparent border-b border-gray-300 focus:outline-none focus:border-primary w-full"
+                                    className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 bg-transparent border-b border-gray-300 focus:outline-none focus:border-primary w-full font-heading leading-tight"
                                     value={slide.title}
                                     onChange={(e) => updateSlideContent(slide.id, 'title', e.target.value)}
                                 />
                             ) : (
-                                <h2 className="text-3xl md:text-5xl font-bold text-gray-800 mb-4">{slide.title}</h2>
+                                <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 font-heading leading-tight tracking-tight">
+                                    {slide.title}
+                                </h2>
                             )}
 
                             {isAdmin && isEditMode ? (
                                 <textarea
-                                    className="text-lg text-gray-600 mb-8 bg-transparent border-b border-gray-300 focus:outline-none focus:border-primary w-full resize-none"
+                                    className="text-xl text-gray-600 mb-10 bg-transparent border-b border-gray-300 focus:outline-none focus:border-primary w-full resize-none font-light"
                                     value={slide.description}
                                     onChange={(e) => updateSlideContent(slide.id, 'description', e.target.value)}
                                     rows={3}
                                 />
                             ) : (
-                                <p className="text-lg text-gray-600 mb-8">{slide.description}</p>
+                                <p className="text-xl text-gray-600 mb-10 font-light max-w-xl leading-relaxed">{slide.description}</p>
                             )}
 
                             <div className="flex gap-4">
-                                <button className="px-6 py-3 bg-primary text-white rounded-md font-semibold hover:bg-blue-800 transition-colors">
+                                <button className="px-8 py-4 bg-gray-900 text-white rounded-full font-bold hover:bg-black transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                                     Explore More
                                 </button>
                                 {isAdmin && isEditMode && (
-                                    <button onClick={() => deleteSlide(slide.id)} className="px-4 py-3 bg-red-100 text-red-600 rounded-md hover:bg-red-200">
+                                    <button onClick={() => deleteSlide(slide.id)} className="px-5 py-4 bg-red-50 text-red-600 rounded-full hover:bg-red-100 transition-colors">
                                         <FaTrash />
                                     </button>
                                 )}
                             </div>
                         </div>
 
-                        {/* Image Content (Right 60%) */}
-                        <div className="w-full md:w-3/5 h-full absolute top-0 right-0 md:relative group">
+                        {/* Image Content (Right 50%) - Full Height */}
+                        <div className="w-full md:w-1/2 h-full absolute md:relative top-0 right-0 z-0">
+                            {/* Gradient Overlay for Mobile Readability */}
+                            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-white/90 md:hidden z-10"></div>
+                            <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/40 to-transparent hidden md:block z-10 w-2/3"></div>
+
                             <EditableImage
                                 defaultSrc={slide.image}
                                 alt={slide.title}
                                 className="w-full h-full"
+                                imgClassName="w-full h-full object-cover"
                                 onSave={(newSrc) => updateSlideContent(slide.id, 'image', newSrc)}
                             />
                         </div>

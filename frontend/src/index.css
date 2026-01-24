@@ -1,8 +1,30 @@
 @import "tailwindcss";
+/* Reload Trigger */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap');
 
-@theme {
-    --color-primary: #2563eb;
-    --color-secondary: #16a34a;
+@layer base {
+    body {
+        background-color: white;
+        color: #0f172a;
+        /* slate-900 */
+        font-family: 'Inter', sans-serif;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection {
+        background-color: #3b82f6;
+        /* accent color */
+        color: white;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-family: 'Poppins', sans-serif;
+    }
 }
 
 @layer utilities {

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { FaFilter, FaPlus } from 'react-icons/fa';
+import { FaFilter, FaPlus, FaChevronDown } from 'react-icons/fa';
 
 const getDemoProjects = () => [
     // GOVERNMENT PROJECTS
@@ -144,6 +144,7 @@ const Projects = () => {
     const [projects, setProjects] = useState([]);
     const [filterCategory, setFilterCategory] = useState(searchParams.get('category') || 'All');
     const [loading, setLoading] = useState(true);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
     const categories = ['All', 'Government', 'CSR', 'Client'];
 
@@ -332,26 +333,57 @@ const Projects = () => {
     };
 
     return (
-        <div className="bg-gray-50 min-h-screen py-10">
+        <div className="min-h-screen py-20 bg-soft-blue font-sans">
             <div className="container mx-auto px-4">
+                <div className="text-center mb-12">
+                    <h1 className="text-4xl font-bold text-gray-800 font-heading">Our Projects</h1>
+                    <div className="w-24 h-1 bg-primary mx-auto mt-4 rounded"></div>
+                </div>
 
-                <div className="flex flex-col md:flex-row justify-between items-center mb-8">
-                    <h1 className="text-3xl font-bold text-gray-800 mb-4 md:mb-0">Our Projects</h1>
-
-                    <div className="flex gap-4 items-center">
-                        <div className="bg-white px-4 py-2 rounded shadow-sm flex items-center gap-2">
-                            <FaFilter className="text-gray-400" />
-                            <select
-                                value={filterCategory}
-                                onChange={(e) => setFilterCategory(e.target.value)}
-                                className="bg-transparent focus:outline-none"
+                <div className="flex flex-col md:flex-row justify-between items-center mb-10">
+                    <div className="flex gap-4 items-center ml-auto">
+                        <div className="relative z-50">
+                            {/* Custom Dropdown Trigger */}
+                            <button
+                                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                className="bg-white pl-5 pr-12 py-3 rounded-full shadow-md border border-gray-100 flex items-center gap-3 hover:shadow-lg transition-all transform hover:-translate-y-0.5 w-48 relative"
                             >
-                                {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                            </select>
+                                <FaFilter className="text-primary/80" />
+                                <span className="font-bold text-gray-700">{filterCategory}</span>
+                                <div className={`absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`}>
+                                    <FaChevronDown size={14} />
+                                </div>
+                            </button>
+
+                            {/* Custom Dropdown Menu */}
+                            {isDropdownOpen && (
+                                <>
+                                    <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)}></div>
+                                    <div className="absolute top-full right-0 mt-2 w-full bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50 animate-fade-in-up">
+                                        <ul className="py-2">
+                                            {categories.map((cat) => (
+                                                <li key={cat}>
+                                                    <button
+                                                        onClick={() => {
+                                                            setFilterCategory(cat);
+                                                            setIsDropdownOpen(false);
+                                                        }}
+                                                        className={`w-full text-left px-5 py-3 hover:bg-blue-50 transition-colors flex items-center justify-between
+                                                            ${filterCategory === cat ? 'text-primary font-bold bg-blue-50/50' : 'text-gray-600'}`}
+                                                    >
+                                                        {cat}
+                                                        {filterCategory === cat && <div className="w-2 h-2 rounded-full bg-primary"></div>}
+                                                    </button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </>
+                            )}
                         </div>
                         {isAdmin && (
-                            <button onClick={() => openModal()} className="bg-primary text-white px-4 py-2 rounded shadow hover:bg-blue-800 flex items-center gap-2">
-                                <FaPlus /> Add Project
+                            <button onClick={() => openModal()} className="bg-[#1e3a8a] text-white px-5 py-3 rounded-full shadow-md hover:bg-blue-900 transition-all transform hover:shadow-lg flex items-center gap-2 font-bold tracking-wide">
+                                <FaPlus className="text-sm" /> Add Project
                             </button>
                         )}
                     </div>
@@ -391,7 +423,7 @@ const Projects = () => {
                                                 </div>
                                             </div>
                                             <div className="p-6 flex-1 flex flex-col">
-                                                <div className="text-xs text-primary font-bold uppercase tracking-wider mb-2">
+                                                <div className="text-xs text-accent font-bold uppercase tracking-wider mb-2">
                                                     {project.category || 'General'}
                                                 </div>
                                                 <h3 className="text-xl font-bold text-gray-800 mb-2">{project.title || 'Untitled Project'}</h3>
@@ -523,10 +555,10 @@ const Projects = () => {
                                         <div className="w-full md:w-1/3 space-y-4">
                                             <h3 className="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Project Reports</h3>
 
-                                            <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
-                                                <h4 className="font-bold text-blue-800 mb-1">Project Report</h4>
+                                            <div className="p-4 bg-soft-blue rounded-lg border border-blue-100">
+                                                <h4 className="font-bold text-primary mb-1">Project Report</h4>
                                                 {formData.projectReport ? (
-                                                    <a href={formData.projectReport} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline text-sm break-all">
+                                                    <a href={formData.projectReport} target="_blank" rel="noreferrer" className="text-accent hover:underline text-sm break-all">
                                                         View Document &rarr;
                                                     </a>
                                                 ) : <span className="text-gray-400 text-sm">Not Available</span>}

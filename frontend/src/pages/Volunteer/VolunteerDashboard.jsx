@@ -127,28 +127,29 @@ Challenges/Notes: ${reportData.challenges}
     if (!profile) return null;
 
     return (
-        <div className="bg-gray-50 min-h-screen p-4 md:p-8">
+        <div className="min-h-screen p-4 md:p-8 bg-soft-blue font-sans">
             <div className="container mx-auto">
                 {/* Header */}
-                <div className="bg-white p-8 rounded-2xl shadow-sm mb-8 flex flex-col md:flex-row justify-between items-center border border-gray-100">
+                <div className="bg-white p-8 rounded-3xl shadow-lg mb-8 flex flex-col md:flex-row justify-between items-center border border-white">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-800 mb-2">Volunteer Dashboard</h1>
-                        <p className="text-gray-600">Welcome back, <span className="font-bold text-primary">{profile.user?.name || 'Volunteer'}</span>!</p>
+                        <h1 className="text-3xl font-bold text-gray-800 mb-2 font-heading">Volunteer Dashboard</h1>
+                        <p className="text-gray-600">Welcome back, <span className="font-bold text-blue-600">{profile.user?.name || 'Volunteer'}</span>!</p>
                     </div>
                     <div className="mt-4 md:mt-0">
-                        <span className={`px-4 py-2 rounded-full font-bold text-sm shadow-sm border
+                        <span className={`px-5 py-2 rounded-full font-bold text-sm shadow-sm border flex items-center gap-2
                             ${profile.status === 'Active' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-yellow-50 text-yellow-600 border-yellow-100'}`}>
+                            <span className={`w-2 h-2 rounded-full ${profile.status === 'Active' ? 'bg-green-500' : 'bg-yellow-500'}`}></span>
                             Status: {profile.status}
                         </span>
                     </div>
                 </div>
 
                 {profile.status === 'Pending' ? (
-                    <div className="text-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100 max-w-2xl mx-auto">
-                        <div className="w-20 h-20 bg-yellow-50 text-yellow-500 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">
+                    <div className="text-center py-20 bg-white rounded-3xl shadow-sm border border-gray-100 max-w-2xl mx-auto">
+                        <div className="w-24 h-24 bg-yellow-50 text-yellow-500 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl shadow-inner animate-pulse">
                             <FaClock />
                         </div>
-                        <h2 className="text-2xl font-bold text-gray-800 mb-2">Application Under Review</h2>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-2 font-heading">Application Under Review</h2>
                         <p className="text-gray-500 max-w-md mx-auto">Thank you for your interest. Our team is currently reviewing your application. You will be notified once approved.</p>
                     </div>
                 ) : (
@@ -156,36 +157,36 @@ Challenges/Notes: ${reportData.challenges}
                         {/* Task List */}
                         <div className="lg:col-span-2 space-y-8">
                             <div className="flex items-center gap-3">
-                                <div className="h-8 w-1 bg-primary rounded-full"></div>
-                                <h2 className="text-2xl font-bold text-gray-800">Assignments & Projects</h2>
+                                <div className="h-8 w-1.5 bg-gray-800 rounded-full"></div>
+                                <h2 className="text-2xl font-bold text-gray-800 font-heading">Assignments & Projects</h2>
                             </div>
 
                             {tasks.length === 0 ? (
-                                <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-gray-300">
-                                    <FaClipboardList className="text-4xl text-gray-300 mx-auto mb-3" />
-                                    <p className="text-gray-500 font-medium">No projects assigned yet.</p>
+                                <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-300">
+                                    <FaClipboardList className="text-5xl text-gray-300 mx-auto mb-4" />
+                                    <p className="text-gray-500 font-medium text-lg">No projects assigned yet.</p>
                                 </div>
                             ) : (
                                 <div className="grid gap-6">
                                     {tasks.map(task => (
-                                        <div key={task._id} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow group">
-                                            <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+                                        <div key={task._id} className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 group">
+                                            <div className="flex flex-col md:flex-row justify-between items-start gap-6">
                                                 <div className="flex-1">
-                                                    <div className="flex items-center gap-2 mb-2">
-                                                        <span className="text-xs font-bold uppercase tracking-wider text-primary bg-blue-50 px-2 py-1 rounded">
+                                                    <div className="flex items-center gap-2 mb-3">
+                                                        <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-lg">
                                                             {task.project?.title || 'General Task'}
                                                         </span>
                                                         {task.dueDate && (
-                                                            <span className="text-xs text-red-500 font-medium bg-red-50 px-2 py-1 rounded">
+                                                            <span className="text-xs text-red-500 font-medium bg-red-50 px-3 py-1 rounded-lg">
                                                                 Due: {new Date(task.dueDate).toLocaleDateString()}
                                                             </span>
                                                         )}
                                                     </div>
-                                                    <h3 className="text-xl font-bold text-gray-800 mb-2">{task.title}</h3>
-                                                    <p className="text-gray-600 mb-4 leading-relaxed">{task.description}</p>
+                                                    <h3 className="text-2xl font-bold text-gray-800 mb-3 font-heading">{task.title}</h3>
+                                                    <p className="text-gray-600 mb-6 leading-relaxed">{task.description}</p>
 
                                                     {/* Status Badge */}
-                                                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold 
+                                                    <span className={`inline-block px-4 py-1.5 rounded-full text-xs font-bold 
                                                         ${task.status === 'Assigned' ? 'bg-blue-100 text-blue-800' :
                                                             task.status === 'Submitted' ? 'bg-yellow-100 text-yellow-800' :
                                                                 task.status === 'Approved' ? 'bg-green-100 text-green-800' : 'bg-gray-100'}`}>
@@ -193,16 +194,16 @@ Challenges/Notes: ${reportData.challenges}
                                                     </span>
                                                 </div>
 
-                                                <div className="flex-shrink-0">
+                                                <div className="flex-shrink-0 w-full md:w-auto">
                                                     {task.status === 'Assigned' ? (
                                                         <button
                                                             onClick={() => openModal(task)}
-                                                            className="w-full md:w-auto bg-gray-900 text-white px-6 py-3 rounded-xl font-bold hover:bg-primary transition-colors shadow-lg shadow-blue-900/10 flex items-center justify-center gap-2"
+                                                            className="w-full md:w-auto bg-gray-900 text-white px-8 py-4 rounded-2xl font-bold hover:bg-black transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 transform active:scale-95"
                                                         >
                                                             <FaClipboardList /> Fill Daily Report
                                                         </button>
                                                     ) : (
-                                                        <div className="bg-gray-50 px-4 py-2 rounded-lg text-sm text-gray-500 font-medium text-center border border-gray-100">
+                                                        <div className="bg-gray-50 px-6 py-3 rounded-2xl text-sm text-gray-500 font-bold text-center border border-gray-100">
                                                             Report Submitted
                                                         </div>
                                                     )}
@@ -216,20 +217,26 @@ Challenges/Notes: ${reportData.challenges}
 
                         {/* Sidebar */}
                         <div className="space-y-6">
-                            <div className="bg-primary/5 p-6 rounded-2xl border border-primary/10">
-                                <h3 className="font-bold text-lg text-primary mb-4">Daily Reporting Guide</h3>
-                                <ul className="space-y-3 text-sm text-gray-600">
-                                    <li className="flex gap-2">
-                                        <FaCheckCircle className="text-primary mt-1" />
-                                        <span>Fill out the questionnaire honestly detailing your activities.</span>
+                            <div className="bg-white p-8 rounded-3xl shadow-lg border border-gray-100">
+                                <h3 className="font-bold text-xl text-gray-800 mb-6 font-heading border-b pb-4">Daily Reporting Guide</h3>
+                                <ul className="space-y-5 text-gray-600">
+                                    <li className="flex gap-4">
+                                        <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 flex-shrink-0">
+                                            <FaCheckCircle />
+                                        </div>
+                                        <span className="text-sm font-medium pt-1">Fill out the questionnaire honestly detailing your activities.</span>
                                     </li>
-                                    <li className="flex gap-2">
-                                        <FaCheckCircle className="text-primary mt-1" />
-                                        <span>Upload clear photos as proof of work (Geo-tagged preferred if possible).</span>
+                                    <li className="flex gap-4">
+                                        <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 flex-shrink-0">
+                                            <FaUpload />
+                                        </div>
+                                        <span className="text-sm font-medium pt-1">Upload clear photos as proof of work (Geo-tagged preferred).</span>
                                     </li>
-                                    <li className="flex gap-2">
-                                        <FaCheckCircle className="text-primary mt-1" />
-                                        <span>Submit reports by end of day for timely approval.</span>
+                                    <li className="flex gap-4">
+                                        <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 flex-shrink-0">
+                                            <FaClock />
+                                        </div>
+                                        <span className="text-sm font-medium pt-1">Submit reports by end of day for timely approval.</span>
                                     </li>
                                 </ul>
                             </div>

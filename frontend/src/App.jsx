@@ -28,7 +28,7 @@ function App() {
     <AuthProvider>
       <CMSProvider>
         <Router>
-          <div className="flex flex-col min-h-screen">
+          <div className="flex flex-col min-h-screen bg-white">
             <TopMarquee />
             <Header />
             <ChatWidget />

@@ -220,13 +220,13 @@ const BlogsEvents = () => {
                 <section>
                     <div className="flex justify-between items-center mb-8">
                         <div className="flex items-center gap-4">
-                            <div className="h-10 w-2 bg-primary"></div>
+                            <div className="h-10 w-2 bg-blue-900"></div>
                             <h2 className="text-3xl font-bold text-gray-800">
                                 <EditableText contentKey="media_events_title" section="BlogsEvents" defaultText="Upcoming Events" />
                             </h2>
                         </div>
                         {isAdmin && (
-                            <button onClick={() => handleAdd('event')} className="bg-primary text-white px-4 py-2 rounded-full shadow hover:bg-blue-700 flex items-center gap-2">
+                            <button onClick={() => handleAdd('event')} className="bg-blue-900 text-white px-4 py-2 rounded-full shadow hover:bg-blue-800 flex items-center gap-2">
                                 <FaPlus /> Add Event
                             </button>
                         )}
@@ -255,13 +255,13 @@ const BlogsEvents = () => {
                 <section>
                     <div className="flex justify-between items-center mb-8">
                         <div className="flex items-center gap-4">
-                            <div className="h-10 w-2 bg-secondary"></div>
+                            <div className="h-10 w-2 bg-emerald-500"></div>
                             <h2 className="text-3xl font-bold text-gray-800">
                                 <EditableText contentKey="media_blogs_title" section="BlogsEvents" defaultText="Recent Articles" />
                             </h2>
                         </div>
                         {isAdmin && (
-                            <button onClick={() => handleAdd('blog')} className="bg-secondary text-white px-4 py-2 rounded-full shadow hover:bg-green-700 flex items-center gap-2">
+                            <button onClick={() => handleAdd('blog')} className="bg-emerald-500 text-white px-4 py-2 rounded-full shadow hover:bg-emerald-600 flex items-center gap-2">
                                 <FaPlus /> Add Article
                             </button>
                         )}
