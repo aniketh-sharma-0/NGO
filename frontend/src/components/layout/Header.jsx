@@ -28,17 +28,13 @@ const Header = () => {
         // Simpler: Just allow className to dictate everything if we want, or keep defaults.
         // Let's toggle default styles based on if it's a "button" style passed in (e.g. bg-...).
         const isButton = className.includes('bg-');
-        const defaultClasses = isButton ? "" : "text-gray-700 hover:text-blue-600 py-2 flex items-center";
+        const defaultClasses = isButton
+            ? ""
+            : "relative font-sans leading-tight text-gray-700 hover:text-blue-600 h-full flex items-center transform-gpu backface-hidden after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[2px] after:bg-blue-600 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300";
 
         return (
             <Link to={to} className={`${defaultClasses} font-medium transition-colors whitespace-nowrap ${className}`} onClick={() => setIsMobileMenuOpen(false)}>
-                <EditableText
-                    contentKey={labelKey}
-                    section="Navigation"
-                    defaultText={defaultLabel}
-                    className="inline-block"
-                    editable={false}
-                />
+                <span>{defaultLabel}</span>
             </Link>
         );
     };
@@ -48,13 +44,14 @@ const Header = () => {
             <div className="container mx-auto px-4 py-4 flex justify-between items-center">
                 {/* Logo and Name */}
                 <Link to="/" className="flex items-center gap-3">
-                    <div className="w-10 h-10 md:w-12 md:h-12 relative overflow-hidden rounded-full border border-gray-200">
+                    <div className="w-10 h-10 md:w-12 md:h-12 relative overflow-hidden rounded-full border border-gray-200 shadow-sm">
                         <EditableImage
                             contentKey="ngo_logo"
                             section="Header"
                             alt="NGO Logo"
-                            className="w-full h-full object-cover"
-                            defaultSrc="https://via.placeholder.com/150"
+                            className="w-full h-full flex items-center justify-center"
+                            imgClassName="w-full h-full object-cover rounded-full"
+                            defaultSrc="/logo.png"
                             editable={false}
                         />
                     </div>
@@ -69,7 +66,7 @@ const Header = () => {
                 </Link>
 
                 {/* Desktop Navigation */}
-                <nav className="hidden lg:flex items-center space-x-6 text-sm font-medium">
+                <nav className="hidden lg:flex items-stretch space-x-6 text-sm font-medium h-[42px]">
                     <NavItem to="/" labelKey="nav_home" defaultLabel="Home" />
                     <NavItem to="/about" labelKey="nav_about" defaultLabel="About Us" />
                     <NavItem to="/media" labelKey="nav_media" defaultLabel="Blogs & Events" />
@@ -77,56 +74,79 @@ const Header = () => {
                     <NavItem to="/volunteer" labelKey="nav_volunteer" defaultLabel="Volunteering" />
 
                     {/* Projects Dropdown */}
-                    <div className="relative group">
-                        <button className="flex items-center gap-1 text-gray-700 hover:text-blue-600 transition-colors py-2">
+                    <div className="relative group/dropdown h-full flex items-center">
+                        <div role="button" className="relative font-sans font-medium leading-tight flex items-center gap-1 text-gray-700 hover:text-blue-600 transition-colors h-full px-1 transform-gpu backface-hidden cursor-pointer after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[2px] after:bg-blue-600 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300">
                             <span>Projects</span>
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div className="absolute top-full left-0 w-48 bg-white shadow-xl rounded-b-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0">
+                        </div>
+                        <div className="absolute top-full left-0 w-48 bg-white shadow-xl rounded-b-lg border border-gray-100 opacity-0 invisible group-hover/dropdown:opacity-100 group-hover/dropdown:visible transition-all duration-200 transform translate-y-2 group-hover/dropdown:translate-y-0">
                             <Link to="/projects?category=Government" className="block px-4 py-3 hover:bg-gray-50 text-gray-700 hover:text-blue-600 border-b border-gray-50">Government Projects</Link>
                             <Link to="/projects?category=CSR" className="block px-4 py-3 hover:bg-gray-50 text-gray-700 hover:text-blue-600 border-b border-gray-50">CSR Projects</Link>
                             <Link to="/projects?category=Client" className="block px-4 py-3 hover:bg-gray-50 text-gray-700 hover:text-blue-600">Client Projects</Link>
                         </div>
                     </div>
 
-                    <NavItem to="/contact" labelKey="nav_contact" defaultLabel="Contact Us" className="bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700 transition-colors" />
+                    <NavItem to="/contact" labelKey="nav_contact" defaultLabel="Contact Us" className="bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700 transition-colors h-auto flex-none flex items-center justify-center self-center font-sans leading-tight transform-gpu border-2 border-transparent" />
 
                     {user ? (
-                        <div className="relative group z-50">
+                        <div className="relative group z-50 h-full flex items-center">
                             <button className="flex items-center gap-3 pl-1 pr-3 py-1.5 rounded-full hover:bg-blue-50 transition-all group-hover:bg-blue-50/50 border border-transparent hover:border-blue-100">
                                 <div className="w-9 h-9 rounded-full bg-[#1e3a8a] text-white flex items-center justify-center font-bold text-sm shadow-sm font-heading">
                                     {user.name ? user.name.charAt(0).toUpperCase() : <FaUserCircle />}
                                 </div>
                                 <div className="flex flex-col items-start px-1 text-left">
-                                    <span className="max-w-[100px] truncate font-bold text-gray-800 text-sm leading-tight font-heading group-hover:text-blue-900 transition-colors">{user.name}</span>
+                                    <span className="max-w-[100px] truncate font-bold text-gray-800 text-sm leading-tight font-sans group-hover:text-blue-900 transition-colors">{user.name}</span>
                                     <span className="text-[10px] font-medium text-gray-500 leading-tight uppercase tracking-wider font-sans">{user.role?.name || 'User'}</span>
                                 </div>
                                 <svg className="w-3 h-3 text-gray-400 group-hover:text-blue-800 transition-colors ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                             </button>
 
                             {/* Dropdown Menu */}
-                            <div className="absolute right-0 top-full mt-2 w-56 bg-white shadow-2xl rounded-2xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 overflow-hidden animate-fade-in-up" >
-                                <div className="px-5 py-4 border-b border-gray-50 bg-gray-50/50">
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Signed in as</p>
-                                    <p className="text-sm font-bold text-gray-800 truncate" title={user.email}>{user.email}</p>
+                            <div className="absolute right-0 top-full mt-2 w-60 bg-white shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] rounded-2xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 overflow-hidden animate-fade-in-up z-50">
+                                {/* User Header */}
+                                <div className="px-5 py-4 border-b border-gray-50">
+                                    <p className="font-bold text-gray-900 truncate text-sm">{user.name}</p>
+                                    <p className="text-[10px] text-gray-500 truncate">{user.email}</p>
                                 </div>
 
-                                <div className="py-2">
+                                {/* Menu Items */}
+                                {/* Menu Items */}
+                                <div className="p-1.5">
                                     {user.role?.name === 'Admin' && (
-                                        <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="block px-5 py-2.5 text-sm text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors font-medium">
-                                            Admin Dashboard
+                                        <Link
+                                            to="/dashboard"
+                                            onClick={() => setIsMobileMenuOpen(false)}
+                                            className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-50 text-gray-700 hover:text-gray-900 transition-colors group/item"
+                                        >
+                                            <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center group-hover/item:bg-blue-600 group-hover/item:text-white transition-colors">
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                                            </div>
+                                            <span className="font-bold text-sm">Dashboard</span>
                                         </Link>
                                     )}
                                     {user.role?.name === 'Volunteer' && (
-                                        <Link to="/volunteer/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="block px-5 py-2.5 text-sm text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors font-medium">
-                                            Volunteer Dashboard
+                                        <Link
+                                            to="/volunteer/dashboard"
+                                            onClick={() => setIsMobileMenuOpen(false)}
+                                            className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-50 text-gray-700 hover:text-gray-900 transition-colors group/item"
+                                        >
+                                            <div className="w-8 h-8 rounded-full bg-green-50 text-green-600 flex items-center justify-center group-hover/item:bg-green-600 group-hover/item:text-white transition-colors">
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                            </div>
+                                            <span className="font-bold text-sm">Volunteer Hub</span>
                                         </Link>
                                     )}
-                                </div>
 
-                                <div className="border-t border-gray-50 py-2">
-                                    <button onClick={handleLogout} className="block w-full text-left px-5 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors font-bold">
-                                        Logout
+                                    <div className="h-px bg-gray-50 my-1 mx-2"></div>
+
+                                    <button
+                                        onClick={handleLogout}
+                                        className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-red-50 text-gray-600 hover:text-red-600 transition-colors group/exit"
+                                    >
+                                        <div className="w-8 h-8 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center group-hover/exit:bg-red-200 group-hover/exit:text-red-600 transition-colors">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                                        </div>
+                                        <span className="font-bold text-sm">Log out</span>
                                     </button>
                                 </div>
                             </div>

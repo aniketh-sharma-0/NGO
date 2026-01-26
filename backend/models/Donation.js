@@ -8,7 +8,7 @@ const donationSchema = new mongoose.Schema({
     },
     amount: {
         type: Number,
-        required: true
+        required: false
     },
     // Donor Details
     name: {

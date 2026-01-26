@@ -10,7 +10,6 @@ const Donate = () => {
         organization: '',
         email: '',
         phone: '',
-        amount: '',
         address: '',
         pan: '',
         message: ''
@@ -38,7 +37,7 @@ const Donate = () => {
             await axios.post('/api/donations', { ...formData, category: selectedCategory });
             setStatus('success');
             setFormData({
-                name: '', organization: '', email: '', phone: '', amount: '', address: '', pan: '', message: ''
+                name: '', organization: '', email: '', phone: '', address: '', pan: '', message: ''
             });
         } catch (error) {
             console.error(error);
@@ -105,7 +104,7 @@ const Donate = () => {
                             <h3 className="text-2xl font-bold text-gray-800 mb-3">{card.title}</h3>
                             <p className="text-gray-600 mb-8 leading-relaxed">{card.description}</p>
                             <button className={`mt-auto px-8 py-3 ${card.btnColor} text-white font-bold rounded-full shadow-lg transform group-hover:-translate-y-1 transition-all`}>
-                                Donate Now
+                                Enquire Now
                             </button>
                         </div>
                     ))}
@@ -117,7 +116,7 @@ const Donate = () => {
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in">
                     <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
                         <div className="p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10">
-                            <h2 className="text-2xl font-bold text-gray-800">{selectedCategory} Donation</h2>
+                            <h2 className="text-2xl font-bold text-gray-800">{selectedCategory} Enquiry</h2>
                             <button onClick={closeModal} className="text-gray-500 hover:text-red-500">
                                 <FaTimes size={24} />
                             </button>
@@ -128,8 +127,8 @@ const Donate = () => {
                                 <div className="text-center py-8 text-green-600">
                                     <FaCheck className="text-6xl mx-auto mb-4" />
                                     <h3 className="text-2xl font-bold">It's Done!</h3>
-                                    <p className="mt-2 text-gray-600">Your donation details have been submitted successfully.</p>
-                                    <p className="text-sm text-gray-500 mt-1">Our admin team has received your request.</p>
+                                    <p className="mt-2 text-gray-600">Your enquiry has been submitted.</p>
+                                    <p className="text-sm text-gray-500 mt-1">Our team will contact you shortly to coordinate your donation.</p>
                                 </div>
                             ) : (
                                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -148,18 +147,7 @@ const Donate = () => {
                                         />
                                     </div>
 
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">Donation Amount (₹)</label>
-                                        <input
-                                            name="amount"
-                                            type="number"
-                                            min="1"
-                                            value={formData.amount} onChange={handleInputChange}
-                                            className="w-full bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-bold text-lg"
-                                            placeholder="e.g. 1000"
-                                            required
-                                        />
-                                    </div>
+                                    {/* Amount Field Removed */}
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
@@ -209,7 +197,7 @@ const Donate = () => {
                                         className="w-full bg-blue-900 text-white py-4 rounded-lg font-bold shadow-lg hover:bg-opacity-90 hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                                         disabled={status === 'submitting'}
                                     >
-                                        {status === 'submitting' ? 'Processing...' : 'Proceed'}
+                                        {status === 'submitting' ? 'Sending...' : 'Submit Enquiry'}
                                     </button>
                                 </form>
                             )}

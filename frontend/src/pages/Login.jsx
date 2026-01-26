@@ -55,16 +55,16 @@ const Login = () => {
             <div className="bg-white rounded-2xl shadow-2xl flex flex-col md:flex-row w-full max-w-4xl overflow-hidden h-[650px]">
 
                 {/* Visual Side */}
-                <div className="w-full md:w-1/2 bg-gray-900 relative hidden md:block">
+                <div className="w-full md:w-1/2 bg-black relative hidden md:block">
                     <img
                         src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=2068&auto=format&fit=crop"
                         alt="Community"
-                        className="absolute inset-0 w-full h-full object-cover opacity-60"
+                        className="absolute inset-0 w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent flex items-end p-10">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent flex items-end p-10">
                         <div className="text-white relative z-10">
                             <h2 className="text-4xl font-bold mb-4">Join Our Mission</h2>
-                            <p className="text-gray-300 text-lg">Connect with us to make a lasting difference in the world.</p>
+                            <p className="text-gray-200 text-lg">Connect with us to make a lasting difference in the world.</p>
                         </div>
                     </div>
                 </div>

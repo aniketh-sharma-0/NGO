@@ -52,22 +52,22 @@ const VolunteerLanding = () => {
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                        <div className="bg-white p-10 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 text-center border border-blue-50 group">
-                            <div className="w-20 h-20 bg-soft-blue text-primary rounded-2xl flex items-center justify-center mx-auto mb-8 text-3xl group-hover:bg-primary group-hover:text-white transition-colors duration-300 shadow-sm">
+                        <div className="bg-white p-10 rounded-3xl shadow-lg border border-gray-100">
+                            <div className="w-20 h-20 bg-gray-100 text-gray-600 rounded-2xl flex items-center justify-center mx-auto mb-8 text-3xl shadow-sm">
                                 <FaHandsHelping />
                             </div>
                             <h3 className="text-2xl font-bold mb-4 text-gray-800 font-heading">Make Real Impact</h3>
                             <p className="text-gray-600 leading-relaxed">Work directly with communities and see the change you create with your own eyes.</p>
                         </div>
-                        <div className="bg-white p-10 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 text-center border border-green-50 group">
-                            <div className="w-20 h-20 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center mx-auto mb-8 text-3xl group-hover:bg-green-600 group-hover:text-white transition-colors duration-300 shadow-sm">
+                        <div className="bg-white p-10 rounded-3xl shadow-lg border border-gray-100">
+                            <div className="w-20 h-20 bg-gray-100 text-gray-600 rounded-2xl flex items-center justify-center mx-auto mb-8 text-3xl shadow-sm">
                                 <FaNetworkWired />
                             </div>
                             <h3 className="text-2xl font-bold mb-4 text-gray-800 font-heading">Community & Networking</h3>
                             <p className="text-gray-600 leading-relaxed">Connect with like-minded individuals, professionals, and leaders from diverse backgrounds.</p>
                         </div>
-                        <div className="bg-white p-10 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 text-center border border-purple-50 group">
-                            <div className="w-20 h-20 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-8 text-3xl group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300 shadow-sm">
+                        <div className="bg-white p-10 rounded-3xl shadow-lg border border-gray-100">
+                            <div className="w-20 h-20 bg-gray-100 text-gray-600 rounded-2xl flex items-center justify-center mx-auto mb-8 text-3xl shadow-sm">
                                 <FaGraduationCap />
                             </div>
                             <h3 className="text-2xl font-bold mb-4 text-gray-800 font-heading">Skill Development</h3>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CMSProvider } from './context/CMSContext';
@@ -24,6 +24,32 @@ import EditToggle from './components/cms/EditToggle';
 import RoleRoute from './utils/RoleRoute';
 
 function App() {
+  useEffect(() => {
+    // Dynamic Favicon Generator: Forces the logo into a circle for the browser tab
+    const setRoundedFavicon = () => {
+      const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+      link.type = 'image/png';
+      link.rel = 'icon';
+      document.head.appendChild(link);
+
+      const canvas = document.createElement('canvas');
+      canvas.width = 64;
+      canvas.height = 64;
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      img.src = '/logo.png';
+      img.onload = () => {
+        ctx.beginPath();
+        ctx.arc(32, 32, 32, 0, 2 * Math.PI);
+        ctx.closePath();
+        ctx.clip();
+        ctx.drawImage(img, 0, 0, 64, 64);
+        link.href = canvas.toDataURL();
+      };
+    };
+    setRoundedFavicon();
+  }, []);
+
   return (
     <AuthProvider>
       <CMSProvider>

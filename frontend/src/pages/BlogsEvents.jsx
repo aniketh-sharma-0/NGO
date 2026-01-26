@@ -5,7 +5,8 @@ import EditableText from '../components/cms/EditableText';
 import ImageWithFallback from '../components/common/ImageWithFallback';
 import { useAuth } from '../context/AuthContext';
 
-const ExpandCard = ({ item, type, isAdmin, onEdit, onDelete }) => {
+import { useCMS } from '../context/CMSContext';
+const ExpandCard = ({ item, type, isAdmin, isEditMode, onEdit, onDelete }) => {
     return (
         <div className="group relative h-96 min-w-[60px] md:min-w-[80px] flex-1 cursor-pointer overflow-hidden rounded-2xl transition-all duration-500 hover:flex-[3] hover:shadow-2xl">
             {/* Background Image */}
@@ -20,7 +21,7 @@ const ExpandCard = ({ item, type, isAdmin, onEdit, onDelete }) => {
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent md:bg-gradient-to-r md:from-black/80 md:via-black/20 md:to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
 
             {/* Admin Controls */}
-            {isAdmin && (
+            {isAdmin && isEditMode && (
                 <div className="absolute top-4 right-4 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity delay-200">
                     <button
                         onClick={(e) => { e.stopPropagation(); onEdit(item, type); }}
@@ -84,6 +85,7 @@ const ExpandCard = ({ item, type, isAdmin, onEdit, onDelete }) => {
 
 const BlogsEvents = () => {
     const { user } = useAuth();
+    const { isEditMode } = useCMS();
     const isAdmin = user?.role?.name === 'Admin';
     const [blogs, setBlogs] = useState([]);
     const [events, setEvents] = useState([]);
@@ -225,7 +227,7 @@ const BlogsEvents = () => {
                                 <EditableText contentKey="media_events_title" section="BlogsEvents" defaultText="Upcoming Events" />
                             </h2>
                         </div>
-                        {isAdmin && (
+                        {isAdmin && isEditMode && (
                             <button onClick={() => handleAdd('event')} className="bg-blue-900 text-white px-4 py-2 rounded-full shadow hover:bg-blue-800 flex items-center gap-2">
                                 <FaPlus /> Add Event
                             </button>
@@ -240,6 +242,7 @@ const BlogsEvents = () => {
                                 item={event}
                                 type="event"
                                 isAdmin={isAdmin}
+                                isEditMode={isEditMode}
                                 onEdit={handleEdit}
                                 onDelete={handleDelete}
                             />
@@ -260,7 +263,7 @@ const BlogsEvents = () => {
                                 <EditableText contentKey="media_blogs_title" section="BlogsEvents" defaultText="Recent Articles" />
                             </h2>
                         </div>
-                        {isAdmin && (
+                        {isAdmin && isEditMode && (
                             <button onClick={() => handleAdd('blog')} className="bg-emerald-500 text-white px-4 py-2 rounded-full shadow hover:bg-emerald-600 flex items-center gap-2">
                                 <FaPlus /> Add Article
                             </button>
@@ -274,6 +277,7 @@ const BlogsEvents = () => {
                                 item={blog}
                                 type="blog"
                                 isAdmin={isAdmin}
+                                isEditMode={isEditMode}
                                 onEdit={handleEdit}
                                 onDelete={handleDelete}
                             />

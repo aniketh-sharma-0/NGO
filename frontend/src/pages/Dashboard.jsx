@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { FaUsers, FaTasks, FaHandHoldingHeart, FaCheck, FaTimes, FaPlus } from 'react-icons/fa';
+import { useCMS } from '../context/CMSContext';
+import { FaUsers, FaTasks, FaHandHoldingHeart, FaCheck, FaTimes, FaPlus, FaSearch, FaTrash, FaEdit } from 'react-icons/fa';
 
 const Dashboard = () => {
     const { user } = useAuth();
+    const { isEditMode } = useCMS();
     const isAdmin = user?.role?.name === 'Admin';
     const [activeTab, setActiveTab] = useState('Overview');
     const [loading, setLoading] = useState(false);
@@ -156,165 +158,249 @@ const Dashboard = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 flex">
+        <div className="h-screen overflow-hidden bg-gray-50 flex font-sans">
             {/* Sidebar */}
-            <div className="w-64 bg-white shadow-lg hidden md:block">
-                <div className="p-6">
-                    <h2 className="text-xl font-bold text-gray-800">Admin Panel</h2>
+            <div className="w-72 bg-white shadow-xl hidden md:flex flex-col z-10 h-full">
+                <div className="p-8 border-b border-gray-100">
+                    <h2 className="text-2xl font-bold text-gray-800 font-heading tracking-tight">Admin <span className="text-blue-600">Panel</span></h2>
+                    <p className="text-xs text-gray-400 mt-1 uppercase tracking-wider font-bold">Management Suite</p>
                 </div>
-                <nav className="mt-6">
+                <nav className="flex-1 p-6 space-y-2">
                     {['Overview', 'Volunteers', 'Donations', 'Chatbot'].map(tab => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`w-full text-left px-6 py-3 hover:bg-gray-50 transition-colors ${activeTab === tab ? 'bg-blue-50 text-primary border-r-4 border-primary' : 'text-gray-600'}`}
+                            className={`w-full text-left px-5 py-3.5 rounded-xl transition-all font-bold flex items-center gap-3 ${activeTab === tab
+                                ? 'bg-gray-900 text-white shadow-lg shadow-gray-200 transform scale-105'
+                                : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+                                }`}
                         >
-                            {tab}
+                            {tab === 'Overview' && <FaSearch className="text-sm opacity-50" />} {/* Placeholder Icon */}
+                            {tab === 'Volunteers' && <FaUsers className="text-sm opacity-50" />}
+                            {tab === 'Donations' && <FaHandHoldingHeart className="text-sm opacity-50" />}
+                            {tab === 'Chatbot' && <FaTasks className="text-sm opacity-50" />}
+                            {tab === 'Donations' ? 'Enquiries' : tab}
                         </button>
                     ))}
                 </nav>
+                <div className="p-6 border-t border-gray-100">
+                    <div className="bg-blue-50 rounded-xl p-4 flex items-center gap-3">
+                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
+                            {user.name.charAt(0)}
+                        </div>
+                        <div className="overflow-hidden">
+                            <p className="text-sm font-bold text-gray-900 truncate">{user.name}</p>
+                            <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 p-8 overflow-y-auto">
-                <h1 className="text-3xl font-bold text-gray-800 mb-8">{activeTab}</h1>
+            <div className="flex-1 p-8 md:p-12 h-full overflow-y-auto pb-24 bg-gray-50/50">
+                <header className="flex justify-between items-center mb-10">
+                    <div>
+                        <h1 className="text-4xl font-bold text-gray-900 font-heading">{activeTab}</h1>
+                        <p className="text-gray-500 mt-1">
+                            {activeTab === 'Overview' ? 'Welcome back! Here is what’s happening today.' : `Manage your ${activeTab.toLowerCase()} efficiently.`}
+                        </p>
+                    </div>
+                    {/* Placeholder for global actions or date */}
+                    <div className="hidden md:block text-sm font-bold text-gray-400 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100">
+                        {new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                    </div>
+                </header>
 
                 {activeTab === 'Overview' && (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <p className="text-gray-500">Total Volunteers (Active)</p>
-                                    <h3 className="text-2xl font-bold">{volunteers.filter(v => v.status === 'Active').length}</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div
+                            onClick={() => setActiveTab('Volunteers')}
+                            className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 cursor-pointer active:scale-95 transition-transform duration-150"
+                        >
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="p-3 bg-gray-100 rounded-xl text-gray-600">
+                                    <FaUsers size={24} />
                                 </div>
-                                <FaUsers className="text-3xl text-blue-200" />
+                                <span className={`text-xs font-bold px-2 py-1 rounded bg-green-100 text-green-700`}>Active</span>
+                            </div>
+                            <div>
+                                <h3 className="text-4xl font-bold text-gray-900 mb-1">{volunteers.filter(v => v.status === 'Active').length}</h3>
+                                <p className="text-gray-500 font-medium">Volunteers</p>
                             </div>
                         </div>
-                        <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <p className="text-gray-500">Total Donations</p>
-                                    <h3 className="text-2xl font-bold">₹{donations.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0)}</h3>
+
+                        <div
+                            onClick={() => setActiveTab('Donations')}
+                            className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 cursor-pointer active:scale-95 transition-transform duration-150"
+                        >
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="p-3 bg-gray-100 rounded-xl text-gray-600">
+                                    <FaHandHoldingHeart size={24} />
                                 </div>
-                                <FaHandHoldingHeart className="text-3xl text-green-200" />
+                                <span className="text-xs font-bold px-2 py-1 rounded bg-green-100 text-green-700">+12%</span>
+                            </div>
+                            <div>
+                                <h3 className="text-4xl font-bold text-gray-900 mb-1">{donations.length}</h3>
+                                <p className="text-gray-500 font-medium">Total Enquiries</p>
                             </div>
                         </div>
-                        <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-purple-500">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <p className="text-gray-500">Active Projects</p>
-                                    <h3 className="text-2xl font-bold">--</h3>
+
+                        <div
+                            onClick={() => setActiveTab('Chatbot')}
+                            className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 cursor-pointer active:scale-95 transition-transform duration-150"
+                        >
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="p-3 bg-gray-100 rounded-xl text-gray-600">
+                                    <FaTasks size={24} />
                                 </div>
-                                <FaTasks className="text-3xl text-purple-200" />
+                            </div>
+                            <div>
+                                <h3 className="text-4xl font-bold text-gray-900 mb-1">{intents.length}</h3>
+                                <p className="text-gray-500 font-medium">Chatbot Intents</p>
                             </div>
                         </div>
                     </div>
                 )}
 
                 {activeTab === 'Volunteers' && (
-                    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                        <table className="w-full text-left">
-                            <thead className="bg-gray-50 text-gray-500 border-b">
-                                <tr>
-                                    <th className="p-4">Name</th>
-                                    <th className="p-4">Skills</th>
-                                    <th className="p-4">Status</th>
-                                    <th className="p-4 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y">
-                                {volunteers.map(vol => (
-                                    <tr key={vol._id} className="hover:bg-gray-50">
-                                        <td className="p-4 font-medium">{vol.user?.name || 'Unknown'}</td>
-                                        <td className="p-4 text-sm text-gray-600">{vol.skills.join(', ')}</td>
-                                        <td className="p-4">
-                                            <span className={`px-2 py-1 rounded text-xs font-bold 
-                                                ${vol.status === 'Active' ? 'bg-green-100 text-green-800' :
-                                                    vol.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
-                                                {vol.status}
-                                            </span>
-                                        </td>
-                                        <td className="p-4 text-right space-x-2">
-                                            {vol.status === 'Pending' && (
-                                                <>
-                                                    <button onClick={() => handleVerifyVolunteer(vol._id, 'Active')} className="bg-green-100 text-green-600 p-2 rounded hover:bg-green-200" title="Approve">
-                                                        <FaCheck />
-                                                    </button>
-                                                    <button onClick={() => handleVerifyVolunteer(vol._id, 'Inactive')} className="bg-red-100 text-red-600 p-2 rounded hover:bg-red-200" title="Reject">
-                                                        <FaTimes />
-                                                    </button>
-                                                </>
-                                            )}
-                                            {vol.status === 'Active' && (
-                                                <button onClick={() => openTaskModal(vol)} className="bg-blue-100 text-blue-600 p-2 rounded hover:bg-blue-200" title="Assign Task">
-                                                    <FaPlus /> Assign Task
-                                                </button>
-                                            )}
-                                        </td>
+                    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead className="bg-gray-50 border-b border-gray-100">
+                                    <tr>
+                                        <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
+                                        <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Skills</th>
+                                        <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {volunteers.map(vol => (
+                                        <tr key={vol._id} className="hover:bg-blue-50/30 transition-colors group">
+                                            <td className="p-6 font-bold text-gray-900">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-600">
+                                                        {vol.user?.name ? vol.user.name.charAt(0) : '?'}
+                                                    </div>
+                                                    <div>
+                                                        <p>{vol.user?.name || 'Unknown'}</p>
+                                                        <p className="text-xs text-gray-400 font-normal">{vol.user?.email}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="p-6 text-sm text-gray-600">
+                                                <div className="flex flex-wrap gap-1">
+                                                    {vol.skills.slice(0, 3).map((s, i) => (
+                                                        <span key={i} className="px-2 py-0.5 bg-gray-100 rounded text-xs">{s}</span>
+                                                    ))}
+                                                    {vol.skills.length > 3 && <span className="px-2 py-0.5 bg-gray-100 rounded text-xs">+{vol.skills.length - 3}</span>}
+                                                </div>
+                                            </td>
+                                            <td className="p-6">
+                                                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide
+                                                    ${vol.status === 'Active' ? 'bg-green-100 text-green-700' :
+                                                        vol.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
+                                                    {vol.status}
+                                                </span>
+                                            </td>
+                                            <td className="p-6 text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    {vol.status === 'Pending' && (
+                                                        <>
+                                                            <button onClick={() => handleVerifyVolunteer(vol._id, 'Active')} className="bg-green-100 text-green-600 p-2 rounded-lg hover:bg-green-200 transition-colors" title="Approve">
+                                                                <FaCheck />
+                                                            </button>
+                                                            <button onClick={() => handleVerifyVolunteer(vol._id, 'Inactive')} className="bg-red-100 text-red-600 p-2 rounded-lg hover:bg-red-200 transition-colors" title="Reject">
+                                                                <FaTimes />
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                    {vol.status === 'Active' && (
+                                                        <button onClick={() => openTaskModal(vol)} className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-black text-xs font-bold shadow-md transition-all">
+                                                            Assign Task
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
 
                 {activeTab === 'Donations' && (
-                    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                        <table className="w-full text-left">
-                            <thead className="bg-gray-50 text-gray-500 border-b">
-                                <tr>
-                                    <th className="p-4">Donor</th>
-                                    <th className="p-4">Amount</th>
-                                    <th className="p-4">Category</th>
-                                    <th className="p-4">Date</th>
-                                    <th className="p-4">Status</th>
-                                    <th className="p-4">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y">
-                                {donations.map(don => (
-                                    <tr key={don._id} className="hover:bg-gray-50">
-                                        <td className="p-4">
-                                            <div className="font-medium">{don.name}</div>
-                                            <div className="text-xs text-gray-500">{don.email}</div>
-                                        </td>
-                                        <td className="p-4 font-bold">₹{don.amount}</td>
-                                        <td className="p-4 text-sm">{don.category}</td>
-                                        <td className="p-4 text-sm text-gray-500">{new Date(don.createdAt).toLocaleDateString()}</td>
-                                        <td className="p-4">
-                                            <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">
-                                                {don.status}
-                                            </span>
-                                        </td>
-                                        <td className="p-4">
-                                            <button onClick={() => openDonationModal(don)} className="text-blue-600 hover:underline text-sm">View Details</button>
-                                        </td>
+                    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead className="bg-gray-50 border-b border-gray-100">
+                                    <tr>
+                                        <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Donor</th>
+                                        <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Category</th>
+                                        <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Date</th>
+                                        <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Action</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {donations.map(don => (
+                                        <tr key={don._id} className="hover:bg-blue-50/30 transition-colors">
+                                            <td className="p-6">
+                                                <div className="font-bold text-gray-900">{don.name}</div>
+                                                <div className="text-xs text-gray-500">{don.email}</div>
+                                            </td>
+                                            {/* Amount Removed */}
+                                            <td className="p-6 text-sm text-gray-600">{don.category}</td>
+                                            <td className="p-6 text-sm text-gray-500">{new Date(don.createdAt).toLocaleDateString()}</td>
+                                            <td className="p-6">
+                                                <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
+                                                    {don.status}
+                                                </span>
+                                            </td>
+                                            <td className="p-6 text-right">
+                                                <button onClick={() => openDonationModal(don)} className="text-gray-400 hover:text-blue-600 transition-colors font-bold text-sm">View</button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
 
                 {activeTab === 'Chatbot' && (
-                    <div className="bg-white rounded-xl shadow-sm p-6">
-                        <div className="flex justify-between mb-6">
-                            <h2 className="text-xl font-bold">FAQs & Chat Intents</h2>
-                            <button onClick={() => openBotModal()} className="bg-primary text-white px-4 py-2 rounded flex items-center gap-2">
-                                <FaPlus /> Add FAQ
-                            </button>
+                    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
+                        <div className="flex justify-between items-center mb-8">
+                            <div>
+                                <h2 className="text-2xl font-bold text-gray-900 font-heading">Knowledge Base</h2>
+                                <p className="text-gray-500">Manage what your AI assistant knows.</p>
+                            </div>
+                            {isEditMode && (
+                                <button onClick={() => openBotModal()} className="bg-gray-900 text-white px-6 py-3 rounded-xl font-bold hover:bg-black transition-all shadow-lg flex items-center gap-2">
+                                    <FaPlus /> Add FAQ
+                                </button>
+                            )}
                         </div>
-                        <div className="grid gap-4">
+                        <div className="grid md:grid-cols-2 gap-6">
                             {intents.map(intent => (
-                                <div key={intent._id} className="border p-4 rounded-lg hover:shadow-md transition-shadow relative group">
-                                    <div className="absolute top-4 right-4 hidden group-hover:flex gap-2">
-                                        <button onClick={() => openBotModal(intent)} className="text-blue-600 hover:text-blue-800">Edit</button>
-                                        <button onClick={() => handleDeleteIntent(intent._id)} className="text-red-600 hover:text-red-800">Delete</button>
+                                <div key={intent._id} className="border border-gray-100 p-6 rounded-2xl hover:shadow-lg transition-all relative group bg-gray-50/30 hover:bg-white">
+                                    {isEditMode && (
+                                        <div className="absolute top-4 right-4 flex gap-2">
+                                            <button onClick={() => openBotModal(intent)} className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100"><FaEdit size={14} /></button>
+                                            <button onClick={() => handleDeleteIntent(intent._id)} className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100"><FaTrash size={14} /></button>
+                                        </div>
+                                    )}
+                                    <h3 className="font-bold text-lg mb-2 text-gray-900 pr-12">{intent.question}</h3>
+                                    <div className="text-gray-600 mb-4 text-sm leading-relaxed bg-white p-3 rounded-xl border border-gray-100">
+                                        {intent.answer}
                                     </div>
-                                    <h3 className="font-bold text-lg mb-1">{intent.question}</h3>
-                                    <p className="text-gray-600 mb-2">{intent.answer}</p>
-                                    <div className="text-xs text-gray-400">
-                                        Keywords: {intent.keywords.join(', ')}
+                                    <div className="flex flex-wrap gap-2">
+                                        {intent.keywords.map((k, i) => (
+                                            <span key={i} className="text-[10px] font-bold uppercase tracking-wider bg-gray-200 text-gray-600 px-2 py-1 rounded-sm">
+                                                {k}
+                                            </span>
+                                        ))}
                                     </div>
                                 </div>
                             ))}
@@ -325,40 +411,45 @@ const Dashboard = () => {
 
             {/* Task Assign Modal */}
             {isTaskModalOpen && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
-                        <h3 className="text-xl font-bold mb-4">Assign Task to {selectedVolunteer?.user?.name}</h3>
-                        <form onSubmit={handleAssignTask} className="space-y-4">
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-xl font-bold text-gray-900">Assign Task</h3>
+                            <button onClick={() => setIsTaskModalOpen(false)} className="text-gray-400 hover:text-gray-600"><FaTimes /></button>
+                        </div>
+                        <form onSubmit={handleAssignTask} className="space-y-5">
                             <div>
-                                <label className="block text-sm font-medium mb-1">Task Title</label>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Task Title</label>
                                 <input
-                                    className="w-full border p-2 rounded"
+                                    className="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none bg-gray-50"
                                     value={taskForm.title}
                                     onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
                                     required
+                                    placeholder="e.g. Field Survey"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium mb-1">Description</label>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Description</label>
                                 <textarea
-                                    className="w-full border p-2 rounded h-24"
+                                    className="w-full border border-gray-200 p-3 rounded-xl h-28 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none bg-gray-50 resize-none"
                                     value={taskForm.description}
                                     onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })}
                                     required
+                                    placeholder="Details about the task..."
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium mb-1">Due Date</label>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Due Date</label>
                                 <input
                                     type="date"
-                                    className="w-full border p-2 rounded"
+                                    className="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none bg-gray-50"
                                     value={taskForm.dueDate}
                                     onChange={(e) => setTaskForm({ ...taskForm, dueDate: e.target.value })}
                                 />
                             </div>
-                            <div className="flex justify-end gap-3 mt-6">
-                                <button type="button" onClick={() => setIsTaskModalOpen(false)} className="px-4 py-2 border rounded hover:bg-gray-50">Cancel</button>
-                                <button type="submit" className="px-4 py-2 bg-primary text-white rounded hover:bg-blue-800">Assign</button>
+                            <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-50">
+                                <button type="button" onClick={() => setIsTaskModalOpen(false)} className="px-5 py-2.5 text-gray-600 font-bold hover:bg-gray-50 rounded-lg transition-colors">Cancel</button>
+                                <button type="submit" className="px-6 py-2.5 bg-gray-900 text-white font-bold rounded-lg hover:bg-black shadow-lg">Assign Task</button>
                             </div>
                         </form>
                     </div>
@@ -367,14 +458,17 @@ const Dashboard = () => {
 
             {/* Chatbot Modal */}
             {isBotModalOpen && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
-                        <h3 className="text-xl font-bold mb-4">{botForm.id ? 'Edit FAQ' : 'Add FAQ'}</h3>
-                        <form onSubmit={handleSaveIntent} className="space-y-4">
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-xl font-bold text-gray-900">{botForm.id ? 'Edit Knowledge' : 'Add Knowledge'}</h3>
+                            <button onClick={() => setIsBotModalOpen(false)} className="text-gray-400 hover:text-gray-600"><FaTimes /></button>
+                        </div>
+                        <form onSubmit={handleSaveIntent} className="space-y-5">
                             <div>
-                                <label className="block text-sm font-medium mb-1">Question (Canonical)</label>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">User Question</label>
                                 <input
-                                    className="w-full border p-2 rounded"
+                                    className="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none bg-gray-50"
                                     value={botForm.question}
                                     onChange={(e) => setBotForm({ ...botForm, question: e.target.value })}
                                     required
@@ -382,41 +476,43 @@ const Dashboard = () => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium mb-1">Answer</label>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Bot Answer</label>
                                 <textarea
-                                    className="w-full border p-2 rounded h-32"
+                                    className="w-full border border-gray-200 p-3 rounded-xl h-32 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none bg-gray-50 resize-none"
                                     value={botForm.answer}
                                     onChange={(e) => setBotForm({ ...botForm, answer: e.target.value })}
                                     required
-                                    placeholder="You can donate by clicking..."
+                                    placeholder="The exact response the bot should give..."
                                 />
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-1">Keywords (comma separated)</label>
-                                <input
-                                    className="w-full border p-2 rounded"
-                                    value={botForm.keywords}
-                                    onChange={(e) => setBotForm({ ...botForm, keywords: e.target.value })}
-                                    required
-                                    placeholder="donate, give, contribute"
-                                />
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Keywords</label>
+                                    <input
+                                        className="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none bg-gray-50"
+                                        value={botForm.keywords}
+                                        onChange={(e) => setBotForm({ ...botForm, keywords: e.target.value })}
+                                        required
+                                        placeholder="donate, money"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Category</label>
+                                    <select
+                                        className="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none bg-gray-50"
+                                        value={botForm.category}
+                                        onChange={(e) => setBotForm({ ...botForm, category: e.target.value })}
+                                    >
+                                        <option value="General">General</option>
+                                        <option value="Donation">Donation</option>
+                                        <option value="Volunteer">Volunteer</option>
+                                        <option value="Project">Project</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-1">Category</label>
-                                <select
-                                    className="w-full border p-2 rounded"
-                                    value={botForm.category}
-                                    onChange={(e) => setBotForm({ ...botForm, category: e.target.value })}
-                                >
-                                    <option value="General">General</option>
-                                    <option value="Donation">Donation</option>
-                                    <option value="Volunteer">Volunteer</option>
-                                    <option value="Project">Project</option>
-                                </select>
-                            </div>
-                            <div className="flex justify-end gap-3 mt-6">
-                                <button type="button" onClick={() => setIsBotModalOpen(false)} className="px-4 py-2 border rounded hover:bg-gray-50">Cancel</button>
-                                <button type="submit" className="px-4 py-2 bg-primary text-white rounded hover:bg-blue-800">Save</button>
+                            <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-50">
+                                <button type="button" onClick={() => setIsBotModalOpen(false)} className="px-5 py-2.5 text-gray-600 font-bold hover:bg-gray-50 rounded-lg transition-colors">Cancel</button>
+                                <button type="submit" className="px-6 py-2.5 bg-gray-900 text-white font-bold rounded-lg hover:bg-black shadow-lg">Save Knowledge</button>
                             </div>
                         </form>
                     </div>
@@ -424,62 +520,61 @@ const Dashboard = () => {
             )}
             {/* Donation Details Modal */}
             {isDonationModalOpen && selectedDonation && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
-                        <div className="flex justify-between items-center mb-6 border-b pb-4">
-                            <h3 className="text-xl font-bold">Donation Details</h3>
-                            <button onClick={() => setIsDonationModalOpen(false)} className="text-gray-500 hover:text-red-500">
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-0 overflow-hidden transform transition-all">
+                        <div className="bg-gray-900 p-6 flex justify-between items-center">
+                            <h3 className="text-xl font-bold text-white">Donation Receipt</h3>
+                            <button onClick={() => setIsDonationModalOpen(false)} className="text-gray-400 hover:text-white transition-colors">
                                 <FaTimes size={20} />
                             </button>
                         </div>
-                        <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase">Donor Name</label>
-                                    <p className="text-gray-800">{selectedDonation.name}</p>
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase">Amount</label>
-                                    <p className="text-xl font-bold text-green-600">₹{selectedDonation.amount}</p>
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase">Email</label>
-                                    <p className="text-gray-800">{selectedDonation.email}</p>
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase">Phone</label>
-                                    <p className="text-gray-800">{selectedDonation.phone || 'N/A'}</p>
-                                </div>
+                        <div className="p-8 max-h-[70vh] overflow-y-auto">
+                            <div className="text-center mb-8">
+                                <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mb-2">Enquiry Status</p>
+                                <span className="inline-block mt-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold uppercase">{selectedDonation.status}</span>
                             </div>
-                            {selectedDonation.organization && (
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase">Organization</label>
-                                    <p className="text-gray-800">{selectedDonation.organization}</p>
+
+                            <div className="space-y-6">
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Donor Name</label>
+                                        <p className="text-gray-900 font-bold text-lg">{selectedDonation.name}</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Date</label>
+                                        <p className="text-gray-900 font-medium">{new Date(selectedDonation.createdAt).toLocaleDateString()}</p>
+                                    </div>
                                 </div>
-                            )}
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase">Address</label>
-                                <p className="text-gray-800">{selectedDonation.address || 'N/A'}</p>
-                            </div>
-                            {selectedDonation.pan && (
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase">PAN</label>
-                                    <p className="text-gray-800">{selectedDonation.pan}</p>
+                                <div className="border-t border-gray-100 pt-4">
+                                    <div className="grid grid-cols-2 gap-4 text-sm">
+                                        <div>
+                                            <span className="text-gray-500 block">Email</span>
+                                            <span className="text-gray-900 font-medium">{selectedDonation.email}</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-gray-500 block">Phone</span>
+                                            <span className="text-gray-900 font-medium">{selectedDonation.phone || 'N/A'}</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-gray-500 block">PAN</span>
+                                            <span className="text-gray-900 font-medium">{selectedDonation.pan || 'N/A'}</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-gray-500 block">Category</span>
+                                            <span className="text-gray-900 font-medium">{selectedDonation.category}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                            )}
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase">Message</label>
-                                <div className="bg-gray-50 p-3 rounded text-gray-700 text-sm">
-                                    {selectedDonation.message || 'No message provided.'}
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase">Timestamp</label>
-                                <p className="text-sm text-gray-500">{new Date(selectedDonation.createdAt).toLocaleString()}</p>
+                                {selectedDonation.message && (
+                                    <div className="bg-gray-50 p-4 rounded-xl">
+                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Message</p>
+                                        <p className="text-gray-700 text-sm italic">"{selectedDonation.message}"</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
-                        <div className="mt-6 flex justify-end">
-                            <button onClick={() => setIsDonationModalOpen(false)} className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">Close</button>
+                        <div className="bg-gray-50 p-4 flex justify-center border-t border-gray-100">
+                            <button onClick={() => setIsDonationModalOpen(false)} className="text-gray-500 text-sm font-bold hover:text-gray-900">Close Receipt</button>
                         </div>
                     </div>
                 </div>

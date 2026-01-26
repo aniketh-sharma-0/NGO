@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import SelectInput from '../../components/common/SelectInput';
 
 const VolunteerRegister = () => {
     const { user } = useAuth();
@@ -145,22 +146,23 @@ const VolunteerRegister = () => {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Availability</label>
-                                    <select
-                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none"
+                                    <SelectInput
+                                        label="Availability"
+                                        name="availability"
                                         value={formData.availability}
                                         onChange={(e) => setFormData({ ...formData, availability: e.target.value })}
-                                    >
-                                        <option value="Weekends">Weekends</option>
-                                        <option value="Weekdays">Weekdays</option>
-                                        <option value="Anytime">Anytime</option>
-                                    </select>
+                                        options={[
+                                            { label: 'Weekends', value: 'Weekends' },
+                                            { label: 'Weekdays', value: 'Weekdays' },
+                                            { label: 'Anytime', value: 'Anytime' }
+                                        ]}
+                                    />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-2">Current City</label>
                                     <input
                                         type="text" required
-                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"
                                         placeholder="City"
                                         value={formData.address}
                                         onChange={(e) => setFormData({ ...formData, address: e.target.value })}

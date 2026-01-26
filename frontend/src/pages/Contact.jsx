@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { FaWhatsapp, FaPhoneVolume, FaEnvelopeOpenText, FaComments, FaPaperPlane } from 'react-icons/fa';
 import EditableText from '../components/cms/EditableText';
+import SelectInput from '../components/common/SelectInput';
 
 const Contact = () => {
     const [formData, setFormData] = useState({
@@ -113,10 +114,10 @@ const Contact = () => {
                             alt="Our Team"
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         />
-                        <div className="absolute inset-0 bg-blue-900/60 flex items-center justify-center backdrop-blur-[2px]">
-                            <div className="text-white text-center p-8">
-                                <h3 className="text-3xl font-bold mb-3 font-heading">Let's Make a Difference</h3>
-                                <p className="text-lg opacity-90 font-light">Reach out to us and start your journey of impact today.</p>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent flex items-end p-10">
+                            <div className="text-white text-left">
+                                <h3 className="text-4xl font-bold mb-2 font-heading">Let's Make a Difference</h3>
+                                <p className="text-lg opacity-90 font-light text-gray-200">Reach out to us and start your journey of impact today.</p>
                             </div>
                         </div>
                     </div>
@@ -136,17 +137,17 @@ const Contact = () => {
                         ) : (
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Inquiry Type</label>
-                                    <select
+                                    <SelectInput
+                                        label="Inquiry Type"
                                         name="inquiryType"
                                         value={formData.inquiryType || 'General'}
                                         onChange={(e) => setFormData({ ...formData, inquiryType: e.target.value })}
-                                        className="w-full bg-white border-b-2 border-gray-200 text-gray-800 text-lg py-3 focus:outline-none focus:border-primary transition-colors appearance-none"
-                                    >
-                                        <option value="General">General Inquiry</option>
-                                        <option value="Government">Government Project</option>
-                                        <option value="Corporate">Corporate / CSR</option>
-                                    </select>
+                                        options={[
+                                            { value: 'General', label: 'General Inquiry' },
+                                            { value: 'Government', label: 'Government Project' },
+                                            { value: 'Corporate', label: 'Corporate / CSR' }
+                                        ]}
+                                    />
                                 </div>
 
                                 {(formData.inquiryType === 'Government' || formData.inquiryType === 'Corporate') && (
@@ -156,7 +157,7 @@ const Contact = () => {
                                             name="organization"
                                             value={formData.organization || ''}
                                             onChange={handleChange}
-                                            className="w-full bg-transparent border-b-2 border-gray-200 text-gray-800 text-lg py-3 focus:outline-none focus:border-primary transition-colors"
+                                            className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-lg py-3 px-4 rounded-xl focus:outline-none focus:bg-white focus:border-blue-900 focus:ring-4 focus:ring-blue-100 transition-all"
                                             placeholder="Enter organization name"
                                             required
                                         />
@@ -169,7 +170,7 @@ const Contact = () => {
                                         <input
                                             name="name"
                                             value={formData.name} onChange={handleChange}
-                                            className="w-full bg-transparent border-b-2 border-gray-200 text-gray-800 text-lg py-3 focus:outline-none focus:border-primary transition-colors"
+                                            className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-lg py-3 px-4 rounded-xl focus:outline-none focus:bg-white focus:border-blue-900 focus:ring-4 focus:ring-blue-100 transition-all"
                                             placeholder="Your Name"
                                             required
                                         />
@@ -179,7 +180,7 @@ const Contact = () => {
                                         <input
                                             type="email" name="email"
                                             value={formData.email} onChange={handleChange}
-                                            className="w-full bg-transparent border-b-2 border-gray-200 text-gray-800 text-lg py-3 focus:outline-none focus:border-primary transition-colors"
+                                            className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-lg py-3 px-4 rounded-xl focus:outline-none focus:bg-white focus:border-blue-900 focus:ring-4 focus:ring-blue-100 transition-all"
                                             placeholder="email@example.com"
                                             required
                                         />
@@ -191,7 +192,7 @@ const Contact = () => {
                                     <input
                                         name="phone"
                                         value={formData.phone} onChange={handleChange}
-                                        className="w-full bg-transparent border-b-2 border-gray-200 text-gray-800 text-lg py-3 focus:outline-none focus:border-primary transition-colors"
+                                        className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-lg py-3 px-4 rounded-xl focus:outline-none focus:bg-white focus:border-blue-900 focus:ring-4 focus:ring-blue-100 transition-all"
                                         placeholder="+91 ..."
                                     />
                                 </div>
@@ -201,7 +202,7 @@ const Contact = () => {
                                     <textarea
                                         name="message"
                                         value={formData.message} onChange={handleChange}
-                                        className="w-full bg-gray-50 border-b-2 border-gray-200 text-gray-800 text-lg p-4 rounded-t-lg h-40 focus:outline-none focus:border-primary transition-colors resize-none"
+                                        className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-lg p-4 rounded-xl h-40 focus:outline-none focus:bg-white focus:border-blue-900 focus:ring-4 focus:ring-blue-100 transition-all resize-none"
                                         placeholder="How can we help you?"
                                         required
                                     ></textarea>
