@@ -29,6 +29,8 @@ const VolunteerRegister = () => {
         setError('');
 
         try {
+            const skillsArray = formData.skills.split(',').map(s => s.trim());
+
             await api.post('/volunteers/register', {
                 ...formData,
                 skills: skillsArray
