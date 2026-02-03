@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { FaHandHoldingHeart, FaBuilding, FaGlobe, FaUserFriends, FaTimes, FaRupeeSign, FaLandmark, FaHandshake, FaHeart, FaCheck } from 'react-icons/fa';
 import EditableText from '../components/cms/EditableText';
 
@@ -34,7 +34,7 @@ const Donate = () => {
         e.preventDefault();
         setStatus('submitting');
         try {
-            await axios.post('/api/donations', { ...formData, category: selectedCategory });
+            await api.post('/donations', { ...formData, category: selectedCategory });
             setStatus('success');
             setFormData({
                 name: '', organization: '', email: '', phone: '', address: '', pan: '', message: ''

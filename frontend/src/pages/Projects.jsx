@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { FaFilter, FaPlus, FaChevronDown } from 'react-icons/fa';
@@ -185,11 +185,11 @@ const Projects = () => {
     const fetchProjects = async () => {
         setLoading(true);
         try {
-            let url = '/api/projects';
+            let url = '/projects';
             if (filterCategory !== 'All') {
                 url += `?category=${filterCategory}`;
             }
-            const res = await axios.get(url);
+            const res = await api.get(url);
             let data = res.data;
 
             // Ensure data is array
@@ -318,9 +318,9 @@ const Projects = () => {
                     alert("Demo projects cannot be updated in this version.");
                     return;
                 }
-                await axios.put(`/api/projects/${editProject._id}`, projectData);
+                await api.put(`/projects/${editProject._id}`, projectData);
             } else {
-                await axios.post('/api/projects', projectData);
+                await api.post('/projects', projectData);
             }
 
             fetchProjects();

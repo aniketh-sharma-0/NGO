@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { useCMS } from '../context/CMSContext';
 import { FaUsers, FaTasks, FaHandHoldingHeart, FaCheck, FaTimes, FaPlus, FaSearch, FaTrash, FaEdit } from 'react-icons/fa';
@@ -43,19 +43,16 @@ const Dashboard = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
-            const config = { headers: { Authorization: `Bearer ${token}` } };
-
             if (activeTab === 'Volunteers' || activeTab === 'Overview') {
-                const res = await axios.get('/api/admin/volunteers', config);
+                const res = await api.get('/admin/volunteers');
                 setVolunteers(res.data);
             }
             if (activeTab === 'Donations' || activeTab === 'Overview') {
-                const res = await axios.get('/api/donations', config);
+                const res = await api.get('/donations');
                 setDonations(res.data);
             }
             if (activeTab === 'Chatbot') {
-                const res = await axios.get('/api/chat/intents', config);
+                const res = await api.get('/chat/intents');
                 setIntents(res.data);
             }
         } catch (error) {
@@ -68,10 +65,8 @@ const Dashboard = () => {
     const handleVerifyVolunteer = async (id, status) => {
         if (!window.confirm(`Are you sure you want to ${status} this volunteer?`)) return;
         try {
-            const token = localStorage.getItem('token');
-            await axios.put(`/api/admin/volunteers/${id}/verify`, { status }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await api.put(`/admin/volunteers/${id}/verify`, { status });
+            fetchData(); // Refresh
             fetchData(); // Refresh
         } catch (error) {
             alert('Action failed');
@@ -81,12 +76,11 @@ const Dashboard = () => {
     const handleAssignTask = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem('token');
-            await axios.post(`/api/admin/volunteers/${selectedVolunteer._id}/assign`, {
-                ...taskForm,
-                projectId: null // Optional logic to link project later
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
+            await api.post(`/admin/volunteers/${selectedVolunteer._id}/assign`, {
+                taskId: Date.now().toString(),
+                description: taskForm.description,
+                title: taskForm.title,
+                dueDate: taskForm.dueDate
             });
             alert('Task Assigned Successfully');
             setIsTaskModalOpen(false);
@@ -99,15 +93,12 @@ const Dashboard = () => {
     const handleSaveIntent = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem('token');
-            const config = { headers: { Authorization: `Bearer ${token}` } };
-
             if (botForm.id) {
                 // Update
-                await axios.put(`/api/chat/intents/${botForm.id}`, botForm, config);
+                await api.put(`/chat/intents/${botForm.id}`, botForm);
             } else {
                 // Create
-                await axios.post('/api/chat/intents', botForm, config);
+                await api.post('/chat/intents', botForm);
             }
             fetchData();
             setIsBotModalOpen(false);
@@ -120,8 +111,7 @@ const Dashboard = () => {
     const handleDeleteIntent = async (id) => {
         if (!window.confirm("Delete this FAQ?")) return;
         try {
-            const token = localStorage.getItem('token');
-            await axios.delete(`/api/chat/intents/${id}`, { headers: { Authorization: `Bearer ${token}` } },);
+            await api.delete(`/chat/intents/${id}`);
             fetchData();
         } catch (error) {
             alert('Failed to delete');

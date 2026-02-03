@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import SelectInput from '../../components/common/SelectInput';
@@ -29,14 +29,9 @@ const VolunteerRegister = () => {
         setError('');
 
         try {
-            const token = localStorage.getItem('token');
-            const skillsArray = formData.skills.split(',').map(s => s.trim());
-
-            await axios.post('/api/volunteers/register', {
+            await api.post('/volunteers/register', {
                 ...formData,
                 skills: skillsArray
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
             });
 
             navigate('/volunteer/dashboard');

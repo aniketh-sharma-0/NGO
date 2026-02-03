@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 import { useCMS } from '../../context/CMSContext'; // Import useCMS
 import DynamicList from '../cms/DynamicList';
@@ -116,7 +116,7 @@ const FieldsOfWork = () => {
     useEffect(() => {
         const fetchContent = async () => {
             try {
-                const res = await axios.get('/api/content/Home');
+                const res = await api.get('/content/Home');
                 setHomeContent(res.data || {});
                 if (res.data.fields_of_work_v2) {
                     setFields(res.data.fields_of_work_v2);

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 import { useCMS } from '../../context/CMSContext';
 import { FaTrash } from 'react-icons/fa';
@@ -21,13 +21,10 @@ const DynamicList = ({ contentKey, section, defaultItems, renderItem, className,
 
     const persistList = async (newItems) => {
         try {
-            const token = localStorage.getItem('token');
-            await axios.put('/api/admin/content', {
+            await api.put('/admin/content', {
                 key: contentKey,
                 value: newItems,
                 section: section
-            }, {
-                headers: { Authorization: `Bearer ${token} ` }
             });
         } catch (error) {
             console.error('Failed to save list', error);

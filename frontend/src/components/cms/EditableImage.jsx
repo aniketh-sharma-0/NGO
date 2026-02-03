@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 import { useCMS } from '../../context/CMSContext';
 import { FaPlus, FaTimes } from 'react-icons/fa';
@@ -25,11 +25,9 @@ const EditableImage = ({ contentKey, section, defaultSrc, alt, className, imgCla
         formData.append('image', file);
 
         try {
-            const token = localStorage.getItem('token');
-            const res = await axios.post('/api/admin/upload', formData, {
+            const res = await api.post('/admin/upload', formData, {
                 headers: {
-                    'Content-Type': 'multipart/form-data',
-                    Authorization: `Bearer ${token}`
+                    'Content-Type': 'multipart/form-data'
                 }
             });
             const newSrc = res.data.filePath;
@@ -47,13 +45,10 @@ const EditableImage = ({ contentKey, section, defaultSrc, alt, className, imgCla
         if (onSave) {
             onSave(newVal);
         } else {
-            const token = localStorage.getItem('token');
-            await axios.put('/api/admin/content', {
+            await api.put('/admin/content', {
                 key: contentKey,
                 value: newVal,
                 section: section
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
             });
         }
     };

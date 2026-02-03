@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { FaChevronLeft, FaChevronRight, FaPlus, FaTrash, FaTimes } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { useCMS } from '../../context/CMSContext';
@@ -22,7 +22,7 @@ const CarouselSection = () => {
     useEffect(() => {
         const fetchSlides = async () => {
             try {
-                const res = await axios.get('/api/content/Home');
+                const res = await api.get('/content/Home');
                 const fetchedSlides = res.data.home_carousel || defaultSlides;
                 // Ensure slides have unique IDs if fresh default
                 if (!res.data.home_carousel) {
@@ -41,13 +41,10 @@ const CarouselSection = () => {
 
     const persistToBackend = async (data) => {
         try {
-            const token = localStorage.getItem('token');
-            await axios.put('/api/admin/content', {
+            await api.put('/admin/content', {
                 key: 'home_carousel',
                 value: data,
                 section: 'Home'
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
             });
         } catch (error) {
             console.error('Failed to save slides', error);

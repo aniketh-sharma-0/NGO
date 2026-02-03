@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { useNavigate } from 'react-router-dom';
 import { FaUpload, FaCheckCircle, FaClock, FaClipboardList, FaTimes } from 'react-icons/fa';
 
@@ -28,17 +28,14 @@ const VolunteerDashboard = () => {
 
     const fetchData = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const config = { headers: { Authorization: `Bearer ${token}` } };
-
             // 1. Get Profile
             try {
-                const profileRes = await axios.get('/api/volunteers/me', config);
+                const profileRes = await api.get('/volunteers/me');
                 setProfile(profileRes.data);
 
                 // 2. If Active, Get Tasks
                 if (profileRes.data.status === 'Active') {
-                    const tasksRes = await axios.get('/api/volunteers/me/tasks', config);
+                    const tasksRes = await api.get('/volunteers/me/tasks');
                     setTasks(tasksRes.data);
                 }
             } catch (err) {
@@ -69,17 +66,14 @@ const VolunteerDashboard = () => {
         e.preventDefault();
         setSubmitting(true);
         try {
-            const token = localStorage.getItem('token');
-
             // 1. Upload Image if exists
             let imageUrl = '';
             if (submissionImage) {
                 const formData = new FormData();
                 formData.append('image', submissionImage);
-                const uploadRes = await axios.post('/api/volunteers/upload', formData, {
+                const uploadRes = await api.post('/volunteers/upload', formData, {
                     headers: {
-                        'Content-Type': 'multipart/form-data',
-                        Authorization: `Bearer ${token}`
+                        'Content-Type': 'multipart/form-data'
                     }
                 });
                 imageUrl = uploadRes.data.filePath;
@@ -95,11 +89,9 @@ Challenges/Notes: ${reportData.challenges}
             `.trim();
 
             // 3. Submit Task
-            await axios.put(`/api/volunteers/tasks/${selectedTask._id}/submit`, {
+            await api.put(`/volunteers/tasks/${selectedTask._id}/submit`, {
                 submissionText: formattedSubmission,
                 submissionImage: imageUrl
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
             });
 
             fetchData();

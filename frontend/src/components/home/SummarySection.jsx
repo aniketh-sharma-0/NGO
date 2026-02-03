@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { FaSmile } from 'react-icons/fa';
 import EditableText from '../cms/EditableText';
 import EditableImage from '../cms/EditableImage';
@@ -10,7 +10,7 @@ const SummarySection = () => {
     useEffect(() => {
         const fetchContent = async () => {
             try {
-                const res = await axios.get('/api/content/Home');
+                const res = await api.get('/content/Home');
                 setContent(res.data || {});
             } catch (err) {
                 console.error("Failed to fetch summary content", err);

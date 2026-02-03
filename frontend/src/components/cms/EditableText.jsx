@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaCheck, FaTimes } from 'react-icons/fa';
-import axios from 'axios';
+import api from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 import { useCMS } from '../../context/CMSContext';
 
@@ -24,13 +24,10 @@ const EditableText = ({ contentKey, section, defaultText, className, type = 'tex
             if (onSave) {
                 onSave(value);
             } else {
-                const token = localStorage.getItem('token');
-                await axios.put('/api/admin/content', {
+                await api.put('/admin/content', {
                     key: contentKey,
                     value: value,
                     section: section
-                }, {
-                    headers: { Authorization: `Bearer ${token}` }
                 });
             }
             setIsEditing(false);

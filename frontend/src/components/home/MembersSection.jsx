@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 import { useCMS } from '../../context/CMSContext';
 import DynamicList from '../cms/DynamicList';
@@ -72,11 +72,9 @@ const MemberItem = ({ member, updateMember, isAdmin, isEditMode }) => {
                                     const formData = new FormData();
                                     formData.append('image', file);
                                     try {
-                                        const token = localStorage.getItem('token');
-                                        const res = await axios.post('/api/admin/upload', formData, {
+                                        const res = await api.post('/admin/upload', formData, {
                                             headers: {
-                                                'Content-Type': 'multipart/form-data',
-                                                Authorization: `Bearer ${token}`
+                                                'Content-Type': 'multipart/form-data'
                                             }
                                         });
                                         setTempImage(res.data.filePath);
@@ -162,7 +160,7 @@ const MembersSection = () => {
     useEffect(() => {
         const fetchContent = async () => {
             try {
-                const res = await axios.get('/api/content/Home');
+                const res = await api.get('/content/Home');
                 setHomeContent(res.data || {}); // Store full content for founder/ceo images
                 if (res.data.team_members) {
                     setMembers(res.data.team_members);

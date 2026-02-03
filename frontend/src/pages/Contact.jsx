@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { FaWhatsapp, FaPhoneVolume, FaEnvelopeOpenText, FaComments, FaPaperPlane } from 'react-icons/fa';
 import EditableText from '../components/cms/EditableText';
 import SelectInput from '../components/common/SelectInput';
@@ -22,7 +22,7 @@ const Contact = () => {
         e.preventDefault();
         setStatus('submitting');
         try {
-            await axios.post('/api/contact', formData);
+            await api.post('/contact', formData);
             setStatus('success');
             setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
         } catch (error) {

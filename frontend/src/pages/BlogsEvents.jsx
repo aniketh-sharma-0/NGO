@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { FaCalendarAlt, FaMapMarkerAlt, FaUser, FaClock, FaArrowRight, FaPlus, FaEdit, FaTrash, FaTimes } from 'react-icons/fa';
 import EditableText from '../components/cms/EditableText';
 import ImageWithFallback from '../components/common/ImageWithFallback';
@@ -102,8 +102,8 @@ const BlogsEvents = () => {
         setLoading(true);
         try {
             const [resBlogs, resEvents] = await Promise.all([
-                axios.get('/api/media/blogs'),
-                axios.get('/api/media/events')
+                api.get('/media/blogs'),
+                api.get('/media/events')
             ]);
             setBlogs(resBlogs.data);
             setEvents(resEvents.data);
@@ -153,11 +153,9 @@ const BlogsEvents = () => {
         formDataUpload.append('image', file);
 
         try {
-            const token = localStorage.getItem('token');
-            const res = await axios.post('/api/admin/upload', formDataUpload, {
+            const res = await api.post('/admin/upload', formDataUpload, {
                 headers: {
-                    'Content-Type': 'multipart/form-data',
-                    Authorization: `Bearer ${token}`
+                    'Content-Type': 'multipart/form-data'
                 }
             });
             // Handle different field names
@@ -175,10 +173,7 @@ const BlogsEvents = () => {
     const handleDelete = async (id, type) => {
         if (!window.confirm('Are you sure you want to delete this item?')) return;
         try {
-            const token = localStorage.getItem('token');
-            await axios.delete(`/api/media/${type}s/${id}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await api.delete(`/media/${type}s/${id}`);
             fetchData();
         } catch (error) {
             alert('Failed to delete item.');
@@ -188,12 +183,9 @@ const BlogsEvents = () => {
     const handleSave = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem('token');
-            const url = `/api/media/${modalType}s${editItem ? `/${editItem._id}` : ''}`;
+            const url = `/media/${modalType}s${editItem ? `/${editItem._id}` : ''}`;
             const method = editItem ? 'put' : 'post';
-            await axios[method](url, formData, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await api[method](url, formData);
             setIsModalOpen(false);
             fetchData();
         } catch (error) {

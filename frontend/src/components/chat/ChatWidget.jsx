@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { FaCommentDots, FaPaperPlane, FaTimes, FaRobot } from 'react-icons/fa';
 
 const ChatWidget = () => {
@@ -41,7 +41,7 @@ const ChatWidget = () => {
         try {
             // Check if it's a direct browser-side match first (optional optimization)
             // But we will hit the backend as requested
-            const res = await axios.post('/api/chat/message', { message: messageText });
+            const res = await api.post('/chat/message', { message: messageText });
             const botReply = res.data.reply;
             setMessages(prev => [...prev, { sender: 'bot', text: botReply, time: formatTime() }]);
         } catch (error) {
