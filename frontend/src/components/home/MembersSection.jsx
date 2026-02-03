@@ -7,6 +7,7 @@ import EditableText from '../cms/EditableText';
 import EditableImage from '../cms/EditableImage';
 import ImageWithFallback from '../common/ImageWithFallback';
 import { FaPen, FaSave, FaTimes } from 'react-icons/fa';
+import SectionTitle from '../common/SectionTitle';
 
 
 const MemberItem = ({ member, updateMember, isAdmin, isEditMode }) => {
@@ -173,27 +174,29 @@ const MembersSection = () => {
         fetchContent();
     }, []);
 
+
+
+    // ... (in component)
+
     return (
         <section className="py-12 bg-white">
             <div className="container mx-auto px-4">
-                <div className="text-center mb-24">
-                    <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4 font-heading">
+                <SectionTitle subtitle="WHO WE ARE">
+                    <EditableText
+                        contentKey="team_section_title_prefix"
+                        section="Home"
+                        defaultText={homeContent.team_section_title_prefix || "Our"}
+                        className="inline-block"
+                    />
+                    <span className="ml-3 inline-block">
                         <EditableText
-                            contentKey="team_section_title_prefix"
+                            contentKey="team_section_title_suffix"
                             section="Home"
-                            defaultText="Our"
+                            defaultText={homeContent.team_section_title_suffix || "Leadership"}
                             className="inline-block"
                         />
-                        <span className="text-accent ml-3 inline-block">
-                            <EditableText
-                                contentKey="team_section_title_suffix"
-                                section="Home"
-                                defaultText="Leadership"
-                                className="inline-block"
-                            />
-                        </span>
-                    </h2>
-                </div>
+                    </span>
+                </SectionTitle>
 
                 {/* Founder / President Section */}
                 <div className="mb-24">
@@ -213,17 +216,17 @@ const MembersSection = () => {
                         </div>
                         <div className="w-full md:w-2/3 text-center md:text-left">
                             <div className="text-secondary font-bold text-sm tracking-widest uppercase mb-2">
-                                <EditableText contentKey="founder_role" section="Home" defaultText="Founder & President" />
+                                <EditableText contentKey="founder_role" section="Home" defaultText={homeContent.founder_role || "Founder & President"} />
                             </div>
                             <h3 className="text-4xl font-bold text-gray-900 mb-6 font-heading">
-                                <EditableText contentKey="founder_name" section="Home" defaultText="Dr. A. Founder" />
+                                <EditableText contentKey="founder_name" section="Home" defaultText={homeContent.founder_name || "Dr. A. Founder"} />
                             </h3>
                             <div className="text-xl text-gray-600 leading-relaxed font-light">
                                 <EditableText
                                     contentKey="founder_bio"
                                     section="Home"
                                     type="textarea"
-                                    defaultText="Dedicated to serving the community for over 30 years. Believes in the power of collective action to bring about change."
+                                    defaultText={homeContent.founder_bio || "Dedicated to serving the community for over 30 years. Believes in the power of collective action to bring about change."}
                                 />
                             </div>
                             <div className="mt-8">
@@ -251,17 +254,17 @@ const MembersSection = () => {
                         </div>
                         <div className="w-full md:w-2/3 text-center md:text-right">
                             <div className="text-primary font-bold text-sm tracking-widest uppercase mb-2">
-                                <EditableText contentKey="ceo_role" section="Home" defaultText="Chief Executive Officer" />
+                                <EditableText contentKey="ceo_role" section="Home" defaultText={homeContent.ceo_role || "Chief Executive Officer"} />
                             </div>
                             <h3 className="text-3xl font-bold text-gray-900 mb-6 font-heading">
-                                <EditableText contentKey="ceo_name" section="Home" defaultText="Mr. B. CEO" />
+                                <EditableText contentKey="ceo_name" section="Home" defaultText={homeContent.ceo_name || "Mr. B. CEO"} />
                             </h3>
                             <div className="text-xl text-gray-600 leading-relaxed font-light">
                                 <EditableText
                                     contentKey="ceo_bio"
                                     section="Home"
                                     type="textarea"
-                                    defaultText="Leading the organization towards sustainable growth and impact."
+                                    defaultText={homeContent.ceo_bio || "Leading the organization towards sustainable growth and impact."}
                                 />
                             </div>
                             <div className="mt-8 flex justify-center md:justify-end">
@@ -274,7 +277,7 @@ const MembersSection = () => {
                 {/* Other Team Members - Horizontal Scroll */}
                 <div className="mb-8 px-4">
                     <h4 className="text-2xl font-bold text-gray-800 mb-8 border-l-4 border-primary pl-4">
-                        <EditableText contentKey="team_list_title" section="Home" defaultText="Core Team Members" />
+                        <EditableText contentKey="team_list_title" section="Home" defaultText={homeContent.team_list_title || "Core Team Members"} />
                     </h4>
 
                     <DynamicList

@@ -7,6 +7,7 @@ import EditableText from '../cms/EditableText';
 import EditableImage from '../cms/EditableImage';
 import ImageWithFallback from '../common/ImageWithFallback';
 import { FaPen, FaSave, FaTimes } from 'react-icons/fa';
+import SectionTitle from '../common/SectionTitle';
 
 // Sub-component for individual Field Item to manage its own Edit state
 const FieldItem = ({ field, updateField, isAdmin, isEditMode }) => {
@@ -110,11 +111,13 @@ const FieldsOfWork = () => {
     ];
 
     const [fields, setFields] = useState(defaultFields);
+    const [homeContent, setHomeContent] = useState({});
 
     useEffect(() => {
         const fetchContent = async () => {
             try {
                 const res = await axios.get('/api/content/Home');
+                setHomeContent(res.data || {});
                 if (res.data.fields_of_work_v2) {
                     setFields(res.data.fields_of_work_v2);
                 }
@@ -125,27 +128,29 @@ const FieldsOfWork = () => {
         fetchContent();
     }, []);
 
+
+
+    // ... (inside the component render)
+
     return (
         <section className="py-12 bg-gray-100 border-y border-gray-200">
             <div className="container mx-auto px-4">
-                <div className="text-center mb-16">
-                    <h2 className="text-4xl md:text-5xl font-bold text-gray-800 font-heading">
+                <SectionTitle subtitle="WHAT WE DO">
+                    <EditableText
+                        contentKey="fields_title_prefix"
+                        section="Home"
+                        defaultText={homeContent.fields_title_prefix || "Our Fields"}
+                        className="inline-block"
+                    />
+                    <span className="ml-3 inline-block">
                         <EditableText
-                            contentKey="fields_title_prefix"
+                            contentKey="fields_title_suffix"
                             section="Home"
-                            defaultText="Our Fields"
+                            defaultText={homeContent.fields_title_suffix || "of Work"}
                             className="inline-block"
                         />
-                        <span className="text-accent ml-3 inline-block">
-                            <EditableText
-                                contentKey="fields_title_suffix"
-                                section="Home"
-                                defaultText="of Work"
-                                className="inline-block"
-                            />
-                        </span>
-                    </h2>
-                </div>
+                    </span>
+                </SectionTitle>
 
                 <DynamicList
                     contentKey="fields_of_work_v2"

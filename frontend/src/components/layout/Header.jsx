@@ -66,7 +66,7 @@ const Header = () => {
                 </Link>
 
                 {/* Desktop Navigation */}
-                <nav className="hidden lg:flex items-stretch space-x-6 text-sm font-medium h-[42px]">
+                <nav className="hidden lg:flex items-center space-x-6 text-sm font-medium h-[42px]">
                     <NavItem to="/" labelKey="nav_home" defaultLabel="Home" />
                     <NavItem to="/about" labelKey="nav_about" defaultLabel="About Us" />
                     <NavItem to="/media" labelKey="nav_media" defaultLabel="Blogs & Events" />
