@@ -31,6 +31,10 @@ export const AuthProvider = ({ children }) => {
             setUser(data);
             return { success: true, user: data };
         } catch (error) {
+            console.error("Login Error Details:", error);
+            if (error.code === "ERR_NETWORK") {
+                return { success: false, message: "Network Error: Cannot connect to server. Check internet or server status." };
+            }
             return {
                 success: false,
                 message: error.response?.data?.message || 'Login failed'
