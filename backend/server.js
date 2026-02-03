@@ -24,6 +24,7 @@ app.use('/api/volunteers', require('./routes/volunteerRoutes'));
 app.use('/api/media', require('./routes/blogEventRoutes'));
 app.use('/api/contact', require('./routes/contactRoutes'));
 app.use('/api/chat', require('./routes/chatRoutes'));
+app.use('/api/security', require('./routes/securityRoutes'));
 
 // Serve static assets (uploads)
 app.use('/uploads', express.static('uploads'));
