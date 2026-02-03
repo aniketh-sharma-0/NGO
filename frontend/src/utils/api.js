@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create an Axios instance with the base URL from environment variables
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL, // Use the environment variable
+    baseURL: import.meta.env.VITE_API_URL || 'https://ngo-x9e8.onrender.com', // Use env var or valid fallback
     headers: {
         'Content-Type': 'application/json',
     },
