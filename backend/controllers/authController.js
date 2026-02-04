@@ -54,21 +54,26 @@ const registerUser = async (req, res) => {
 // @route   POST /api/auth/login
 // @access  Public
 const loginUser = async (req, res) => {
-    const { email, password } = req.body;
+    try {
+        const { email, password } = req.body;
 
-    // Check for user email
-    const user = await User.findOne({ email }).populate('role');
+        // Check for user email
+        const user = await User.findOne({ email }).populate('role');
 
-    if (user && (await bcrypt.compare(password, user.password))) {
-        res.json({
-            _id: user.id,
-            name: user.name,
-            email: user.email,
-            token: generateToken(user.id),
-            role: user.role
-        });
-    } else {
-        res.status(400).json({ message: 'Invalid credentials' });
+        if (user && (await bcrypt.compare(password, user.password))) {
+            res.json({
+                _id: user.id,
+                name: user.name,
+                email: user.email,
+                token: generateToken(user.id),
+                role: user.role
+            });
+        } else {
+            res.status(400).json({ message: 'Invalid credentials' });
+        }
+    } catch (error) {
+        console.error('Login Error:', error);
+        res.status(500).json({ message: error.message || 'Server Error' });
     }
 };
 
