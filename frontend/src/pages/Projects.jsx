@@ -162,9 +162,7 @@ const Projects = () => {
         image1: '',
         image2: '',
         members: [], // Array of { name, position }
-        image2: '',
-        members: [], // Array of { name, position }
-        location: '',
+
         beneficiaries: '',
         sponsor: '',
         projectReport: '',
