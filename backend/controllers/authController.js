@@ -4,8 +4,11 @@ const User = require('../models/User');
 const Role = require('../models/Role');
 
 // Generate JWT
+// Generate JWT
 const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, {
+    // Use fallback if env var is missing to prevent crash
+    const secret = process.env.JWT_SECRET || 'fallback_secret_key_123';
+    return jwt.sign({ id }, secret, {
         expiresIn: '30d',
     });
 };
