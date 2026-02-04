@@ -5,6 +5,7 @@ export const API_URL = import.meta.env.VITE_API_URL || 'https://ngo-x9e8.onrende
 
 // Ensure we don't have double slashes if the env var ends with /
 const cleanBaseURL = API_URL.replace(/\/$/, '');
+console.log('Using API Base URL:', cleanBaseURL);
 
 const api = axios.create({
     baseURL: `${cleanBaseURL}/api`,

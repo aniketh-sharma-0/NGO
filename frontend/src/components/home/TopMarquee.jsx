@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api, { API_URL } from '../../utils/api';
+import api from '../../utils/api';
 import { FaPhoneAlt, FaEnvelope } from 'react-icons/fa';
 import EditableText from '../cms/EditableText';
 
@@ -11,7 +11,7 @@ const TopMarquee = () => {
         const fetchContent = async () => {
             try {
                 // User requested explicit URL format
-                const res = await api.get(`${API_URL}/api/content/Home`);
+                const res = await api.get('/content/Home');
                 setContent(res.data);
             } catch (error) {
                 console.error('Failed to fetch top marquee content', error);
