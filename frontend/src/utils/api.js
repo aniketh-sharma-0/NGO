@@ -1,7 +1,14 @@
 import axios from 'axios';
 
 // Define the base URL. If VITE_API_URL is missing or empty, fallback to the production backend.
-export const API_URL = import.meta.env.VITE_API_URL || 'https://ngo-x9e8.onrender.com';
+let envUrl = import.meta.env.VITE_API_URL;
+// Defensive check: ensure it is a valid absolute URL (starts with http)
+if (envUrl && !envUrl.startsWith('http')) {
+    console.warn('Invalid VITE_API_URL (must restart with http):', envUrl, '- Falling back to default.');
+    envUrl = null;
+}
+
+export const API_URL = envUrl || 'https://ngo-x9e8.onrender.com';
 
 // Ensure we don't have double slashes if the env var ends with /
 const cleanBaseURL = API_URL.replace(/\/$/, '');
