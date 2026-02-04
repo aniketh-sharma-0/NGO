@@ -148,6 +148,7 @@ const MembersSection = () => {
     const isAdmin = user?.role?.name === 'Admin';
     const [homeContent, setHomeContent] = useState({});
 
+    // Default team members for initial render
     const defaultTeam = [
         { id: 1, name: 'John Doe', role: 'Operations Manager', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1000&auto=format&fit=crop' },
         { id: 2, name: 'Jane Smith', role: 'Field Coordinator', image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1000&auto=format&fit=crop' },
