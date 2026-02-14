@@ -3,6 +3,7 @@ import api from '../../utils/api';
 import { FaChevronLeft, FaChevronRight, FaPlus, FaTrash, FaTimes } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { useCMS } from '../../context/CMSContext';
+import EditableText from '../cms/EditableText';
 import EditableImage from '../cms/EditableImage';
 import ImageWithFallback from '../common/ImageWithFallback';
 
@@ -118,28 +119,24 @@ const CarouselSection = () => {
 
                         {/* Text Content (Left 50%) - Removed Card Styling */}
                         <div className="w-full md:w-1/2 flex flex-col justify-center p-6 md:p-12 z-10 text-left">
-                            {isAdmin && isEditMode ? (
-                                <input
-                                    className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 bg-transparent border-b border-gray-300 focus:outline-none focus:border-primary w-full font-heading leading-tight"
-                                    value={slide.title}
-                                    onChange={(e) => updateSlideContent(slide.id, 'title', e.target.value)}
+                            <div className="mb-6">
+                                <EditableText
+                                    defaultText={slide.title}
+                                    onSave={(val) => updateSlideContent(slide.id, 'title', val)}
+                                    editable={isAdmin && isEditMode}
+                                    className="text-4xl md:text-6xl font-bold text-gray-900 font-heading leading-tight tracking-tight block"
                                 />
-                            ) : (
-                                <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 font-heading leading-tight tracking-tight">
-                                    {slide.title}
-                                </h2>
-                            )}
+                            </div>
 
-                            {isAdmin && isEditMode ? (
-                                <textarea
-                                    className="text-xl text-gray-600 mb-10 bg-transparent border-b border-gray-300 focus:outline-none focus:border-primary w-full resize-none font-light"
-                                    value={slide.description}
-                                    onChange={(e) => updateSlideContent(slide.id, 'description', e.target.value)}
-                                    rows={3}
+                            <div className="mb-10">
+                                <EditableText
+                                    defaultText={slide.description}
+                                    onSave={(val) => updateSlideContent(slide.id, 'description', val)}
+                                    type="textarea"
+                                    editable={isAdmin && isEditMode}
+                                    className="text-xl text-gray-600 font-light max-w-xl leading-relaxed block"
                                 />
-                            ) : (
-                                <p className="text-xl text-gray-600 mb-10 font-light max-w-xl leading-relaxed">{slide.description}</p>
-                            )}
+                            </div>
 
                             <div className="flex gap-4">
                                 <button className="px-8 py-4 bg-gray-900 text-white rounded-full font-bold hover:bg-black transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">

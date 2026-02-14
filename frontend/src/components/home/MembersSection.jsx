@@ -201,13 +201,13 @@ const MembersSection = () => {
                 <div className="mb-24">
                     <div className="flex flex-col md:flex-row items-center gap-12 max-w-5xl mx-auto">
                         <div className="w-full md:w-1/3 flex justify-center md:justify-end">
-                            <div className="w-64 h-64 shadow-2xl border-4 border-white relative group rounded-full overflow-hidden">
+                            <div className="w-64 h-64 shadow-2xl border-4 border-white relative group rounded-full">
                                 <EditableImage
                                     contentKey="founder_image"
                                     section="Home"
                                     alt="Founder"
                                     className="w-full h-full"
-                                    imgClassName="w-full h-full object-cover"
+                                    imgClassName="w-full h-full object-cover rounded-full"
                                     defaultSrc={homeContent.founder_image || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop"}
                                     editPosition="center"
                                 />
@@ -239,13 +239,13 @@ const MembersSection = () => {
                 <div className="mb-24">
                     <div className="flex flex-col md:flex-row-reverse items-center gap-12 max-w-5xl mx-auto">
                         <div className="w-full md:w-1/3 flex justify-center md:justify-start">
-                            <div className="w-56 h-56 shadow-2xl border-4 border-white relative group rounded-full overflow-hidden">
+                            <div className="w-56 h-56 shadow-2xl border-4 border-white relative group rounded-full">
                                 <EditableImage
                                     contentKey="ceo_image"
                                     section="Home"
                                     alt="CEO"
                                     className="w-full h-full"
-                                    imgClassName="w-full h-full object-cover"
+                                    imgClassName="w-full h-full object-cover rounded-full"
                                     editPosition="center"
                                     defaultSrc={homeContent.ceo_image || "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=1000&auto=format&fit=crop"}
                                 />

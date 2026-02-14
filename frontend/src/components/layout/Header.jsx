@@ -166,48 +166,66 @@ const Header = () => {
             </div >
 
             {/* Mobile Navigation Slide-in/Dropdown */}
-            {
-                isMobileMenuOpen && (
-                    <div className="lg:hidden absolute top-full left-0 w-full bg-white shadow-xl border-t border-gray-100 flex flex-col max-h-[80vh] overflow-y-auto z-40">
-                        <div className="flex flex-col p-4 gap-2">
-                            <NavItem to="/" labelKey="nav_home" defaultLabel="Home" />
-                            <NavItem to="/about" labelKey="nav_about" defaultLabel="About Us" />
-                            <NavItem to="/media" labelKey="nav_media" defaultLabel="Blogs & Events" />
-                            <NavItem to="/donate" labelKey="nav_donate" defaultLabel="Donation" />
-                            <NavItem to="/volunteer" labelKey="nav_volunteer" defaultLabel="Volunteering" />
+            {isMobileMenuOpen && (
+                <div className="lg:hidden absolute top-full left-0 w-full bg-white shadow-2xl border-t border-gray-100 flex flex-col max-h-[90vh] overflow-y-auto z-40 animate-fade-in">
+                    <div className="flex flex-col p-6 gap-3">
+                        <NavItem to="/" labelKey="nav_home" defaultLabel="Home" className="py-2 text-lg border-b border-gray-50" />
+                        <NavItem to="/about" labelKey="nav_about" defaultLabel="About Us" className="py-2 text-lg border-b border-gray-50" />
+                        <NavItem to="/media" labelKey="nav_media" defaultLabel="Blogs & Events" className="py-2 text-lg border-b border-gray-50" />
+                        <NavItem to="/donate" labelKey="nav_donate" defaultLabel="Donation" className="py-2 text-lg border-b border-gray-50" />
+                        <NavItem to="/volunteer" labelKey="nav_volunteer" defaultLabel="Volunteering" className="py-2 text-lg border-b border-gray-50" />
 
-                            <div className="py-2 border-t border-gray-50 mt-2">
-                                <span className="text-gray-400 text-xs font-bold uppercase tracking-wider px-2 block mb-2">Projects</span>
-                                <div className="flex flex-col gap-1 pl-4 border-l-2 border-gray-100 ml-2">
-                                    <Link to="/projects?category=Government" onClick={() => setIsMobileMenuOpen(false)} className="py-2 text-gray-600 hover:text-primary block">Government Projects</Link>
-                                    <Link to="/projects?category=CSR" onClick={() => setIsMobileMenuOpen(false)} className="py-2 text-gray-600 hover:text-primary block">CSR Projects</Link>
-                                    <Link to="/projects?category=Client" onClick={() => setIsMobileMenuOpen(false)} className="py-2 text-gray-600 hover:text-primary block">Client Projects</Link>
-                                </div>
-                            </div>
-
-                            <NavItem to="/contact" labelKey="nav_contact" defaultLabel="Contact Us" />
-
-                            <div className="border-t border-gray-200 pt-4 mt-2">
-                                {user ? (
-                                    <div className="flex flex-col gap-3">
-                                        <div className="flex items-center gap-2 font-bold text-gray-700">
-                                            <FaUserCircle /> {user.name}
-                                        </div>
-                                        {user.role?.name === 'Admin' && (
-                                            <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="text-primary font-bold">Dashboard</Link>
-                                        )}
-                                        <button onClick={handleLogout} className="text-left text-red-500 font-medium">Logout</button>
-                                    </div>
-                                ) : (
-                                    <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="block w-full bg-primary text-white text-center py-3 rounded-lg font-bold shadow-md">
-                                        Login
-                                    </Link>
-                                )}
+                        <div className="py-3 border-b border-gray-50">
+                            <span className="text-gray-400 text-xs font-bold uppercase tracking-wider block mb-2">Projects</span>
+                            <div className="flex flex-col gap-2 pl-4 border-l-2 border-gray-100 ml-1">
+                                <Link to="/projects?category=Government" onClick={() => setIsMobileMenuOpen(false)} className="py-1 text-gray-600 hover:text-blue-900 block font-medium">Government Projects</Link>
+                                <Link to="/projects?category=CSR" onClick={() => setIsMobileMenuOpen(false)} className="py-1 text-gray-600 hover:text-blue-900 block font-medium">CSR Projects</Link>
+                                <Link to="/projects?category=Client" onClick={() => setIsMobileMenuOpen(false)} className="py-1 text-gray-600 hover:text-blue-900 block font-medium">Client Projects</Link>
                             </div>
                         </div>
+
+                        {/* Distinct Contact Us Button in Mobile */}
+                        <Link
+                            to="/contact"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="w-full bg-green-600 text-white text-center py-3 rounded-xl font-bold hover:bg-green-700 transition-colors shadow-sm mt-2"
+                        >
+                            Contact Us
+                        </Link>
+
+                        <div className="pt-2">
+                            {user ? (
+                                <div className="flex flex-col gap-4 bg-gray-50 p-4 rounded-xl">
+                                    <div className="flex items-center gap-3 font-bold text-gray-800">
+                                        <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center">
+                                            <FaUserCircle size={20} />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span>{user.name}</span>
+                                            <span className="text-xs text-gray-500 font-normal">{user.email}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {user.role?.name === 'Admin' && (
+                                            <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="text-center py-2 bg-white border border-gray-200 rounded-lg text-sm font-bold text-blue-900 hover:bg-blue-50">
+                                                Dashboard
+                                            </Link>
+                                        )}
+                                        <button onClick={handleLogout} className="text-center py-2 bg-white border border-gray-200 rounded-lg text-sm font-bold text-red-600 hover:bg-red-50 w-full">
+                                            Logout
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="block w-full bg-blue-900 text-white text-center py-3 rounded-xl font-bold shadow-md hover:bg-blue-800 transition-colors">
+                                    Login
+                                </Link>
+                            )}
+                        </div>
                     </div>
-                )
-            }
+                </div>
+            )}
         </header >
     );
 };
