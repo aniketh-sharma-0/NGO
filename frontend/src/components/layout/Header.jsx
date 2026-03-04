@@ -178,18 +178,18 @@ const Header = () => {
             {isMobileMenuOpen && (
                 <div className="lg:hidden absolute top-full left-0 w-full bg-white shadow-2xl border-t border-gray-100 flex flex-col max-h-[calc(100vh-70px)] overflow-y-auto z-40 animate-fade-in">
                     <div className="flex flex-col px-6 py-2">
-                        <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 px-3 text-lg font-medium text-gray-700 hover:text-blue-600 active:bg-blue-50/50 active:text-blue-700 rounded-xl transition-all">Home</Link>
-                        <Link to="/about" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 px-3 text-lg font-medium text-gray-700 hover:text-blue-600 active:bg-blue-50/50 active:text-blue-700 rounded-xl transition-all">About Us</Link>
-                        <Link to="/media" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 px-3 text-lg font-medium text-gray-700 hover:text-blue-600 active:bg-blue-50/50 active:text-blue-700 rounded-xl transition-all">Blogs & Events</Link>
-                        <Link to="/donate" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 px-3 text-lg font-medium text-gray-700 hover:text-blue-600 active:bg-blue-50/50 active:text-blue-700 rounded-xl transition-all">Donation</Link>
-                        <Link to="/volunteer" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 px-3 text-lg font-medium text-gray-700 hover:text-blue-600 active:bg-blue-50/50 active:text-blue-700 rounded-xl transition-all mb-2">Volunteering</Link>
+                        <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 px-3 text-lg font-medium text-gray-700 hover:text-blue-600 hover:no-underline active:bg-blue-50 active:text-blue-700 active:no-underline rounded-xl transition-all">Home</Link>
+                        <Link to="/about" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 px-3 text-lg font-medium text-gray-700 hover:text-blue-600 hover:no-underline active:bg-blue-50 active:text-blue-700 active:no-underline rounded-xl transition-all">About Us</Link>
+                        <Link to="/media" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 px-3 text-lg font-medium text-gray-700 hover:text-blue-600 hover:no-underline active:bg-blue-50 active:text-blue-700 active:no-underline rounded-xl transition-all">Blogs & Events</Link>
+                        <Link to="/donate" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 px-3 text-lg font-medium text-gray-700 hover:text-blue-600 hover:no-underline active:bg-blue-50 active:text-blue-700 active:no-underline rounded-xl transition-all">Donation</Link>
+                        <Link to="/volunteer" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 px-3 text-lg font-medium text-gray-700 hover:text-blue-600 hover:no-underline active:bg-blue-50 active:text-blue-700 active:no-underline rounded-xl transition-all mb-2">Volunteering</Link>
 
                         <div className="py-2 px-3 bg-gray-50 rounded-xl">
                             <span className="text-gray-400 text-sm font-bold uppercase tracking-wider block mb-3 pl-2">Projects</span>
                             <div className="flex flex-col gap-1 pl-4 border-l-2 border-blue-200 ml-1">
-                                <Link to="/projects?category=Government" onClick={() => setIsMobileMenuOpen(false)} className="block py-3 px-3 text-gray-600 hover:text-blue-900 active:bg-blue-100/50 active:text-blue-700 font-medium rounded-lg transition-all">Government Projects</Link>
-                                <Link to="/projects?category=CSR" onClick={() => setIsMobileMenuOpen(false)} className="block py-3 px-3 text-gray-600 hover:text-blue-900 active:bg-blue-100/50 active:text-blue-700 font-medium rounded-lg transition-all">CSR Projects</Link>
-                                <Link to="/projects?category=Client" onClick={() => setIsMobileMenuOpen(false)} className="block py-3 px-3 text-gray-600 hover:text-blue-900 active:bg-blue-100/50 active:text-blue-700 font-medium rounded-lg transition-all">Client Projects</Link>
+                                <Link to="/projects?category=Government" onClick={() => setIsMobileMenuOpen(false)} className="block py-3 px-3 text-gray-600 hover:text-blue-900 hover:no-underline active:bg-blue-100 active:text-blue-800 active:no-underline font-medium rounded-lg transition-all">Government Projects</Link>
+                                <Link to="/projects?category=CSR" onClick={() => setIsMobileMenuOpen(false)} className="block py-3 px-3 text-gray-600 hover:text-blue-900 hover:no-underline active:bg-blue-100 active:text-blue-800 active:no-underline font-medium rounded-lg transition-all">CSR Projects</Link>
+                                <Link to="/projects?category=Client" onClick={() => setIsMobileMenuOpen(false)} className="block py-3 px-3 text-gray-600 hover:text-blue-900 hover:no-underline active:bg-blue-100 active:text-blue-800 active:no-underline font-medium rounded-lg transition-all">Client Projects</Link>
                             </div>
                         </div>
 
