@@ -4,13 +4,57 @@ const User = require('../models/User');
 const Role = require('../models/Role');
 
 // Generate JWT
-// Generate JWT
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
 const generateToken = (id) => {
     // Use fallback if env var is missing to prevent crash
     const secret = process.env.JWT_SECRET || 'fallback_secret_key_123';
     return jwt.sign({ id }, secret, {
         expiresIn: '30d',
     });
+};
+
+// @desc    Google Login
+// @route   POST /api/auth/google
+// @access  Public
+const googleLogin = async (req, res) => {
+    try {
+        const { token } = req.body;
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        const { name, email, sub } = ticket.getPayload();
+
+        let user = await User.findOne({ email });
+
+        if (!user) {
+            // Create new user
+            user = await User.create({
+                name,
+                email,
+                googleId: sub,
+                password: '', // No password for Google users
+                isVerified: true // Google emails are verified
+            });
+        } else if (!user.googleId) {
+            // Link Google account to existing user if not already linked
+            user.googleId = sub;
+            await user.save();
+        }
+
+        res.json({
+            _id: user.id,
+            name: user.name,
+            email: user.email,
+            token: generateToken(user.id),
+            role: user.role
+        });
+    } catch (error) {
+        console.error('Google Login Error:', error);
+        res.status(400).json({ message: 'Google login failed' });
+    }
 };
 
 // @desc    Register new user
@@ -91,4 +135,5 @@ module.exports = {
     registerUser,
     loginUser,
     getMe,
+    googleLogin,
 };

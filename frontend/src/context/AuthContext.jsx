@@ -63,8 +63,24 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
+    const googleAuth = async (token) => {
+        try {
+            const { data } = await api.post('/auth/google', { token });
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data));
+            setUser(data);
+            return { success: true, user: data };
+        } catch (error) {
+            console.error("Google Auth Error:", error);
+            return {
+                success: false,
+                message: error.response?.data?.message || 'Google login failed'
+            };
+        }
+    };
+
     return (
-        <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, register, logout, googleAuth, loading }}>
             {!loading && children}
         </AuthContext.Provider>
     );

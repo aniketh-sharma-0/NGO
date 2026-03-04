@@ -119,32 +119,32 @@ const CarouselSection = () => {
 
                         {/* Text Content (Left 50%) - Removed Card Styling */}
                         <div className="w-full md:w-1/2 flex flex-col justify-center p-6 md:p-12 z-10 text-left">
-                            <div className="mb-6">
+                            <div className="mb-4 md:mb-6">
                                 <EditableText
                                     defaultText={slide.title}
                                     onSave={(val) => updateSlideContent(slide.id, 'title', val)}
                                     editable={isAdmin && isEditMode}
-                                    className="text-4xl md:text-6xl font-bold text-gray-900 font-heading leading-tight tracking-tight block"
+                                    className="text-3xl md:text-5xl lg:text-6xl font-bold text-gray-900 font-heading leading-tight tracking-tight block"
                                 />
                             </div>
 
-                            <div className="mb-10">
+                            <div className="mb-6 md:mb-10">
                                 <EditableText
                                     defaultText={slide.description}
                                     onSave={(val) => updateSlideContent(slide.id, 'description', val)}
                                     type="textarea"
                                     editable={isAdmin && isEditMode}
-                                    className="text-xl text-gray-600 font-light max-w-xl leading-relaxed block"
+                                    className="text-base md:text-xl text-gray-600 font-light max-w-xl leading-relaxed block"
                                 />
                             </div>
 
-                            <div className="flex gap-4">
-                                <button className="px-8 py-4 bg-gray-900 text-white rounded-full font-bold hover:bg-black transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                            <div className="flex flex-col md:flex-row gap-4 md:gap-6 mt-2 md:mt-0 mb-8 md:mb-0">
+                                <button className="px-6 py-3 min-h-[44px] md:px-8 md:py-4 bg-gray-900 text-white rounded-full font-bold hover:bg-black active:bg-gray-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 w-full md:w-auto text-center flex items-center justify-center">
                                     Explore More
                                 </button>
                                 {isAdmin && isEditMode && (
-                                    <button onClick={() => deleteSlide(slide.id)} className="px-5 py-4 bg-red-50 text-red-600 rounded-full hover:bg-red-100 transition-colors">
-                                        <FaTrash />
+                                    <button onClick={() => deleteSlide(slide.id)} className="px-6 py-3 min-h-[44px] bg-red-50 text-red-600 rounded-full hover:bg-red-100 active:bg-red-200 transition-colors w-full md:w-auto text-center flex items-center justify-center gap-2">
+                                        <FaTrash /> <span className="md:hidden">Delete Slide</span>
                                     </button>
                                 )}
                             </div>
@@ -160,7 +160,7 @@ const CarouselSection = () => {
                                 defaultSrc={slide.image}
                                 alt={slide.title}
                                 className="w-full h-full"
-                                imgClassName="w-full h-full object-cover"
+                                imgClassName="w-full h-full object-cover object-center"
                                 onSave={(newSrc) => updateSlideContent(slide.id, 'image', newSrc)}
                             />
                         </div>
@@ -168,22 +168,23 @@ const CarouselSection = () => {
                 )}
 
                 {/* Navigation Arrows */}
-                <button onClick={prevSlide} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/50 p-3 rounded-full hover:bg-white transition-colors z-20">
-                    <FaChevronLeft size={24} />
+                <button onClick={prevSlide} className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-white/50 p-2 md:p-3 min-w-[44px] min-h-[44px] rounded-full hover:bg-white transition-colors z-20 flex items-center justify-center active:bg-gray-200">
+                    <FaChevronLeft className="w-4 h-4 md:w-6 md:h-6 text-gray-800" />
                 </button>
-                <button onClick={nextSlide} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/50 p-3 rounded-full hover:bg-white transition-colors z-20">
-                    <FaChevronRight size={24} />
+                <button onClick={nextSlide} className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-white/50 p-2 md:p-3 min-w-[44px] min-h-[44px] rounded-full hover:bg-white transition-colors z-20 flex items-center justify-center active:bg-gray-200">
+                    <FaChevronRight className="w-4 h-4 md:w-6 md:h-6 text-gray-800" />
                 </button>
 
                 {/* Dots */}
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3 z-30">
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-4 z-30">
                     {slides.map((_, index) => (
                         <button
                             key={index}
                             onClick={() => setCurrentSlide(index)}
-                            className={`h-3 rounded-full transition-all duration-500 ease-in-out shadow-sm
-                                ${index === currentSlide ? 'w-10 bg-primary' : 'w-3 bg-gray-400 hover:bg-gray-600'}`}
+                            className={`min-h-[12px] rounded-full transition-all duration-500 ease-in-out shadow-sm
+                                ${index === currentSlide ? 'w-10 bg-primary' : 'w-3 h-3 bg-gray-400 hover:bg-gray-600'}`}
                             aria-label={`Go to slide ${index + 1}`}
+                            style={{ minWidth: '12px', minHeight: '12px' }}
                         />
                     ))}
                 </div>
@@ -194,7 +195,7 @@ const CarouselSection = () => {
                 <div className="container mx-auto px-4 py-4 flex justify-end border-b border-gray-100 bg-gray-50/50">
                     <button
                         onClick={addSlide}
-                        className="bg-green-600 text-white px-6 py-2 rounded-full shadow-md hover:bg-green-700 flex items-center gap-2 transition-all transform hover:scale-105"
+                        className="bg-green-600 text-white px-6 py-3 min-h-[44px] rounded-full shadow-md hover:bg-green-700 flex items-center justify-center gap-2 transition-all transform hover:scale-105 active:bg-green-800"
                     >
                         <FaPlus /> Add New Slide
                     </button>

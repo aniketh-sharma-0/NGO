@@ -20,7 +20,7 @@ const SummarySection = () => {
     }, []);
 
     return (
-        <section className="py-24 bg-white">
+        <section className="py-16 md:py-20 lg:py-24 bg-white overflow-hidden">
             <div className="container mx-auto px-4">
                 <div className="flex flex-col md:flex-row gap-12 items-center">
                     {/* Image Column */}
@@ -37,20 +37,20 @@ const SummarySection = () => {
                         </div>
 
                         {/* Trusted By Badge */}
-                        <div className="absolute -bottom-6 -right-6 bg-white p-4 rounded-xl shadow-2xl flex items-center gap-4 max-w-xs z-20 animate-fade-in-up">
-                            <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600 text-2xl">
+                        <div className="absolute right-2 -bottom-4 md:-bottom-6 md:-right-6 bg-white p-3 md:p-4 rounded-xl shadow-2xl flex items-center gap-2 md:gap-4 max-w-[280px] md:max-w-xs z-20 animate-fade-in-up">
+                            <div className="w-10 h-10 md:w-12 md:h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600 text-xl md:text-2xl flex-shrink-0">
                                 <FaSmile />
                             </div>
                             <div>
-                                <div className="text-xs font-bold text-gray-500 tracking-wider uppercase">Trusted By</div>
-                                <div className="text-lg font-black text-gray-900">20k+ People</div>
+                                <div className="text-[10px] md:text-xs font-bold text-gray-500 tracking-wider uppercase">Trusted By</div>
+                                <div className="text-base md:text-lg font-black text-gray-900 whitespace-nowrap">20k+ People</div>
                             </div>
                         </div>
                     </div>
 
                     {/* Content Column */}
                     <div className="w-full md:w-1/2 space-y-8">
-                        <div className="inline-block px-4 py-1 bg-green-50 text-green-600 rounded-full text-sm font-bold tracking-wide uppercase font-heading shadow-sm">
+                        <div className="inline-block px-4 py-2 bg-green-50 text-green-600 rounded-full text-xs md:text-sm font-bold tracking-wide uppercase font-heading shadow-sm">
                             <EditableText
                                 contentKey="summary_badge"
                                 section="Home"
@@ -58,7 +58,7 @@ const SummarySection = () => {
                             />
                         </div>
 
-                        <h2 className="text-4xl md:text-5xl font-black text-black leading-tight font-heading">
+                        <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-black leading-tight font-heading">
                             <EditableText
                                 contentKey="summary_title_prefix"
                                 section="Home"
@@ -73,7 +73,7 @@ const SummarySection = () => {
                             </span>
                         </h2>
 
-                        <div className="text-lg text-gray-700 leading-relaxed font-light">
+                        <div className="text-base md:text-lg text-gray-700 leading-relaxed font-light">
                             <EditableText
                                 contentKey="summary_content"
                                 section="Home"
@@ -83,16 +83,16 @@ const SummarySection = () => {
                             />
                         </div>
 
-                        <div className="pt-6 grid grid-cols-2 gap-8 border-t border-blue-50">
+                        <div className="pt-6 grid grid-cols-2 gap-6 md:gap-8 border-t border-blue-50 mt-6">
                             <div>
-                                <h4 className="text-4xl font-bold text-blue-600 font-heading">
+                                <h4 className="text-3xl md:text-4xl font-bold text-blue-600 font-heading">
                                     <EditableText
                                         contentKey="stat_1_number"
                                         section="Home"
                                         defaultText={content.stat_1_number || "10+"}
                                     />
                                 </h4>
-                                <div className="text-gray-500 font-bold text-sm tracking-wider uppercase mt-1">
+                                <div className="text-gray-500 font-bold text-xs md:text-sm tracking-wider uppercase mt-1">
                                     <EditableText
                                         contentKey="stat_1_label"
                                         section="Home"
@@ -101,7 +101,7 @@ const SummarySection = () => {
                                 </div>
                             </div>
                             <div>
-                                <h4 className="text-4xl font-bold text-green-600 font-heading">
+                                <h4 className="text-3xl md:text-4xl font-bold text-green-600 font-heading">
                                     <EditableText
                                         contentKey="stat_2_number"
                                         section="Home"

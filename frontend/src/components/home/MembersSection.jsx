@@ -12,6 +12,7 @@ import SectionTitle from '../common/SectionTitle';
 
 const MemberItem = ({ member, updateMember, isAdmin, isEditMode }) => {
     const [isEditing, setIsEditing] = useState(false);
+    const [isTapped, setIsTapped] = useState(false);
     const [tempName, setTempName] = useState(member.name);
     const [tempRole, setTempRole] = useState(member.role);
     const [tempImage, setTempImage] = useState(member.image);
@@ -43,7 +44,10 @@ const MemberItem = ({ member, updateMember, isAdmin, isEditMode }) => {
     };
 
     return (
-        <div className="flex-none w-64 bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100 group relative">
+        <div
+            className="flex-none w-64 bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100 group relative"
+            onClick={() => setIsTapped(!isTapped)}
+        >
             <div className="h-64 w-full relative overflow-hidden bg-gray-200">
                 <ImageWithFallback
                     src={isEditing ? tempImage : member.image}
@@ -92,10 +96,10 @@ const MemberItem = ({ member, updateMember, isAdmin, isEditMode }) => {
                 {isAdmin && isEditMode && !isEditing && (
                     <button
                         onClick={handleEdit}
-                        className="absolute bottom-2 right-2 bg-white/80 p-2 rounded-full text-gray-800 shadow-md hover:bg-white hover:text-primary transition-all opacity-0 group-hover:opacity-100 z-10"
+                        className={`absolute bottom-2 right-2 bg-white/90 p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-gray-800 shadow-md hover:bg-white hover:text-primary transition-all opacity-0 group-hover:opacity-100 z-10 active:bg-gray-100 ${isTapped ? 'opacity-100' : ''}`}
                         title="Edit Member"
                     >
-                        <FaPen size={12} />
+                        <FaPen size={14} />
                     </button>
                 )}
             </div>
@@ -128,11 +132,11 @@ const MemberItem = ({ member, updateMember, isAdmin, isEditMode }) => {
 
                 {/* Edit Controls */}
                 {isEditing && (
-                    <div className="flex justify-center gap-2 mt-3">
-                        <button onClick={handleSave} className="bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center gap-1 hover:bg-green-700">
+                    <div className="flex justify-center gap-3 mt-4">
+                        <button onClick={handleSave} className="bg-green-600 text-white px-3 py-2 min-h-[44px] min-w-[80px] rounded flex justify-center items-center gap-2 hover:bg-green-700 font-bold active:bg-green-800 transition-colors">
                             <FaSave /> Save
                         </button>
-                        <button onClick={handleCancel} className="bg-red-600 text-white px-2 py-1 rounded text-xs flex items-center gap-1 hover:bg-red-700">
+                        <button onClick={handleCancel} className="bg-red-600 text-white px-3 py-2 min-h-[44px] min-w-[80px] rounded flex justify-center items-center gap-2 hover:bg-red-700 font-bold active:bg-red-800 transition-colors">
                             <FaTimes /> Cancel
                         </button>
                     </div>
@@ -198,10 +202,10 @@ const MembersSection = () => {
                 </SectionTitle>
 
                 {/* Founder / President Section */}
-                <div className="mb-24">
-                    <div className="flex flex-col md:flex-row items-center gap-12 max-w-5xl mx-auto">
+                <div className="mb-16 md:mb-24">
+                    <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 max-w-5xl mx-auto">
                         <div className="w-full md:w-1/3 flex justify-center md:justify-end">
-                            <div className="w-64 h-64 shadow-2xl border-4 border-white relative group rounded-full">
+                            <div className="w-48 h-48 md:w-64 md:h-64 shadow-2xl border-4 border-white relative group rounded-full flex-shrink-0">
                                 <EditableImage
                                     contentKey="founder_image"
                                     section="Home"
@@ -214,13 +218,13 @@ const MembersSection = () => {
                             </div>
                         </div>
                         <div className="w-full md:w-2/3 text-center md:text-left">
-                            <div className="text-secondary font-bold text-sm tracking-widest uppercase mb-2">
+                            <div className="text-secondary font-bold text-xs md:text-sm tracking-widest uppercase mb-2">
                                 <EditableText contentKey="founder_role" section="Home" defaultText={homeContent.founder_role || "Founder & President"} />
                             </div>
-                            <h3 className="text-4xl font-bold text-gray-900 mb-6 font-heading">
+                            <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 md:mb-6 font-heading">
                                 <EditableText contentKey="founder_name" section="Home" defaultText={homeContent.founder_name || "Dr. A. Founder"} />
                             </h3>
-                            <div className="text-xl text-gray-600 leading-relaxed font-light">
+                            <div className="text-base md:text-xl text-gray-600 leading-relaxed font-light">
                                 <EditableText
                                     contentKey="founder_bio"
                                     section="Home"
@@ -236,10 +240,10 @@ const MembersSection = () => {
                 </div>
 
                 {/* CEO Section */}
-                <div className="mb-24">
-                    <div className="flex flex-col md:flex-row-reverse items-center gap-12 max-w-5xl mx-auto">
+                <div className="mb-20 md:mb-24">
+                    <div className="flex flex-col md:flex-row-reverse items-center gap-8 md:gap-12 max-w-5xl mx-auto">
                         <div className="w-full md:w-1/3 flex justify-center md:justify-start">
-                            <div className="w-56 h-56 shadow-2xl border-4 border-white relative group rounded-full">
+                            <div className="w-40 h-40 md:w-56 md:h-56 shadow-2xl border-4 border-white relative group rounded-full flex-shrink-0">
                                 <EditableImage
                                     contentKey="ceo_image"
                                     section="Home"
@@ -252,13 +256,13 @@ const MembersSection = () => {
                             </div>
                         </div>
                         <div className="w-full md:w-2/3 text-center md:text-right">
-                            <div className="text-primary font-bold text-sm tracking-widest uppercase mb-2">
+                            <div className="text-primary font-bold text-xs md:text-sm tracking-widest uppercase mb-2">
                                 <EditableText contentKey="ceo_role" section="Home" defaultText={homeContent.ceo_role || "Chief Executive Officer"} />
                             </div>
-                            <h3 className="text-3xl font-bold text-gray-900 mb-6 font-heading">
+                            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 font-heading">
                                 <EditableText contentKey="ceo_name" section="Home" defaultText={homeContent.ceo_name || "Mr. B. CEO"} />
                             </h3>
-                            <div className="text-xl text-gray-600 leading-relaxed font-light">
+                            <div className="text-base md:text-xl text-gray-600 leading-relaxed font-light">
                                 <EditableText
                                     contentKey="ceo_bio"
                                     section="Home"

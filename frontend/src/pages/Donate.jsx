@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import api from '../utils/api';
 import { FaHandHoldingHeart, FaBuilding, FaGlobe, FaUserFriends, FaTimes, FaRupeeSign, FaLandmark, FaHandshake, FaHeart, FaCheck } from 'react-icons/fa';
 import EditableText from '../components/cms/EditableText';
+import SEO from '../components/common/SEO';
 
 const Donate = () => {
     const [selectedCategory, setSelectedCategory] = useState(null);
@@ -80,30 +81,35 @@ const Donate = () => {
 
     return (
         <div className="min-h-screen py-20 bg-gray-100 font-sans">
+            <SEO
+                title="Donate"
+                description="Support YRDS by donating to our causes. Your contribution helps us empower marginalized communities."
+                url="/donate"
+            />
             <div className="container mx-auto px-4">
-                <div className="text-center mb-16">
-                    <h1 className="text-5xl font-bold text-gray-800 mb-4 font-heading">
+                <div className="text-center mb-12 md:mb-16">
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 mb-4 font-heading leading-tight">
                         <EditableText contentKey="donate_title" section="Donate" defaultText="Make a Difference" />
                     </h1>
-                    <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                    <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed px-4">
                         <EditableText contentKey="donate_subtitle" section="Donate" defaultText="Your support enables us to continue our mission of empowering communities." />
                     </p>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto z-10 relative">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto z-10 relative">
                     {cards.map((card) => (
                         <div
                             key={card.id}
                             onClick={() => openModal(card.id)}
-                            className={`group bg-white p-10 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col items-center text-center border border-gray-100 hover:border-transparent hover:ring-4 ${card.ringColor} relative overflow-hidden`}
+                            className={`group bg-white p-6 md:p-8 lg:p-10 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col items-center text-center border border-gray-100 hover:border-transparent hover:ring-4 ${card.ringColor} relative overflow-hidden`}
                         >
                             <div className={`absolute top-0 left-0 w-full h-2 ${card.gradient}`}></div>
-                            <div className={`w-20 h-20 ${card.iconBg} rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-inner`}>
+                            <div className={`w-16 h-16 md:w-20 md:h-20 ${card.iconBg} rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-inner shrink-0`}>
                                 {card.icon}
                             </div>
-                            <h3 className="text-2xl font-bold text-gray-800 mb-3">{card.title}</h3>
-                            <p className="text-gray-600 mb-8 leading-relaxed">{card.description}</p>
-                            <button className={`mt-auto px-8 py-3 ${card.btnColor} text-white font-bold rounded-full shadow-lg transform group-hover:-translate-y-1 transition-all`}>
+                            <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-3 leading-tight">{card.title}</h3>
+                            <p className="text-gray-600 text-sm md:text-base mb-8 leading-relaxed flex-1 w-full">{card.description}</p>
+                            <button className={`mt-auto px-6 md:px-8 py-3 min-h-[44px] w-full md:w-auto ${card.btnColor} text-white font-bold rounded-full shadow-lg transform group-hover:-translate-y-1 active:bg-gray-800 transition-all flex items-center justify-center`}>
                                 Enquire Now
                             </button>
                         </div>
@@ -117,7 +123,7 @@ const Donate = () => {
                     <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
                         <div className="p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10">
                             <h2 className="text-2xl font-bold text-gray-800">{selectedCategory} Enquiry</h2>
-                            <button onClick={closeModal} className="text-gray-500 hover:text-red-500">
+                            <button onClick={closeModal} className="text-gray-500 hover:text-red-500 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full active:bg-gray-100 transition-colors">
                                 <FaTimes size={24} />
                             </button>
                         </div>
@@ -194,7 +200,7 @@ const Donate = () => {
 
                                     <button
                                         type="submit"
-                                        className="w-full bg-blue-900 text-white py-4 rounded-lg font-bold shadow-lg hover:bg-opacity-90 hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                        className="w-full bg-blue-900 text-white py-4 min-h-[44px] rounded-lg font-bold shadow-lg hover:bg-opacity-90 active:bg-blue-800 hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                                         disabled={status === 'submitting'}
                                     >
                                         {status === 'submitting' ? 'Sending...' : 'Submit Enquiry'}

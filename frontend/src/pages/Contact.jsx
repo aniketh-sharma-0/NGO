@@ -3,6 +3,7 @@ import api from '../utils/api';
 import { FaWhatsapp, FaPhoneVolume, FaEnvelopeOpenText, FaComments, FaPaperPlane } from 'react-icons/fa';
 import EditableText from '../components/cms/EditableText';
 import SelectInput from '../components/common/SelectInput';
+import SEO from '../components/common/SEO';
 
 const Contact = () => {
     const [formData, setFormData] = useState({
@@ -72,12 +73,17 @@ const Contact = () => {
 
     return (
         <div className="min-h-screen">
+            <SEO
+                title="Contact Us"
+                description="Get in touch with YRDS for inquiries, partnerships, or support. We are here to help."
+                url="/contact"
+            />
             {/* Header */}
-            <div className="bg-gray-900 text-white py-24 text-center px-4 font-heading">
-                <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            <div className="bg-gray-900 text-white py-16 md:py-24 text-center px-4 font-heading">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">
                     <EditableText contentKey="contact_title" section="Contact" defaultText="Get in Touch" />
                 </h1>
-                <p className="text-xl text-gray-300 max-w-2xl mx-auto font-sans font-light">
+                <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto font-sans font-light leading-relaxed px-4">
                     <EditableText contentKey="contact_subtitle" section="Contact" defaultText="Have questions? We'd love to hear from you." />
                 </p>
             </div>
@@ -114,18 +120,18 @@ const Contact = () => {
                             alt="Our Team"
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent flex items-end p-10">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent flex items-end p-6 md:p-10">
                             <div className="text-white text-left">
-                                <h3 className="text-4xl font-bold mb-2 font-heading">Let's Make a Difference</h3>
-                                <p className="text-lg opacity-90 font-light text-gray-200">Reach out to us and start your journey of impact today.</p>
+                                <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 md:mb-4 font-heading leading-tight">Let's Make a Difference</h3>
+                                <p className="text-base md:text-lg opacity-90 font-light text-gray-200 leading-relaxed">Reach out to us and start your journey of impact today.</p>
                             </div>
                         </div>
                     </div>
 
                     {/* Contact Form - Removed Card Wrapper */}
                     <div className="pl-0 md:pl-8">
-                        <h2 className="text-4xl font-bold text-gray-800 mb-8 font-heading">Send a Message</h2>
-                        <p className="text-gray-600 mb-8">We are here to help and answer any question you might have. We look forward to hearing from you.</p>
+                        <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6 md:mb-8 font-heading leading-tight">Send a Message</h2>
+                        <p className="text-gray-600 mb-8 text-base md:text-lg leading-relaxed">We are here to help and answer any question you might have. We look forward to hearing from you.</p>
 
                         {status === 'success' ? (
                             <div className="text-center py-20 bg-green-50 rounded-3xl border border-green-100">

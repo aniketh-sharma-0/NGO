@@ -3,6 +3,7 @@ import api from '../utils/api';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { FaFilter, FaPlus, FaChevronDown } from 'react-icons/fa';
+import SEO from '../components/common/SEO';
 
 const getDemoProjects = () => [
     // GOVERNMENT PROJECTS
@@ -332,22 +333,27 @@ const Projects = () => {
 
     return (
         <div className="min-h-screen py-20 bg-soft-blue font-sans">
+            <SEO
+                title="Our Projects"
+                description="Explore our ongoing and completed projects in rural development, education, and healthcare across Andhra Pradesh."
+                url="/projects"
+            />
             <div className="container mx-auto px-4">
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-800 font-heading">Our Projects</h1>
-                    <div className="w-24 h-1 bg-primary mx-auto mt-4 rounded"></div>
+                <div className="text-center mb-8 md:mb-12 flex flex-col items-center">
+                    <h1 className="text-3xl md:text-4xl font-bold text-gray-800 font-heading">Our Projects</h1>
+                    <div className="w-24 h-1 bg-primary mt-4 rounded"></div>
                 </div>
 
-                <div className="flex flex-col md:flex-row justify-between items-center mb-10">
-                    <div className="flex gap-4 items-center ml-auto">
-                        <div className="relative z-50">
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 md:mb-10">
+                    <div className="flex w-full sm:w-auto gap-4 items-center sm:ml-auto">
+                        <div className="relative z-50 flex-1 sm:flex-none w-full sm:w-auto">
                             {/* Custom Dropdown Trigger */}
                             <button
                                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                className="bg-white pl-5 pr-12 py-3 rounded-full shadow-md border border-gray-100 flex items-center gap-3 hover:shadow-lg transition-all transform hover:-translate-y-0.5 w-48 relative"
+                                className="bg-white w-full sm:w-48 pl-5 pr-12 py-3 rounded-full shadow-md border border-gray-100 flex items-center gap-3 hover:shadow-lg transition-all transform hover:-translate-y-0.5 relative active:bg-gray-50 text-left min-h-[44px]"
                             >
-                                <FaFilter className="text-primary/80" />
-                                <span className="font-bold text-gray-700">{filterCategory}</span>
+                                <FaFilter className="text-primary/80 flex-shrink-0" />
+                                <span className="font-bold text-gray-700 flex-1 truncate">{filterCategory}</span>
                                 <div className={`absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`}>
                                     <FaChevronDown size={14} />
                                 </div>
@@ -420,12 +426,12 @@ const Projects = () => {
                                                     {project.status || 'Unknown'}
                                                 </div>
                                             </div>
-                                            <div className="p-6 flex-1 flex flex-col">
+                                            <div className="p-5 md:p-6 flex-1 flex flex-col">
                                                 <div className="text-xs text-accent font-bold uppercase tracking-wider mb-2">
                                                     {project.category || 'General'}
                                                 </div>
-                                                <h3 className="text-xl font-bold text-gray-800 mb-2">{project.title || 'Untitled Project'}</h3>
-                                                <p className="text-gray-600 text-sm mb-4 line-clamp-3 flex-1">{project.description || 'No description available.'}</p>
+                                                <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-2 leading-tight">{project.title || 'Untitled Project'}</h3>
+                                                <p className="text-gray-600 text-sm md:text-base leading-relaxed mb-4 line-clamp-3 flex-1">{project.description || 'No description available.'}</p>
 
                                                 {project.members && Array.isArray(project.members) && project.members.length > 0 && (
                                                     <div className="mb-4">
@@ -482,15 +488,15 @@ const Projects = () => {
                                     {/* Header Info */}
                                     <div className="flex flex-col md:flex-row gap-6">
                                         <div className="flex-1">
-                                            <div className="flex items-center gap-3 mb-2">
+                                            <div className="flex items-center gap-3 mb-3 md:mb-2">
                                                 <span className={`px-3 py-1 rounded-full text-xs font-bold text-white
                                                     ${formData.status === 'Upcoming' ? 'bg-blue-500' :
                                                         formData.status === 'Ongoing' ? 'bg-green-500' : 'bg-gray-500'}`}>
                                                     {formData.status}
                                                 </span>
-                                                <span className="text-primary font-bold text-sm tracking-wide">{formData.category.toUpperCase()}</span>
+                                                <span className="text-primary font-bold text-xs md:text-sm tracking-wide">{formData.category.toUpperCase()}</span>
                                             </div>
-                                            <h1 className="text-3xl font-bold text-gray-800 mb-4">{formData.title}</h1>
+                                            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6 leading-tight">{formData.title}</h1>
 
                                             {/* Key Details Grid */}
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 bg-gray-50 p-4 rounded-lg border border-gray-100">
@@ -512,7 +518,7 @@ const Projects = () => {
                                                 </div>
                                             </div>
 
-                                            <p className="text-gray-600 leading-relaxed text-lg">{formData.description}</p>
+                                            <p className="text-gray-600 leading-relaxed text-base md:text-lg mb-4">{formData.description}</p>
                                         </div>
                                     </div>
 

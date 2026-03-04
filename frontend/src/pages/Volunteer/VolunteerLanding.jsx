@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaHandsHelping, FaNetworkWired, FaGraduationCap } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
+import SEO from '../../components/common/SEO';
 
 const VolunteerLanding = () => {
     const { user } = useAuth();
@@ -15,6 +16,11 @@ const VolunteerLanding = () => {
 
     return (
         <div className="min-h-screen font-sans">
+            <SEO
+                title="Volunteer With Us"
+                description="Join YRDS as a volunteer and make a real impact in rural communities. Sign up or log in to your dashboard."
+                url="/volunteer"
+            />
             {/* Hero Section */}
             <div className="relative h-[600px] flex items-center justify-center">
                 <div className="absolute inset-0 overflow-hidden">
@@ -78,7 +84,7 @@ const VolunteerLanding = () => {
             </div>
 
             {/* Call to Action */}
-            <div className="bg-gray-900 text-white py-24 text-center px-4 relative overflow-hidden">
+            <div className="bg-gray-900 text-white pt-24 pb-32 md:pb-24 text-center px-4 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
                     <svg className="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                         <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" />

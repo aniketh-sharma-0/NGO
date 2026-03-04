@@ -1,17 +1,39 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { FcGoogle } from 'react-icons/fc';
+import { GoogleLogin } from '@react-oauth/google';
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
+import SEO from '../components/common/SEO';
 
 const Login = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
     const [showPassword, setShowPassword] = useState(false);
-    const { login, register } = useAuth();
+    const { login, register, googleAuth } = useAuth();
     const navigate = useNavigate();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+
+    const handleGoogleLogin = async (credentialResponse) => {
+        setLoading(true);
+        setError('');
+        try {
+            const result = await googleAuth(credentialResponse.credential);
+            if (result.success) {
+                if (result.user?.role?.name === 'Volunteer') {
+                    navigate('/volunteer/dashboard');
+                } else {
+                    navigate('/');
+                }
+            } else {
+                setError(result.message || 'Google authentication failed');
+            }
+        } catch (err) {
+            setError('An unexpected error occurred during Google sign-in');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -52,6 +74,11 @@ const Login = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center p-4">
+            <SEO
+                title={isLogin ? "Login" : "Sign Up"}
+                description="Login or Sign Up to Yaswanth Rural Development Society."
+                url="/login"
+            />
             <div className="bg-white rounded-2xl shadow-2xl flex flex-col md:flex-row w-full max-w-4xl overflow-hidden h-[650px]">
 
                 {/* Visual Side */}
@@ -157,10 +184,16 @@ const Login = () => {
                         <div className="h-px bg-gray-200 flex-1"></div>
                     </div>
 
-                    <button className="w-full border border-gray-200 py-3 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors font-medium text-gray-600">
-                        <FcGoogle size={22} />
-                        {isLogin ? 'Sign in with Google' : 'Sign up with Google'}
-                    </button>
+                    <div className="w-full flex justify-center">
+                        <GoogleLogin
+                            onSuccess={handleGoogleLogin}
+                            onError={() => setError('Google Login Failed')}
+                            useOneTap
+                            theme="outline"
+                            size="large"
+                            width="250"
+                        />
+                    </div>
 
                     <div className="mt-6 text-center text-sm pb-4">
                         <span className="text-gray-600">{isLogin ? "Don't have an account?" : "Already have an account?"}</span>

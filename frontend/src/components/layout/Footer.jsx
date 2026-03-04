@@ -25,27 +25,30 @@ const Footer = () => {
                         </div>
                     </div>
 
-                    {/* Column 2: Quick Links */}
-                    <div>
-                        <h4 className="text-lg font-bold text-white mb-6 font-heading">Quick Links</h4>
-                        <ul className="space-y-3">
-                            <li><Link to="/" className="hover:text-accent transition-colors">Home</Link></li>
-                            <li><Link to="/about" className="hover:text-accent transition-colors">About Us</Link></li>
-                            <li><Link to="/projects" className="hover:text-accent transition-colors">Projects</Link></li>
-                            <li><Link to="/contact" className="hover:text-accent transition-colors">Contact</Link></li>
-                            <li><Link to="/donate" className="hover:text-accent transition-colors">Donate</Link></li>
-                        </ul>
-                    </div>
+                    {/* Middle Section: Quick Links & Resources (Side-by-Side on Mobile) */}
+                    <div className="grid grid-cols-2 gap-8 md:gap-12 md:col-span-1 lg:col-span-2">
+                        {/* Column 2: Quick Links */}
+                        <div>
+                            <h4 className="text-lg font-bold text-white mb-6 font-heading">Quick Links</h4>
+                            <ul className="space-y-1 md:space-y-3">
+                                <li><Link to="/" className="block py-2 md:py-1 hover:text-accent active:text-accent active:bg-gray-800 rounded px-2 -mx-2 transition-colors">Home</Link></li>
+                                <li><Link to="/about" className="block py-2 md:py-1 hover:text-accent active:text-accent active:bg-gray-800 rounded px-2 -mx-2 transition-colors">About Us</Link></li>
+                                <li><Link to="/projects" className="block py-2 md:py-1 hover:text-accent active:text-accent active:bg-gray-800 rounded px-2 -mx-2 transition-colors">Projects</Link></li>
+                                <li><Link to="/contact" className="block py-2 md:py-1 hover:text-accent active:text-accent active:bg-gray-800 rounded px-2 -mx-2 transition-colors">Contact</Link></li>
+                                <li><Link to="/donate" className="block py-2 md:py-1 hover:text-accent active:text-accent active:bg-gray-800 rounded px-2 -mx-2 transition-colors">Donate</Link></li>
+                            </ul>
+                        </div>
 
-                    {/* Column 3: Resources */}
-                    <div>
-                        <h4 className="text-lg font-bold text-white mb-6 font-heading">Resources</h4>
-                        <ul className="space-y-3">
-                            <li><Link to="/reports" className="hover:text-accent transition-colors">Annual Reports</Link></li>
-                            <li><Link to="/policies" className="hover:text-accent transition-colors">Privacy Policy</Link></li>
-                            <li><Link to="/terms" className="hover:text-accent transition-colors">Terms of Use</Link></li>
-                            <li><Link to="/careers" className="hover:text-accent transition-colors">Careers</Link></li>
-                        </ul>
+                        {/* Column 3: Resources */}
+                        <div>
+                            <h4 className="text-lg font-bold text-white mb-6 font-heading">Resources</h4>
+                            <ul className="space-y-1 md:space-y-3">
+                                <li><Link to="/reports" className="block py-2 md:py-1 hover:text-accent active:text-accent active:bg-gray-800 rounded px-2 -mx-2 transition-colors">Annual Reports</Link></li>
+                                <li><Link to="/policies" className="block py-2 md:py-1 hover:text-accent active:text-accent active:bg-gray-800 rounded px-2 -mx-2 transition-colors">Privacy Policy</Link></li>
+                                <li><Link to="/terms" className="block py-2 md:py-1 hover:text-accent active:text-accent active:bg-gray-800 rounded px-2 -mx-2 transition-colors">Terms of Use</Link></li>
+                                <li><Link to="/careers" className="block py-2 md:py-1 hover:text-accent active:text-accent active:bg-gray-800 rounded px-2 -mx-2 transition-colors">Careers</Link></li>
+                            </ul>
+                        </div>
                     </div>
 
                     {/* Column 4: Newsletter / Social */}
@@ -55,17 +58,17 @@ const Footer = () => {
                             Follow us on social media for updates and stories.
                         </div>
                         <div className="flex gap-4">
-                            <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors">
-                                <FaFacebook />
+                            <a href="#" className="w-12 h-12 md:w-10 md:h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary active:bg-blue-800 transition-colors">
+                                <FaFacebook size={20} className="md:w-4 md:h-4" />
                             </a>
-                            <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors">
-                                <FaTwitter />
+                            <a href="#" className="w-12 h-12 md:w-10 md:h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary active:bg-blue-800 transition-colors">
+                                <FaTwitter size={20} className="md:w-4 md:h-4" />
                             </a>
-                            <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors">
-                                <FaInstagram />
+                            <a href="#" className="w-12 h-12 md:w-10 md:h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary active:bg-blue-800 transition-colors">
+                                <FaInstagram size={20} className="md:w-4 md:h-4" />
                             </a>
-                            <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors">
-                                <FaLinkedin />
+                            <a href="#" className="w-12 h-12 md:w-10 md:h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary active:bg-blue-800 transition-colors">
+                                <FaLinkedin size={20} className="md:w-4 md:h-4" />
                             </a>
                         </div>
                     </div>

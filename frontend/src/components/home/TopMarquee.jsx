@@ -31,7 +31,7 @@ const TopMarquee = () => {
         <div className="bg-slate-800 text-white shadow-md overflow-hidden relative flex items-center h-10">
             {/* Scrolling Left Section */}
             <div className="flex-1 overflow-hidden relative h-full flex items-center mask-image-gradient">
-                <div className="animate-marquee whitespace-nowrap flex items-center gap-8 text-sm md:text-base font-medium tracking-wide">
+                <div className="animate-marquee whitespace-nowrap flex items-center gap-4 md:gap-8 text-xs md:text-sm lg:text-base font-medium tracking-wide">
                     <span>Yaswanth Rural Development Society</span>
                     <span>•</span>
                     <EditableText
@@ -44,23 +44,23 @@ const TopMarquee = () => {
             </div>
 
             {/* Static Right Section */}
-            <div className="flex-shrink-0 bg-slate-800 z-10 px-4 h-full flex items-center gap-6 shadow-[-5px_0_10px_rgba(0,0,0,0.1)]">
-                <div className="hidden md:flex items-center gap-2">
-                    <FaPhoneAlt size={14} className="text-blue-200" />
+            <div className="flex-shrink-0 bg-slate-800 z-10 px-3 md:px-4 h-full flex items-center gap-4 md:gap-6 shadow-[-5px_0_10px_rgba(0,0,0,0.1)]">
+                <div className="hidden lg:flex items-center gap-2">
+                    <FaPhoneAlt size={12} className="text-blue-200 md:text-[14px]" />
                     <EditableText
                         contentKey="top_marquee_phone"
                         section="Home"
                         defaultText={content?.top_marquee_phone || '+91 98765 43210'}
-                        className="font-semibold text-sm"
+                        className="font-semibold text-xs md:text-sm"
                     />
                 </div>
                 <div className="flex items-center gap-2">
-                    <FaEnvelope size={14} className="text-blue-200" />
+                    <FaEnvelope size={12} className="text-blue-200 md:text-[14px]" />
                     <EditableText
                         contentKey="top_marquee_email"
                         section="Home"
                         defaultText={content?.top_marquee_email || 'contact@yrds.org'}
-                        className="font-semibold text-sm"
+                        className="font-semibold text-xs md:text-sm"
                     />
                 </div>
             </div>

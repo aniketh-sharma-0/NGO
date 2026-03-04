@@ -11,6 +11,8 @@ const Header = () => {
     const { setIsEditMode } = useCMS();
     const navigate = useNavigate();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isProjectsDropdownOpen, setIsProjectsDropdownOpen] = useState(false);
+    const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
 
     const handleLogout = () => {
         setIsEditMode(false); // Turn off edit mode
@@ -41,10 +43,10 @@ const Header = () => {
 
     return (
         <header className="bg-white shadow-sm sticky top-0 z-40 font-heading">
-            <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 md:py-4 flex justify-between items-center">
                 {/* Logo and Name */}
-                <Link to="/" className="flex items-center gap-3">
-                    <div className="w-10 h-10 md:w-12 md:h-12 relative overflow-hidden rounded-full border border-gray-200 shadow-sm">
+                <Link to="/" className="flex items-center gap-3 active:opacity-70 transition-opacity">
+                    <div className="w-11 h-11 md:w-12 md:h-12 relative overflow-hidden rounded-full border border-gray-200 shadow-sm flex-shrink-0">
                         <EditableImage
                             contentKey="ngo_logo"
                             section="Header"
@@ -55,11 +57,11 @@ const Header = () => {
                             editable={false}
                         />
                     </div>
-                    <div className="flex flex-col justify-center">
-                        <span className="text-lg md:text-xl font-bold text-slate-800 leading-tight whitespace-nowrap">
+                    <div className="flex flex-col justify-center overflow-hidden min-w-0">
+                        <span className="text-[13px] sm:text-lg md:text-xl font-bold text-slate-800 leading-none sm:leading-tight truncate">
                             Yaswanth Rural
                         </span>
-                        <span className="text-lg md:text-xl font-bold text-slate-800 leading-tight whitespace-nowrap">
+                        <span className="text-[13px] sm:text-lg md:text-xl font-bold text-slate-800 leading-none sm:leading-tight truncate">
                             Development Society
                         </span>
                     </div>
@@ -75,14 +77,18 @@ const Header = () => {
 
                     {/* Projects Dropdown */}
                     <div className="relative group/dropdown h-full flex items-center">
-                        <div role="button" className="relative font-sans font-medium leading-tight flex items-center gap-1 text-gray-700 hover:text-blue-600 transition-colors h-full px-1 transform-gpu backface-hidden cursor-pointer after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[2px] after:bg-blue-600 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300">
+                        <div
+                            role="button"
+                            onClick={() => setIsProjectsDropdownOpen(!isProjectsDropdownOpen)}
+                            className="relative font-sans font-medium leading-tight flex items-center gap-1 text-gray-700 hover:text-blue-600 transition-colors h-full px-1 transform-gpu backface-hidden cursor-pointer after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[2px] after:bg-blue-600 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300"
+                        >
                             <span>Projects</span>
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                         </div>
-                        <div className="absolute top-full left-0 w-48 bg-white shadow-xl rounded-b-lg border border-gray-100 opacity-0 invisible group-hover/dropdown:opacity-100 group-hover/dropdown:visible transition-all duration-200 transform translate-y-2 group-hover/dropdown:translate-y-0">
-                            <Link to="/projects?category=Government" className="block px-4 py-3 hover:bg-gray-50 text-gray-700 hover:text-blue-600 border-b border-gray-50">Government Projects</Link>
-                            <Link to="/projects?category=CSR" className="block px-4 py-3 hover:bg-gray-50 text-gray-700 hover:text-blue-600 border-b border-gray-50">CSR Projects</Link>
-                            <Link to="/projects?category=Client" className="block px-4 py-3 hover:bg-gray-50 text-gray-700 hover:text-blue-600">Client Projects</Link>
+                        <div className={`absolute top-full left-0 w-48 bg-white shadow-xl rounded-b-lg border border-gray-100 transition-all duration-200 transform ${isProjectsDropdownOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible group-hover/dropdown:opacity-100 group-hover/dropdown:visible translate-y-2 group-hover/dropdown:translate-y-0'}`}>
+                            <Link to="/projects?category=Government" onClick={() => setIsProjectsDropdownOpen(false)} className="block px-4 py-3 hover:bg-gray-50 text-gray-700 hover:text-blue-600 border-b border-gray-50">Government Projects</Link>
+                            <Link to="/projects?category=CSR" onClick={() => setIsProjectsDropdownOpen(false)} className="block px-4 py-3 hover:bg-gray-50 text-gray-700 hover:text-blue-600 border-b border-gray-50">CSR Projects</Link>
+                            <Link to="/projects?category=Client" onClick={() => setIsProjectsDropdownOpen(false)} className="block px-4 py-3 hover:bg-gray-50 text-gray-700 hover:text-blue-600">Client Projects</Link>
                         </div>
                     </div>
 
@@ -90,7 +96,10 @@ const Header = () => {
 
                     {user ? (
                         <div className="relative group z-50 h-full flex items-center">
-                            <button className="flex items-center gap-3 pl-1 pr-3 py-1.5 rounded-full hover:bg-blue-50 transition-all group-hover:bg-blue-50/50 border border-transparent hover:border-blue-100">
+                            <button
+                                onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                                className="flex items-center gap-3 pl-1 pr-3 py-1.5 rounded-full hover:bg-blue-50 transition-all group-hover:bg-blue-50/50 border border-transparent hover:border-blue-100"
+                            >
                                 <div className="w-9 h-9 rounded-full bg-[#1e3a8a] text-white flex items-center justify-center font-bold text-sm shadow-sm font-heading">
                                     {user.name ? user.name.charAt(0).toUpperCase() : <FaUserCircle />}
                                 </div>
@@ -102,7 +111,7 @@ const Header = () => {
                             </button>
 
                             {/* Dropdown Menu */}
-                            <div className="absolute right-0 top-full mt-2 w-60 bg-white shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] rounded-2xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 overflow-hidden animate-fade-in-up z-50">
+                            <div className={`absolute right-0 top-full mt-2 w-60 bg-white shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] rounded-2xl border border-gray-100 transition-all duration-300 transform overflow-hidden z-50 ${isProfileDropdownOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-2 group-hover:translate-y-0'}`}>
                                 {/* User Header */}
                                 <div className="px-5 py-4 border-b border-gray-50">
                                     <p className="font-bold text-gray-900 truncate text-sm">{user.name}</p>
@@ -160,65 +169,72 @@ const Header = () => {
                 </nav >
 
                 {/* Mobile Menu Button */}
-                < button className="lg:hidden text-gray-700 focus:outline-none p-2" onClick={toggleMobileMenu} >
+                <button className="lg:hidden text-gray-700 focus:outline-none p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full active:bg-gray-100 transition-colors ml-2" onClick={toggleMobileMenu}>
                     {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
-                </button >
+                </button>
             </div >
 
             {/* Mobile Navigation Slide-in/Dropdown */}
             {isMobileMenuOpen && (
-                <div className="lg:hidden absolute top-full left-0 w-full bg-white shadow-2xl border-t border-gray-100 flex flex-col max-h-[90vh] overflow-y-auto z-40 animate-fade-in">
-                    <div className="flex flex-col p-6 gap-3">
-                        <NavItem to="/" labelKey="nav_home" defaultLabel="Home" className="py-2 text-lg border-b border-gray-50" />
-                        <NavItem to="/about" labelKey="nav_about" defaultLabel="About Us" className="py-2 text-lg border-b border-gray-50" />
-                        <NavItem to="/media" labelKey="nav_media" defaultLabel="Blogs & Events" className="py-2 text-lg border-b border-gray-50" />
-                        <NavItem to="/donate" labelKey="nav_donate" defaultLabel="Donation" className="py-2 text-lg border-b border-gray-50" />
-                        <NavItem to="/volunteer" labelKey="nav_volunteer" defaultLabel="Volunteering" className="py-2 text-lg border-b border-gray-50" />
+                <div className="lg:hidden absolute top-full left-0 w-full bg-white shadow-2xl border-t border-gray-100 flex flex-col max-h-[calc(100vh-70px)] overflow-y-auto z-40 animate-fade-in">
+                    <div className="flex flex-col px-6 py-2">
+                        <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 px-3 text-lg font-medium text-gray-700 hover:text-blue-600 active:bg-blue-50/50 active:text-blue-700 rounded-xl transition-all">Home</Link>
+                        <Link to="/about" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 px-3 text-lg font-medium text-gray-700 hover:text-blue-600 active:bg-blue-50/50 active:text-blue-700 rounded-xl transition-all">About Us</Link>
+                        <Link to="/media" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 px-3 text-lg font-medium text-gray-700 hover:text-blue-600 active:bg-blue-50/50 active:text-blue-700 rounded-xl transition-all">Blogs & Events</Link>
+                        <Link to="/donate" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 px-3 text-lg font-medium text-gray-700 hover:text-blue-600 active:bg-blue-50/50 active:text-blue-700 rounded-xl transition-all">Donation</Link>
+                        <Link to="/volunteer" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 px-3 text-lg font-medium text-gray-700 hover:text-blue-600 active:bg-blue-50/50 active:text-blue-700 rounded-xl transition-all mb-2">Volunteering</Link>
 
-                        <div className="py-3 border-b border-gray-50">
-                            <span className="text-gray-400 text-xs font-bold uppercase tracking-wider block mb-2">Projects</span>
-                            <div className="flex flex-col gap-2 pl-4 border-l-2 border-gray-100 ml-1">
-                                <Link to="/projects?category=Government" onClick={() => setIsMobileMenuOpen(false)} className="py-1 text-gray-600 hover:text-blue-900 block font-medium">Government Projects</Link>
-                                <Link to="/projects?category=CSR" onClick={() => setIsMobileMenuOpen(false)} className="py-1 text-gray-600 hover:text-blue-900 block font-medium">CSR Projects</Link>
-                                <Link to="/projects?category=Client" onClick={() => setIsMobileMenuOpen(false)} className="py-1 text-gray-600 hover:text-blue-900 block font-medium">Client Projects</Link>
+                        <div className="py-2 px-3 bg-gray-50 rounded-xl">
+                            <span className="text-gray-400 text-sm font-bold uppercase tracking-wider block mb-3 pl-2">Projects</span>
+                            <div className="flex flex-col gap-1 pl-4 border-l-2 border-blue-200 ml-1">
+                                <Link to="/projects?category=Government" onClick={() => setIsMobileMenuOpen(false)} className="block py-3 px-3 text-gray-600 hover:text-blue-900 active:bg-blue-100/50 active:text-blue-700 font-medium rounded-lg transition-all">Government Projects</Link>
+                                <Link to="/projects?category=CSR" onClick={() => setIsMobileMenuOpen(false)} className="block py-3 px-3 text-gray-600 hover:text-blue-900 active:bg-blue-100/50 active:text-blue-700 font-medium rounded-lg transition-all">CSR Projects</Link>
+                                <Link to="/projects?category=Client" onClick={() => setIsMobileMenuOpen(false)} className="block py-3 px-3 text-gray-600 hover:text-blue-900 active:bg-blue-100/50 active:text-blue-700 font-medium rounded-lg transition-all">Client Projects</Link>
                             </div>
                         </div>
 
                         {/* Distinct Contact Us Button in Mobile */}
-                        <Link
-                            to="/contact"
-                            onClick={() => setIsMobileMenuOpen(false)}
-                            className="w-full bg-green-600 text-white text-center py-3 rounded-xl font-bold hover:bg-green-700 transition-colors shadow-sm mt-2"
-                        >
-                            Contact Us
-                        </Link>
+                        <div className="pt-6 pb-24">
+                            <Link
+                                to="/contact"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="block w-full bg-green-600 text-white text-center py-4 rounded-xl font-bold hover:bg-green-700 transition-colors shadow-sm mb-4"
+                            >
+                                Contact Us
+                            </Link>
 
-                        <div className="pt-2">
                             {user ? (
-                                <div className="flex flex-col gap-4 bg-gray-50 p-4 rounded-xl">
-                                    <div className="flex items-center gap-3 font-bold text-gray-800">
-                                        <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center">
-                                            <FaUserCircle size={20} />
+                                <div className="flex flex-col gap-4 bg-gray-50 p-5 rounded-2xl border border-gray-100">
+                                    <div className="flex items-center gap-4 font-bold text-gray-800">
+                                        <div className="w-12 h-12 rounded-full bg-[#1e3a8a] text-white flex items-center justify-center text-lg shadow-sm font-heading flex-shrink-0">
+                                            {user.name ? user.name.charAt(0).toUpperCase() : <FaUserCircle size={24} />}
                                         </div>
-                                        <div className="flex flex-col">
-                                            <span>{user.name}</span>
-                                            <span className="text-xs text-gray-500 font-normal">{user.email}</span>
+                                        <div className="flex flex-col overflow-hidden">
+                                            <span className="truncate text-base" title={user.name}>{user.name}</span>
+                                            <span className="text-sm text-gray-500 font-normal truncate" title={user.email}>{user.email}</span>
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {user.role?.name === 'Admin' && (
-                                            <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="text-center py-2 bg-white border border-gray-200 rounded-lg text-sm font-bold text-blue-900 hover:bg-blue-50">
-                                                Dashboard
+                                    <div className="grid grid-cols-2 gap-3 mt-2">
+                                        {(user.role?.name === 'Admin' || user.role?.name === 'Volunteer') && (
+                                            <Link
+                                                to={user.role?.name === 'Admin' ? "/dashboard" : "/volunteer/dashboard"}
+                                                onClick={() => setIsMobileMenuOpen(false)}
+                                                className="text-center py-3 bg-white border border-gray-200 rounded-xl text-sm font-bold text-blue-900 hover:bg-blue-50 shadow-sm transition-colors"
+                                            >
+                                                {user.role?.name === 'Admin' ? 'Dashboard' : 'Hub'}
                                             </Link>
                                         )}
-                                        <button onClick={handleLogout} className="text-center py-2 bg-white border border-gray-200 rounded-lg text-sm font-bold text-red-600 hover:bg-red-50 w-full">
+                                        <button
+                                            onClick={handleLogout}
+                                            className={`text-center py-3 bg-white border border-gray-200 rounded-xl text-sm font-bold text-red-600 hover:bg-red-50 shadow-sm transition-colors ${(user.role?.name === 'Admin' || user.role?.name === 'Volunteer') ? 'col-span-1' : 'col-span-2 w-full'}`}
+                                        >
                                             Logout
                                         </button>
                                     </div>
                                 </div>
                             ) : (
-                                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="block w-full bg-blue-900 text-white text-center py-3 rounded-xl font-bold shadow-md hover:bg-blue-800 transition-colors">
+                                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="block w-full bg-[#1e3a8a] text-white text-center py-4 rounded-xl font-bold shadow-md hover:bg-blue-800 transition-colors">
                                     Login
                                 </Link>
                             )}
