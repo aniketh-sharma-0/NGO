@@ -712,18 +712,24 @@ const Dashboard = () => {
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm bg-blue-50/50 p-4 rounded-xl border border-blue-100/50">
-                                    <div>
-                                        <span className="text-gray-400 block text-xs uppercase font-bold tracking-wider mb-1">Phone Number</span>
-                                        <a href={`tel:${selectedMessage.phone}`} className="text-gray-900 font-medium hover:text-blue-600 transition-colors">
-                                            {selectedMessage.phone || 'Not provided'}
-                                        </a>
+                                {(selectedMessage.phone || selectedMessage.organization) && (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm bg-blue-50/50 p-4 rounded-xl border border-blue-100/50">
+                                        {selectedMessage.phone && (
+                                            <div>
+                                                <span className="text-gray-400 block text-xs uppercase font-bold tracking-wider mb-1">Phone Number</span>
+                                                <a href={`tel:${selectedMessage.phone}`} className="text-gray-900 font-medium hover:text-blue-600 transition-colors">
+                                                    {selectedMessage.phone}
+                                                </a>
+                                            </div>
+                                        )}
+                                        {selectedMessage.organization && (
+                                            <div>
+                                                <span className="text-gray-400 block text-xs uppercase font-bold tracking-wider mb-1">Organization</span>
+                                                <span className="text-gray-900 font-medium">{selectedMessage.organization}</span>
+                                            </div>
+                                        )}
                                     </div>
-                                    <div>
-                                        <span className="text-gray-400 block text-xs uppercase font-bold tracking-wider mb-1">Organization</span>
-                                        <span className="text-gray-900 font-medium">{selectedMessage.organization || 'N/A'}</span>
-                                    </div>
-                                </div>
+                                )}
                             </div>
                         </div>
 
