@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { useCMS } from '../context/CMSContext';
-import { FaUsers, FaTasks, FaHandHoldingHeart, FaCheck, FaTimes, FaPlus, FaSearch, FaTrash, FaEdit } from 'react-icons/fa';
+import { useUI } from '../context/UIContext';
+import { FaUsers, FaTasks, FaHandHoldingHeart, FaCheck, FaTimes, FaPlus, FaSearch, FaTrash, FaEdit, FaInbox, FaEnvelope } from 'react-icons/fa';
 
 const Dashboard = () => {
     const { user } = useAuth();
     const { isEditMode } = useCMS();
+    const { unreadCount, fetchUnreadCount } = useUI();
     const isAdmin = user?.role?.name === 'Admin';
     const [activeTab, setActiveTab] = useState('Overview');
     const [loading, setLoading] = useState(false);
@@ -15,6 +17,7 @@ const Dashboard = () => {
     const [volunteers, setVolunteers] = useState([]);
     const [donations, setDonations] = useState([]);
     const [intents, setIntents] = useState([]);
+    const [messages, setMessages] = useState([]);
 
     // Task Assignment Modal
     const [selectedVolunteer, setSelectedVolunteer] = useState(null);
@@ -29,9 +32,28 @@ const Dashboard = () => {
     const [selectedDonation, setSelectedDonation] = useState(null);
     const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
 
+    // Message Modal
+    const [selectedMessage, setSelectedMessage] = useState(null);
+    const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
+
     const openDonationModal = (donation) => {
         setSelectedDonation(donation);
         setIsDonationModalOpen(true);
+    };
+
+    const openMessageModal = async (msg) => {
+        setSelectedMessage(msg);
+        setIsMessageModalOpen(true);
+        if (msg.status === 'New') {
+            try {
+                // Mark as read in backend
+                await api.put(`/contact/${msg._id}/read`);
+                fetchData(); // refresh list to show it as read
+                fetchUnreadCount(); // update the dot globally
+            } catch (error) {
+                console.error('Failed to mark message as read', error);
+            }
+        }
     };
 
     useEffect(() => {
@@ -54,6 +76,11 @@ const Dashboard = () => {
             if (activeTab === 'Chatbot') {
                 const res = await api.get('/chat/intents');
                 setIntents(res.data);
+            }
+            if (activeTab === 'Inbox' || activeTab === 'Overview') {
+                const res = await api.get('/contact');
+                setMessages(res.data);
+                fetchUnreadCount();
             }
         } catch (error) {
             console.error("Fetch error", error);
@@ -156,20 +183,29 @@ const Dashboard = () => {
                     <p className="text-xs text-gray-400 mt-1 uppercase tracking-wider font-bold">Management Suite</p>
                 </div>
                 <nav className="flex-1 p-6 space-y-2">
-                    {['Overview', 'Volunteers', 'Donations', 'Chatbot'].map(tab => (
+                    {['Overview', 'Inbox', 'Volunteers', 'Donations', 'Chatbot'].map(tab => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`w-full text-left px-5 py-3.5 rounded-xl transition-all font-bold flex items-center gap-3 ${activeTab === tab
+                            className={`w-full text-left px-5 py-3.5 rounded-xl transition-all font-bold flex items-center justify-between ${activeTab === tab
                                 ? 'bg-gray-900 text-white shadow-lg shadow-gray-200 transform scale-105'
                                 : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
                                 }`}
                         >
-                            {tab === 'Overview' && <FaSearch className="text-sm opacity-50" />} {/* Placeholder Icon */}
-                            {tab === 'Volunteers' && <FaUsers className="text-sm opacity-50" />}
-                            {tab === 'Donations' && <FaHandHoldingHeart className="text-sm opacity-50" />}
-                            {tab === 'Chatbot' && <FaTasks className="text-sm opacity-50" />}
-                            {tab === 'Donations' ? 'Enquiries' : tab}
+                            <div className="flex items-center gap-3">
+                                {tab === 'Overview' && <FaSearch className="text-sm opacity-50" />} {/* Placeholder Icon */}
+                                {tab === 'Inbox' && <FaInbox className="text-sm opacity-50" />}
+                                {tab === 'Volunteers' && <FaUsers className="text-sm opacity-50" />}
+                                {tab === 'Donations' && <FaHandHoldingHeart className="text-sm opacity-50" />}
+                                {tab === 'Chatbot' && <FaTasks className="text-sm opacity-50" />}
+                                {tab === 'Donations' ? 'Enquiries' : tab}
+                            </div>
+
+                            {tab === 'Inbox' && unreadCount > 0 && (
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full ${activeTab === tab ? 'bg-red-500 text-white' : 'bg-red-100 text-red-600'}`}>
+                                    {unreadCount} New
+                                </span>
+                            )}
                         </button>
                     ))}
                 </nav>
@@ -248,6 +284,67 @@ const Dashboard = () => {
                                 <h3 className="text-4xl font-bold text-gray-900 mb-1">{intents.length}</h3>
                                 <p className="text-gray-500 font-medium">Chatbot Intents</p>
                             </div>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'Inbox' && (
+                    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in">
+                        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                            <h2 className="text-xl font-bold text-gray-900 font-heading">Messages</h2>
+                            <div className="text-sm text-gray-500 font-medium">
+                                {messages.filter(m => m.status === 'New').length} Unread
+                            </div>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead className="bg-white border-b border-gray-100">
+                                    <tr>
+                                        <th className="p-5 text-xs font-bold text-gray-400 uppercase tracking-wider">Sender</th>
+                                        <th className="p-5 text-xs font-bold text-gray-400 uppercase tracking-wider">Subject / Type</th>
+                                        <th className="p-5 text-xs font-bold text-gray-400 uppercase tracking-wider">Date</th>
+                                        <th className="p-5 text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
+                                        <th className="p-5 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50">
+                                    {messages.map(msg => (
+                                        <tr key={msg._id} className={`hover:bg-blue-50/30 transition-colors cursor-pointer ${msg.status === 'New' ? 'bg-blue-50/10' : ''}`} onClick={() => openMessageModal(msg)}>
+                                            <td className="p-5">
+                                                <div className={`font-medium ${msg.status === 'New' ? 'text-gray-900 font-bold' : 'text-gray-700'}`}>{msg.name}</div>
+                                                <div className="text-xs text-gray-500">{msg.email}</div>
+                                            </td>
+                                            <td className="p-5">
+                                                <div className={`text-sm ${msg.status === 'New' ? 'text-gray-900 font-bold' : 'text-gray-600'}`}>{msg.subject}</div>
+                                                <div className="text-xs text-gray-400">{msg.inquiryType} {msg.organization ? `(${msg.organization})` : ''}</div>
+                                            </td>
+                                            <td className="p-5 text-sm text-gray-500">{new Date(msg.createdAt).toLocaleDateString()}</td>
+                                            <td className="p-5">
+                                                {msg.status === 'New' ? (
+                                                    <span className="bg-red-100 text-red-700 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 w-max">
+                                                        <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span> New
+                                                    </span>
+                                                ) : (
+                                                    <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
+                                                        {msg.status}
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="p-5 text-right">
+                                                <button className="text-blue-600 hover:text-blue-800 transition-colors font-bold text-sm bg-blue-50 px-3 py-1.5 rounded-lg">Read</button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {messages.length === 0 && (
+                                        <tr>
+                                            <td colSpan="5" className="p-12 text-center text-gray-400">
+                                                <FaInbox className="text-4xl mx-auto mb-3 opacity-20" />
+                                                <p>No messages in your inbox.</p>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 )}
@@ -565,6 +662,75 @@ const Dashboard = () => {
                         </div>
                         <div className="bg-gray-50 p-4 flex justify-center border-t border-gray-100">
                             <button onClick={() => setIsDonationModalOpen(false)} className="text-gray-500 text-sm font-bold hover:text-gray-900">Close Receipt</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Message Details Modal */}
+            {isMessageModalOpen && selectedMessage && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-0 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
+                        <div className="bg-blue-900 p-5 sm:p-6 flex justify-between items-center flex-shrink-0">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-blue-100">
+                                    <FaEnvelope size={18} />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-bold text-white leading-tight">Message Details</h3>
+                                    <p className="text-blue-200 text-xs">Direct Inquiry</p>
+                                </div>
+                            </div>
+                            <button onClick={() => setIsMessageModalOpen(false)} className="text-blue-200 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors">
+                                <FaTimes size={16} />
+                            </button>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto p-6 sm:p-8 bg-gray-50">
+                            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
+                                <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-4 mb-6 pb-6 border-b border-gray-100">
+                                    <div>
+                                        <h4 className="text-xl font-bold text-gray-900 mb-1">{selectedMessage.subject}</h4>
+                                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                                            <span className="font-medium text-gray-700">{selectedMessage.name}</span>
+                                            <span>&bull;</span>
+                                            <a href={`mailto:${selectedMessage.email}`} className="hover:text-blue-600 transition-colors">{selectedMessage.email}</a>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col sm:items-end gap-2 text-sm">
+                                        <span className="text-gray-400 whitespace-nowrap">{new Date(selectedMessage.createdAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                                        <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest w-max">
+                                            {selectedMessage.inquiryType}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="mb-6">
+                                    <p className="text-sm text-gray-500 font-bold uppercase tracking-wider mb-2">Message</p>
+                                    <div className="text-gray-800 text-sm sm:text-base leading-relaxed whitespace-pre-wrap bg-gray-50 p-5 rounded-xl border border-gray-100">
+                                        {selectedMessage.message}
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm bg-blue-50/50 p-4 rounded-xl border border-blue-100/50">
+                                    <div>
+                                        <span className="text-gray-400 block text-xs uppercase font-bold tracking-wider mb-1">Phone Number</span>
+                                        <a href={`tel:${selectedMessage.phone}`} className="text-gray-900 font-medium hover:text-blue-600 transition-colors">
+                                            {selectedMessage.phone || 'Not provided'}
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-400 block text-xs uppercase font-bold tracking-wider mb-1">Organization</span>
+                                        <span className="text-gray-900 font-medium">{selectedMessage.organization || 'N/A'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="p-4 sm:p-6 bg-white border-t border-gray-100 flex justify-end flex-shrink-0">
+                            <button onClick={() => setIsMessageModalOpen(false)} className="px-6 py-2.5 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors w-full sm:w-auto">
+                                Close Window
+                            </button>
                         </div>
                     </div>
                 </div>

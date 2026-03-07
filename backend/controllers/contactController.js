@@ -36,7 +36,41 @@ const getMessages = async (req, res) => {
     }
 };
 
+// @desc    Mark Message as Read (Admin)
+// @route   PUT /api/contact/:id/read
+// @access  Private/Admin
+const markMessageAsRead = async (req, res) => {
+    try {
+        const contact = await Contact.findById(req.params.id);
+        if (!contact) {
+            return res.status(404).json({ message: 'Message not found' });
+        }
+
+        contact.status = 'Read';
+        await contact.save();
+
+        res.json({ message: 'Message marked as read', contact });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Get Unread Message Count (Admin)
+// @route   GET /api/contact/unread/count
+// @access  Private/Admin
+const getUnreadCount = async (req, res) => {
+    try {
+        // Find count where status is specifically 'New'
+        const count = await Contact.countDocuments({ status: 'New' });
+        res.json({ count });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     submitContactForm,
-    getMessages
+    getMessages,
+    markMessageAsRead,
+    getUnreadCount
 };

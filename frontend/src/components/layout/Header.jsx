@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCMS } from '../../context/CMSContext';
@@ -11,9 +11,15 @@ const Header = () => {
     const { user, logout } = useAuth();
     const { setIsEditMode } = useCMS();
     const navigate = useNavigate();
-    const { isMobileMenuOpen, setIsMobileMenuOpen } = useUI();
+    const { isMobileMenuOpen, setIsMobileMenuOpen, unreadCount, fetchUnreadCount } = useUI();
     const [isProjectsDropdownOpen, setIsProjectsDropdownOpen] = useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+
+    useEffect(() => {
+        if (user && user.role?.name === 'Admin') {
+            fetchUnreadCount();
+        }
+    }, [user, fetchUnreadCount]);
 
     const handleLogout = () => {
         setIsEditMode(false); // Turn off edit mode
@@ -108,7 +114,9 @@ const Header = () => {
                                     <span className="max-w-[100px] truncate font-bold text-gray-800 text-sm leading-tight font-sans group-hover:text-blue-900 transition-colors">{user.name}</span>
                                     <span className="text-[10px] font-medium text-gray-500 leading-tight uppercase tracking-wider font-sans">{user.role?.name || 'User'}</span>
                                 </div>
-                                <svg className="w-3 h-3 text-gray-400 group-hover:text-blue-800 transition-colors ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                                {unreadCount > 0 && user.role?.name === 'Admin' && (
+                                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></div>
+                                )}
                             </button>
 
                             {/* Dropdown Menu */}
@@ -128,10 +136,16 @@ const Header = () => {
                                             onClick={() => setIsMobileMenuOpen(false)}
                                             className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-50 text-gray-700 hover:text-gray-900 transition-colors group/item"
                                         >
-                                            <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center group-hover/item:bg-blue-600 group-hover/item:text-white transition-colors">
+                                            <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center group-hover/item:bg-blue-600 group-hover/item:text-white transition-colors relative">
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                                                {unreadCount > 0 && (
+                                                    <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></div>
+                                                )}
                                             </div>
-                                            <span className="font-bold text-sm">Dashboard</span>
+                                            <span className="font-bold text-sm flex items-center gap-2">
+                                                Dashboard
+                                                {unreadCount > 0 && <span className="bg-red-100 text-red-600 text-[10px] px-1.5 py-0.5 rounded-full">{unreadCount}</span>}
+                                            </span>
                                         </Link>
                                     )}
                                     {user.role?.name === 'Volunteer' && (
@@ -221,9 +235,12 @@ const Header = () => {
                                             <Link
                                                 to={user.role?.name === 'Admin' ? "/dashboard" : "/volunteer/dashboard"}
                                                 onClick={() => setIsMobileMenuOpen(false)}
-                                                className="text-center py-3 bg-white border border-gray-200 rounded-xl text-sm font-bold text-blue-900 hover:bg-blue-50 shadow-sm transition-colors"
+                                                className="relative text-center py-3 bg-white border border-gray-200 rounded-xl text-sm font-bold text-blue-900 hover:bg-blue-50 shadow-sm transition-colors"
                                             >
                                                 {user.role?.name === 'Admin' ? 'Dashboard' : 'Hub'}
+                                                {unreadCount > 0 && user.role?.name === 'Admin' && (
+                                                    <span className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white text-[10px] flex items-center justify-center rounded-full shadow-sm">{unreadCount}</span>
+                                                )}
                                             </Link>
                                         )}
                                         <button

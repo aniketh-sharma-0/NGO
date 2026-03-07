@@ -41,6 +41,36 @@ const intents = [
         answer: 'We work on various projects including rural education, healthcare camps, and women empowerment. Check our Projects page for more details.',
         category: 'Project'
     },
+    {
+        keywords: ['partner', 'corporate', 'csr', 'collaboration', 'sponsor', 'company', 'organization'],
+        question: 'How can our company partner with you?',
+        answer: 'We welcome corporate partnerships and CSR collaborations. Please reach out to us via the Contact page and select "Corporate / CSR" as the inquiry type.',
+        category: 'General'
+    },
+    {
+        keywords: ['newsletter', 'updates', 'subscribe', 'latest news', 'stay informed'],
+        question: 'How can I get updates on your work?',
+        answer: 'You can stay updated by visiting our Media/Events page or by reaching out to us. We regularly post updates about recent activities and success stories.',
+        category: 'General'
+    },
+    {
+        keywords: ['money go', 'transparency', 'funds used', 'financials', 'how is money spent'],
+        question: 'Where does my donation money go?',
+        answer: 'Your donations are directly used to fund our grassroots projects in education, healthcare, and community development. We maintain strict financial transparency.',
+        category: 'Donation'
+    },
+    {
+        keywords: ['clothes', 'books', 'physical', 'items', 'food', 'toys', 'in-kind'],
+        question: 'Do you accept physical donations like clothes or books?',
+        answer: 'Yes, we accept physical donations depending on our current project needs. Please contact our office or submit an inquiry via the Contact page to confirm.',
+        category: 'Donation'
+    },
+    {
+        keywords: ['certificate', 'internship certificate', 'volunteer certificate', 'proof of work'],
+        question: 'Will I get a certificate for volunteering?',
+        answer: 'Yes, upon successful completion of your volunteering tenure, we provide a valid certificate acknowledging your impactful contribution.',
+        category: 'Volunteer'
+    },
     // NEW CONVERSATIONAL INTENTS
     {
         keywords: ['hi', 'hello', 'hey', 'greetings', 'good morning', 'good evening', 'namaste'],
