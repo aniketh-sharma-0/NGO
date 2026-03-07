@@ -10,7 +10,6 @@ const Contact = () => {
         name: '',
         email: '',
         phone: '',
-        subject: '',
         message: ''
     });
     const [status, setStatus] = useState('');
@@ -25,7 +24,7 @@ const Contact = () => {
         try {
             await api.post('/contact', formData);
             setStatus('success');
-            setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+            setFormData({ name: '', email: '', phone: '', message: '' });
         } catch (error) {
             console.error(error);
             setStatus('error');
@@ -196,10 +195,18 @@ const Contact = () => {
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Phone</label>
                                     <input
+                                        type="tel"
                                         name="phone"
-                                        value={formData.phone} onChange={handleChange}
+                                        value={formData.phone}
+                                        onChange={(e) => {
+                                            const numericValue = e.target.value.replace(/\D/g, ''); // Strip non-numeric
+                                            if (numericValue.length <= 10) {
+                                                setFormData({ ...formData, phone: numericValue });
+                                            }
+                                        }}
                                         className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-lg py-3 px-4 rounded-xl focus:outline-none focus:bg-white focus:border-blue-900 focus:ring-4 focus:ring-blue-100 transition-all"
-                                        placeholder="+91 ..."
+                                        placeholder="Mobile Number (10 digits)"
+                                        maxLength="10"
                                     />
                                 </div>
 
@@ -222,7 +229,7 @@ const Contact = () => {
                                     {status === 'submitting' ? 'Sending...' : <><FaPaperPlane /> Send Message</>}
                                 </button>
 
-                                {status === 'error' && <p className="text-red-500 text-center">Failed to send message. Please try again.</p>}
+                                {status === 'error' && <p className="text-red-500 text-left mt-2">Failed to send message. Please try again.</p>}
                             </form>
                         )}
                     </div>

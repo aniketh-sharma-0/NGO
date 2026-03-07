@@ -3,6 +3,7 @@ import api from '../../utils/api';
 import { FaChevronLeft, FaChevronRight, FaPlus, FaTrash, FaTimes } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { useCMS } from '../../context/CMSContext';
+import { useNavigate } from 'react-router-dom';
 import EditableText from '../cms/EditableText';
 import EditableImage from '../cms/EditableImage';
 import ImageWithFallback from '../common/ImageWithFallback';
@@ -10,6 +11,7 @@ import ImageWithFallback from '../common/ImageWithFallback';
 const CarouselSection = () => {
     const { user } = useAuth();
     const { isEditMode } = useCMS();
+    const navigate = useNavigate();
     const isAdmin = user?.role?.name === 'Admin';
     const [slides, setSlides] = useState([]);
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -111,51 +113,58 @@ const CarouselSection = () => {
 
     const slide = slides[currentSlide];
 
+    const handleExploreMore = () => {
+        if (currentSlide === 0) {
+            navigate('/projects');
+        } else if (currentSlide === 1) {
+            navigate('/about');
+        } else {
+            navigate('/contact');
+        }
+    };
+
     return (
         <div className="flex flex-col">
-            <section className="relative w-full h-[500px] md:h-[600px] flex items-center overflow-hidden">
+            <section className="relative w-full h-[600px] md:h-[600px] flex items-center overflow-hidden bg-white">
                 {slides.length > 0 && (
-                    <div className="container mx-auto px-4 flex flex-col-reverse md:flex-row h-full items-center relative z-10">
+                    <div className="w-full h-full flex relative">
+                        {/* Text Content Container (Solid White on Desktop) */}
+                        <div className="md:w-1/2 md:bg-white h-full relative z-20 flex items-center">
+                            <div className="container mx-auto px-4 sm:px-6 md:px-12 w-full flex flex-col justify-end pb-24 md:pb-0 md:justify-center">
+                                <div className="mb-4 md:mb-6">
+                                    <EditableText
+                                        defaultText={slide.title}
+                                        onSave={(val) => updateSlideContent(slide.id, 'title', val)}
+                                        editable={isAdmin && isEditMode}
+                                        className="text-4xl md:text-5xl lg:text-6xl font-black text-white md:text-gray-900 font-heading leading-tight tracking-tight block drop-shadow-lg md:drop-shadow-none"
+                                    />
+                                </div>
 
-                        {/* Text Content (Left 50%) - Removed Card Styling */}
-                        <div className="w-full md:w-1/2 flex flex-col justify-center p-6 md:p-12 z-10 text-left">
-                            <div className="mb-4 md:mb-6">
-                                <EditableText
-                                    defaultText={slide.title}
-                                    onSave={(val) => updateSlideContent(slide.id, 'title', val)}
-                                    editable={isAdmin && isEditMode}
-                                    className="text-3xl md:text-5xl lg:text-6xl font-bold text-gray-900 font-heading leading-tight tracking-tight block"
-                                />
-                            </div>
+                                <div className="mb-8 md:mb-10 w-full">
+                                    <EditableText
+                                        defaultText={slide.description}
+                                        onSave={(val) => updateSlideContent(slide.id, 'description', val)}
+                                        type="textarea"
+                                        editable={isAdmin && isEditMode}
+                                        className="text-lg md:text-xl text-gray-200 md:text-gray-600 font-medium w-full max-w-xl leading-relaxed block drop-shadow-md md:drop-shadow-none"
+                                    />
+                                </div>
 
-                            <div className="mb-6 md:mb-10">
-                                <EditableText
-                                    defaultText={slide.description}
-                                    onSave={(val) => updateSlideContent(slide.id, 'description', val)}
-                                    type="textarea"
-                                    editable={isAdmin && isEditMode}
-                                    className="text-base md:text-xl text-gray-600 font-light max-w-xl leading-relaxed block"
-                                />
-                            </div>
-
-                            <div className="flex flex-col md:flex-row gap-4 md:gap-6 mt-2 md:mt-0 mb-8 md:mb-0">
-                                <button className="px-6 py-3 min-h-[44px] md:px-8 md:py-4 bg-gray-900 text-white rounded-full font-bold hover:bg-black active:bg-gray-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 w-full md:w-auto text-center flex items-center justify-center">
-                                    Explore More
-                                </button>
-                                {isAdmin && isEditMode && (
-                                    <button onClick={() => deleteSlide(slide.id)} className="px-6 py-3 min-h-[44px] bg-red-50 text-red-600 rounded-full hover:bg-red-100 active:bg-red-200 transition-colors w-full md:w-auto text-center flex items-center justify-center gap-2">
-                                        <FaTrash /> <span className="md:hidden">Delete Slide</span>
+                                <div className="flex flex-col md:flex-row gap-4 mb-4 md:mb-0">
+                                    <button onClick={handleExploreMore} className="px-6 py-3 md:px-8 md:py-4 bg-primary text-white rounded-full font-bold hover:bg-blue-700 active:bg-blue-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-center flex items-center justify-center max-w-[200px]">
+                                        Explore More
                                     </button>
-                                )}
+                                    {isAdmin && isEditMode && (
+                                        <button onClick={() => deleteSlide(slide.id)} className="px-8 py-4 bg-red-500/80 md:bg-red-50 text-white md:text-red-600 rounded-full hover:bg-red-600 md:hover:bg-red-100 transition-colors w-full sm:w-auto text-center flex items-center justify-center gap-2 backdrop-blur-sm md:backdrop-blur-none shadow-lg md:shadow-none">
+                                            <FaTrash /> <span className="sm:hidden md:inline">Delete Slide</span>
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
-                        {/* Image Content (Right 50%) - Full Height */}
-                        <div className="w-full md:w-1/2 h-full absolute md:relative top-0 right-0 z-0">
-                            {/* Gradient Overlay for Mobile Readability */}
-                            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-white/90 md:hidden z-10"></div>
-                            <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/40 to-transparent hidden md:block z-10 w-2/3"></div>
-
+                        {/* Image Content Container */}
+                        <div className="absolute inset-0 md:relative md:w-1/2 h-full z-0">
                             <EditableImage
                                 defaultSrc={slide.image}
                                 alt={slide.title}
@@ -163,28 +172,30 @@ const CarouselSection = () => {
                                 imgClassName="w-full h-full object-cover object-center"
                                 onSave={(newSrc) => updateSlideContent(slide.id, 'image', newSrc)}
                             />
+                            {/* Mobile Dark Gradient Overlay to make Text Readable */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/10 md:hidden z-10 pointer-events-none"></div>
                         </div>
                     </div>
                 )}
 
                 {/* Navigation Arrows */}
-                <button onClick={prevSlide} className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-white/50 p-2 md:p-3 min-w-[44px] min-h-[44px] rounded-full hover:bg-white transition-colors z-20 flex items-center justify-center active:bg-gray-200">
-                    <FaChevronLeft className="w-4 h-4 md:w-6 md:h-6 text-gray-800" />
+                <button onClick={prevSlide} className="absolute left-3 md:left-6 bottom-24 md:top-1/2 md:-translate-y-1/2 bg-black/40 hover:bg-black/60 md:bg-white/50 md:hover:bg-white p-3 min-w-[48px] min-h-[48px] rounded-full backdrop-blur-sm transition-all z-30 flex items-center justify-center active:scale-95 text-white md:text-gray-800 border border-white/20 md:border-none shadow-lg outline-none focus:ring-2 focus:ring-primary/50">
+                    <FaChevronLeft className="w-5 h-5 md:w-6 md:h-6 drop-shadow-md md:drop-shadow-none" />
                 </button>
-                <button onClick={nextSlide} className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-white/50 p-2 md:p-3 min-w-[44px] min-h-[44px] rounded-full hover:bg-white transition-colors z-20 flex items-center justify-center active:bg-gray-200">
-                    <FaChevronRight className="w-4 h-4 md:w-6 md:h-6 text-gray-800" />
+                <button onClick={nextSlide} className="absolute right-3 md:right-6 bottom-24 md:top-1/2 md:-translate-y-1/2 bg-black/40 hover:bg-black/60 md:bg-white/50 md:hover:bg-white p-3 min-w-[48px] min-h-[48px] rounded-full backdrop-blur-sm transition-all z-30 flex items-center justify-center active:scale-95 text-white md:text-gray-800 border border-white/20 md:border-none shadow-lg outline-none focus:ring-2 focus:ring-primary/50">
+                    <FaChevronRight className="w-5 h-5 md:w-6 md:h-6 drop-shadow-md md:drop-shadow-none" />
                 </button>
 
-                {/* Dots */}
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-4 z-30">
+                {/* Dots Pagination */}
+                <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-30 bg-black/20 md:bg-transparent px-4 py-2 rounded-full backdrop-blur-md md:backdrop-blur-none border border-white/10 md:border-none shadow-lg md:shadow-none">
                     {slides.map((_, index) => (
                         <button
                             key={index}
                             onClick={() => setCurrentSlide(index)}
-                            className={`min-h-[12px] rounded-full transition-all duration-500 ease-in-out shadow-sm
-                                ${index === currentSlide ? 'w-10 bg-primary' : 'w-3 h-3 bg-gray-400 hover:bg-gray-600'}`}
+                            className={`min-h-[10px] rounded-full transition-all duration-500 ease-in-out shadow-sm outline-none
+                                ${index === currentSlide ? 'w-8 bg-white md:bg-primary' : 'w-2.5 h-2.5 bg-white/50 md:bg-gray-400 hover:bg-white md:hover:bg-gray-600'}`}
                             aria-label={`Go to slide ${index + 1}`}
-                            style={{ minWidth: '12px', minHeight: '12px' }}
+                            style={{ minWidth: '10px', minHeight: '10px' }}
                         />
                     ))}
                 </div>

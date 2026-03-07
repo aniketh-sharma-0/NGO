@@ -5,19 +5,22 @@ const Contact = require('../models/Contact');
 // @access  Public
 const submitContactForm = async (req, res) => {
     try {
-        const { name, email, phone, subject, message } = req.body;
+        const { name, email, phone, subject, inquiryType, organization, message } = req.body;
 
         const contact = await Contact.create({
             name,
             email,
             phone,
-            subject,
+            subject: subject || `${inquiryType} Inquiry`,
+            inquiryType,
+            organization,
             message
         });
 
         res.status(201).json({ message: 'Message sent successfully', contact });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Contact Form Mongoose Error:', error);
+        res.status(500).json({ message: error.message, details: error });
     }
 };
 

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { GoogleLogin } from '@react-oauth/google';
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import SEO from '../components/common/SEO';
 
@@ -9,31 +8,10 @@ const Login = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
     const [showPassword, setShowPassword] = useState(false);
-    const { login, register, googleAuth } = useAuth();
+    const { login, register } = useAuth();
     const navigate = useNavigate();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-
-    const handleGoogleLogin = async (credentialResponse) => {
-        setLoading(true);
-        setError('');
-        try {
-            const result = await googleAuth(credentialResponse.credential);
-            if (result.success) {
-                if (result.user?.role?.name === 'Volunteer') {
-                    navigate('/volunteer/dashboard');
-                } else {
-                    navigate('/');
-                }
-            } else {
-                setError(result.message || 'Google authentication failed');
-            }
-        } catch (err) {
-            setError('An unexpected error occurred during Google sign-in');
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -177,23 +155,6 @@ const Login = () => {
                             {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')}
                         </button>
                     </form>
-
-                    <div className="my-6 flex items-center gap-4">
-                        <div className="h-px bg-gray-200 flex-1"></div>
-                        <span className="text-gray-400 text-sm">OR</span>
-                        <div className="h-px bg-gray-200 flex-1"></div>
-                    </div>
-
-                    <div className="w-full flex justify-center">
-                        <GoogleLogin
-                            onSuccess={handleGoogleLogin}
-                            onError={() => setError('Google Login Failed')}
-                            useOneTap
-                            theme="outline"
-                            size="large"
-                            width="250"
-                        />
-                    </div>
 
                     <div className="mt-6 text-center text-sm pb-4">
                         <span className="text-gray-600">{isLogin ? "Don't have an account?" : "Already have an account?"}</span>

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './context/AuthContext';
 import { CMSProvider } from './context/CMSContext';
+import { UIProvider } from './context/UIContext';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import PrivateRoute from './utils/PrivateRoute';
@@ -55,37 +56,39 @@ function App() {
     <HelmetProvider>
       <AuthProvider>
         <CMSProvider>
-          <Router>
-            <div className="flex flex-col min-h-screen bg-white">
-              <TopMarquee />
-              <Header />
-              <ChatWidget />
-              <EditToggle />
-              <main className="flex-grow">
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/projects" element={<Projects />} />
-                  <Route path="/donate" element={<Donate />} />
-                  <Route path="/media" element={<BlogsEvents />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/volunteer" element={<VolunteerLanding />} />
-                  <Route path="/login" element={<Login />} />
-                  {/* Protected Routes */}
-                  <Route element={<PrivateRoute />}>
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/volunteer/register" element={<VolunteerRegister />} />
+          <UIProvider>
+            <Router>
+              <div className="flex flex-col min-h-screen bg-white">
+                <TopMarquee />
+                <Header />
+                <ChatWidget />
+                <EditToggle />
+                <main className="flex-grow">
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/projects" element={<Projects />} />
+                    <Route path="/donate" element={<Donate />} />
+                    <Route path="/media" element={<BlogsEvents />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/volunteer" element={<VolunteerLanding />} />
+                    <Route path="/login" element={<Login />} />
+                    {/* Protected Routes */}
+                    <Route element={<PrivateRoute />}>
+                      <Route path="/dashboard" element={<Dashboard />} />
+                      <Route path="/volunteer/register" element={<VolunteerRegister />} />
 
-                    {/* Volunteer Only Routes */}
-                    <Route element={<RoleRoute allowedRoles={['Volunteer']} />}>
-                      <Route path="/volunteer/dashboard" element={<VolunteerDashboard />} />
+                      {/* Volunteer Only Routes */}
+                      <Route element={<RoleRoute allowedRoles={['Volunteer']} />}>
+                        <Route path="/volunteer/dashboard" element={<VolunteerDashboard />} />
+                      </Route>
                     </Route>
-                  </Route>
-                </Routes>
-              </main>
-              <Footer />
-            </div>
-          </Router>
+                  </Routes>
+                </main>
+                <Footer />
+              </div>
+            </Router>
+          </UIProvider>
         </CMSProvider>
       </AuthProvider>
     </HelmetProvider>

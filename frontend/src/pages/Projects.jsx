@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { FaFilter, FaPlus, FaChevronDown } from 'react-icons/fa';
 import SEO from '../components/common/SEO';
+import { useUI } from '../context/UIContext';
 
 const getDemoProjects = () => [
     // GOVERNMENT PROJECTS
@@ -141,6 +142,7 @@ const Projects = () => {
     const { user } = useAuth();
     const isAdmin = user?.role?.name === 'Admin';
     const [searchParams] = useSearchParams();
+    const { isMobileMenuOpen } = useUI();
 
     const [projects, setProjects] = useState([]);
     const [filterCategory, setFilterCategory] = useState(searchParams.get('category') || 'All');
@@ -344,9 +346,9 @@ const Projects = () => {
                     <div className="w-24 h-1 bg-primary mt-4 rounded"></div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 md:mb-10">
+                <div className={`flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 md:mb-10 transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
                     <div className="flex w-full sm:w-auto gap-4 items-center sm:ml-auto">
-                        <div className="relative z-50 flex-1 sm:flex-none w-full sm:w-auto">
+                        <div className="relative z-30 flex-1 sm:flex-none w-full sm:w-auto">
                             {/* Custom Dropdown Trigger */}
                             <button
                                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
