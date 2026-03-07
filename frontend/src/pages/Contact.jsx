@@ -10,7 +10,9 @@ const Contact = () => {
         name: '',
         email: '',
         phone: '',
-        message: ''
+        message: '',
+        inquiryType: 'General',
+        organization: ''
     });
     const [status, setStatus] = useState('');
 
@@ -24,7 +26,7 @@ const Contact = () => {
         try {
             await api.post('/contact', formData);
             setStatus('success');
-            setFormData({ name: '', email: '', phone: '', message: '' });
+            setFormData({ name: '', email: '', phone: '', message: '', inquiryType: 'General', organization: '' });
         } catch (error) {
             console.error(error);
             setStatus('error');

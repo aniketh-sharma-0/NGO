@@ -13,7 +13,7 @@ export const UIProvider = ({ children }) => {
             const userStr = localStorage.getItem('user');
             if (token && userStr) {
                 const user = JSON.parse(userStr);
-                if (user.role === 'Admin') {
+                if (user.role?.name === 'Admin' || user.role === 'Admin') {
                     const res = await api.get('/contact/unread/count');
                     setUnreadCount(res.data.count);
                 }
