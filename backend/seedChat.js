@@ -8,7 +8,7 @@ const intents = [
     {
         keywords: ['donate', 'donation', 'contribute', 'give money', 'support', 'funding'],
         question: 'How can I donate?',
-        answer: 'You can donate securely via our Donation page using credit card, UPI, or bank transfer. Your contributions help us empower communities.',
+        answer: 'You can donate securely via our Donation page. Your contributions help us empower communities.',
         category: 'Donation'
     },
     {

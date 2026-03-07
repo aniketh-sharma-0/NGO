@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import { FaCommentDots, FaPaperPlane, FaTimes, FaRobot } from 'react-icons/fa';
 
@@ -10,6 +11,9 @@ const ChatWidget = () => {
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
     const messagesEndRef = useRef(null);
+    const chatRef = useRef(null);
+    const toggleRef = useRef(null);
+    const navigate = useNavigate();
 
     const formatTime = () => {
         return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -30,6 +34,17 @@ const ChatWidget = () => {
         if (isOpen) scrollToBottom();
     }, [messages, isOpen]);
 
+    // Close on outside click
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (isOpen && chatRef.current && !chatRef.current.contains(event.target) && toggleRef.current && !toggleRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isOpen]);
+
     const handleSend = async (messageText) => {
         if (!messageText.trim()) return;
 
@@ -38,9 +53,20 @@ const ChatWidget = () => {
         setInput('');
         setLoading(true);
 
+        const lowerMsg = messageText.toLowerCase();
+
+        // Handle client-side routing based on keywords
+        if (lowerMsg.includes('donate') || lowerMsg.includes('donation')) {
+            navigate('/donate');
+        } else if (lowerMsg.includes('volunteer')) {
+            navigate('/volunteer');
+        } else if (lowerMsg.includes('project')) {
+            navigate('/projects');
+        } else if (lowerMsg.includes('contact')) {
+            navigate('/contact');
+        }
+
         try {
-            // Check if it's a direct browser-side match first (optional optimization)
-            // But we will hit the backend as requested
             const res = await api.post('/chat/message', { message: messageText });
             const botReply = res.data.reply;
             setMessages(prev => [...prev, { sender: 'bot', text: botReply, time: formatTime() }]);
@@ -61,7 +87,7 @@ const ChatWidget = () => {
 
             {/* Chat Window */}
             {isOpen && (
-                <div className="bg-white w-[350px] h-[500px] rounded-2xl shadow-2xl mb-4 flex flex-col overflow-hidden border border-gray-100 animate-fade-in-up transform transition-all duration-300">
+                <div ref={chatRef} className="bg-white w-[350px] h-[500px] rounded-2xl shadow-2xl mb-4 flex flex-col overflow-hidden border border-gray-100 animate-fade-in-up transform transition-all duration-300">
 
                     {/* Header */}
                     <div className="bg-gradient-to-r from-blue-900 to-blue-800 p-4 text-white flex justify-between items-center shadow-md">
@@ -145,6 +171,7 @@ const ChatWidget = () => {
 
             {/* Float Button */}
             <button
+                ref={toggleRef}
                 onClick={() => setIsOpen(!isOpen)}
                 className="group bg-blue-900 text-white p-4 rounded-full shadow-[0_4px_14px_0_rgba(30,58,138,0.39)] hover:shadow-[0_6px_20px_rgba(30,58,138,0.23)] hover:bg-blue-800 transition-all hover:-translate-y-1 flex items-center justify-center relative overflow-hidden"
             >
