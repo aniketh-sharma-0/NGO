@@ -115,7 +115,7 @@ const Header = () => {
                                     <span className="text-[10px] font-medium text-gray-500 leading-tight uppercase tracking-wider font-sans">{user.role?.name || 'User'}</span>
                                 </div>
                                 {unreadCount > 0 && user.role?.name === 'Admin' && (
-                                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></div>
+                                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white"></div>
                                 )}
                             </button>
 
@@ -139,12 +139,12 @@ const Header = () => {
                                             <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center group-hover/item:bg-blue-600 group-hover/item:text-white transition-colors relative">
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                                                 {unreadCount > 0 && (
-                                                    <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></div>
+                                                    <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-blue-500 rounded-full"></div>
                                                 )}
                                             </div>
                                             <span className="font-bold text-sm flex items-center gap-2">
                                                 Dashboard
-                                                {unreadCount > 0 && <span className="bg-red-100 text-red-600 text-[10px] px-1.5 py-0.5 rounded-full">{unreadCount}</span>}
+                                                {unreadCount > 0 && <span className="bg-blue-100 text-blue-600 text-[10px] px-1.5 py-0.5 rounded-full">{unreadCount}</span>}
                                             </span>
                                         </Link>
                                     )}
@@ -239,7 +239,7 @@ const Header = () => {
                                             >
                                                 {user.role?.name === 'Admin' ? 'Dashboard' : 'Hub'}
                                                 {unreadCount > 0 && user.role?.name === 'Admin' && (
-                                                    <span className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white text-[10px] flex items-center justify-center rounded-full shadow-sm">{unreadCount}</span>
+                                                    <span className="absolute -top-2 -right-2 w-5 h-5 bg-blue-500 text-white text-[10px] flex items-center justify-center rounded-full shadow-sm">{unreadCount}</span>
                                                 )}
                                             </Link>
                                         )}

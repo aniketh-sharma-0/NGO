@@ -202,7 +202,7 @@ const Dashboard = () => {
                             </div>
 
                             {tab === 'Inbox' && unreadCount > 0 && (
-                                <span className={`text-[10px] px-2 py-0.5 rounded-full ${activeTab === tab ? 'bg-red-500 text-white' : 'bg-red-100 text-red-600'}`}>
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full ${activeTab === tab ? 'bg-blue-500 text-white' : 'bg-blue-100 text-blue-600'}`}>
                                     {unreadCount} New
                                 </span>
                             )}
@@ -321,8 +321,8 @@ const Dashboard = () => {
                                             <td className="p-5 text-sm text-gray-500">{new Date(msg.createdAt).toLocaleDateString()}</td>
                                             <td className="p-5">
                                                 {msg.status === 'New' ? (
-                                                    <span className="bg-red-100 text-red-700 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 w-max">
-                                                        <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span> New
+                                                    <span className="bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 w-max">
+                                                        <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span> New
                                                     </span>
                                                 ) : (
                                                     <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
