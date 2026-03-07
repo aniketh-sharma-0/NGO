@@ -30,9 +30,9 @@ const intents = [
         category: 'General'
     },
     {
-        keywords: ['tax', '80g', 'deductible', 'exemption', 'receipt'],
+        keywords: ['tax', '80g', 'deductible', 'exemption', 'receipt', 'csr'],
         question: 'Are my donations tax-deductible?',
-        answer: 'Yes, all donations to our NGO are eligible for tax exemption under Section 80G of the Income Tax Act.',
+        answer: 'Yes, all donations to our NGO are eligible for tax exemption under Section 12A/80G of the Income Tax Act.',
         category: 'Donation'
     },
     {
@@ -71,7 +71,13 @@ const intents = [
         question: 'Help',
         answer: 'I can answer most common questions. If you need specific help, please use the Contact form on our website to reach our team directly.',
         category: 'General'
-    }
+    },
+    {
+        keywords: ['company', 'coprate', 'form 10AC', 'form 10AB', 'csr'],
+        question: 'will i get form 10AB or form 10AC after csr donations',
+        answer: 'Yes all csr partnership will recive the form 10AB/10AC under Section 12A/80G of the Income Tax Act.',
+        category: 'Donation'
+    },
 ];
 
 const seedChat = async () => {
