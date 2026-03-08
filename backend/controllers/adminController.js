@@ -123,7 +123,7 @@ const getVolunteers = async (req, res) => {
 // @route   PUT /api/admin/volunteers/:id/verify
 // @access  Admin
 const verifyVolunteer = async (req, res) => {
-    const { status } = req.body; // 'Active', 'Inactive'
+    const { status } = req.body; // 'Approved', 'Rejected'
 
     try {
         const volunteer = await Volunteer.findById(req.params.id);

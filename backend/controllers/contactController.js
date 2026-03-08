@@ -68,9 +68,27 @@ const getUnreadCount = async (req, res) => {
     }
 };
 
+// @desc    Delete Message (Admin)
+// @route   DELETE /api/contact/:id
+// @access  Private/Admin
+const deleteMessage = async (req, res) => {
+    try {
+        const contact = await Contact.findById(req.params.id);
+        if (!contact) {
+            return res.status(404).json({ message: 'Message not found' });
+        }
+
+        await contact.deleteOne();
+        res.json({ message: 'Message removed' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     submitContactForm,
     getMessages,
     markMessageAsRead,
-    getUnreadCount
+    getUnreadCount,
+    deleteMessage
 };

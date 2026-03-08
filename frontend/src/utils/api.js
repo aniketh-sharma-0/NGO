@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 // Define the base URL. If VITE_API_URL is missing or empty, fallback to the production backend.
-let envUrl = import.meta.env.VITE_API_URL;
+let envUrl = import.meta.env.MODE === 'development'
+    ? 'http://localhost:5000'
+    : import.meta.env.VITE_API_URL;
 // Defensive check: ensure it is a valid absolute URL (starts with http)
 if (envUrl && !envUrl.startsWith('http')) {
     console.warn('Invalid VITE_API_URL (must restart with http):', envUrl, '- Falling back to default.');

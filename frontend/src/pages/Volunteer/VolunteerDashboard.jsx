@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../utils/api';
 import { useNavigate } from 'react-router-dom';
 import { FaUpload, FaCheckCircle, FaClock, FaClipboardList, FaTimes } from 'react-icons/fa';
+import useBodyScrollLock from '../../hooks/useBodyScrollLock';
 
 const VolunteerDashboard = () => {
     const navigate = useNavigate();
@@ -21,6 +22,8 @@ const VolunteerDashboard = () => {
 
     const [submissionImage, setSubmissionImage] = useState(null);
     const [submitting, setSubmitting] = useState(false);
+
+    useBodyScrollLock(!!selectedTask);
 
     useEffect(() => {
         fetchData();

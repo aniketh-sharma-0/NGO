@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCMS } from '../context/CMSContext';
 import { useUI } from '../context/UIContext';
 import { FaUsers, FaTasks, FaHandHoldingHeart, FaCheck, FaTimes, FaPlus, FaSearch, FaTrash, FaEdit, FaInbox, FaEnvelope } from 'react-icons/fa';
+import useBodyScrollLock from '../hooks/useBodyScrollLock';
 
 const Dashboard = () => {
     const { user } = useAuth();
@@ -36,6 +37,8 @@ const Dashboard = () => {
     const [selectedMessage, setSelectedMessage] = useState(null);
     const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
 
+    useBodyScrollLock(isTaskModalOpen || isBotModalOpen || isDonationModalOpen || isMessageModalOpen);
+
     const openDonationModal = (donation) => {
         setSelectedDonation(donation);
         setIsDonationModalOpen(true);
@@ -53,6 +56,22 @@ const Dashboard = () => {
             } catch (error) {
                 console.error('Failed to mark message as read', error);
             }
+        }
+    };
+
+    const handleDeleteMessage = async (e, id) => {
+        e.stopPropagation();
+        if (!window.confirm("Are you sure you want to delete this message?")) return;
+        try {
+            await api.delete(`/contact/${id}`);
+            fetchData();
+            if (selectedMessage && selectedMessage._id === id) {
+                setIsMessageModalOpen(false);
+                setSelectedMessage(null);
+            }
+        } catch (error) {
+            console.error('Failed to delete message', error);
+            alert('Failed to delete message');
         }
     };
 
@@ -90,10 +109,19 @@ const Dashboard = () => {
     };
 
     const handleVerifyVolunteer = async (id, status) => {
-        if (!window.confirm(`Are you sure you want to ${status} this volunteer?`)) return;
+        if (!window.confirm(`Are you sure you want to ${status.toLowerCase()} this volunteer?`)) return;
         try {
             await api.put(`/admin/volunteers/${id}/verify`, { status });
             fetchData(); // Refresh
+        } catch (error) {
+            alert('Action failed');
+        }
+    };
+
+    const handleVerifyDonation = async (id, status) => {
+        if (!window.confirm(`Are you sure you want to ${status.toLowerCase()} this donation enquiry?`)) return;
+        try {
+            await api.put(`/donations/${id}/status`, { status });
             fetchData(); // Refresh
         } catch (error) {
             alert('Action failed');
@@ -247,10 +275,10 @@ const Dashboard = () => {
                                 <div className="p-3 bg-gray-100 rounded-xl text-gray-600">
                                     <FaUsers size={24} />
                                 </div>
-                                <span className={`text-xs font-bold px-2 py-1 rounded bg-green-100 text-green-700`}>Active</span>
+                                <span className={`text-xs font-bold px-2 py-1 rounded bg-green-100 text-green-700`}>Approved</span>
                             </div>
                             <div>
-                                <h3 className="text-4xl font-bold text-gray-900 mb-1">{volunteers.filter(v => v.status === 'Active').length}</h3>
+                                <h3 className="text-4xl font-bold text-gray-900 mb-1">{volunteers.filter(v => v.status === 'Approved').length}</h3>
                                 <p className="text-gray-500 font-medium">Volunteers</p>
                             </div>
                         </div>
@@ -331,7 +359,12 @@ const Dashboard = () => {
                                                 )}
                                             </td>
                                             <td className="p-5 text-right">
-                                                <button className="text-blue-600 hover:text-blue-800 transition-colors font-bold text-sm bg-blue-50 px-3 py-1.5 rounded-lg">Read</button>
+                                                <div className="flex justify-end gap-2">
+                                                    <button className="text-blue-600 hover:text-blue-800 transition-colors font-bold text-sm bg-blue-50 px-3 py-1.5 rounded-lg">Read</button>
+                                                    <button onClick={(e) => handleDeleteMessage(e, msg._id)} className="text-red-500 hover:text-red-700 transition-colors bg-red-50 p-2 rounded-lg" title="Delete">
+                                                        <FaTrash size={14} />
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
@@ -385,7 +418,7 @@ const Dashboard = () => {
                                             </td>
                                             <td className="p-6">
                                                 <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide
-                                                    ${vol.status === 'Active' ? 'bg-green-100 text-green-700' :
+                                                    ${vol.status === 'Approved' ? 'bg-green-100 text-green-700' :
                                                         vol.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
                                                     {vol.status}
                                                 </span>
@@ -394,15 +427,15 @@ const Dashboard = () => {
                                                 <div className="flex justify-end gap-2">
                                                     {vol.status === 'Pending' && (
                                                         <>
-                                                            <button onClick={() => handleVerifyVolunteer(vol._id, 'Active')} className="bg-green-100 text-green-600 p-2 rounded-lg hover:bg-green-200 transition-colors" title="Approve">
+                                                            <button onClick={() => handleVerifyVolunteer(vol._id, 'Approved')} className="bg-green-100 text-green-600 p-2 rounded-lg hover:bg-green-200 transition-colors" title="Approve">
                                                                 <FaCheck />
                                                             </button>
-                                                            <button onClick={() => handleVerifyVolunteer(vol._id, 'Inactive')} className="bg-red-100 text-red-600 p-2 rounded-lg hover:bg-red-200 transition-colors" title="Reject">
+                                                            <button onClick={() => handleVerifyVolunteer(vol._id, 'Rejected')} className="bg-red-100 text-red-600 p-2 rounded-lg hover:bg-red-200 transition-colors" title="Reject">
                                                                 <FaTimes />
                                                             </button>
                                                         </>
                                                     )}
-                                                    {vol.status === 'Active' && (
+                                                    {vol.status === 'Approved' && (
                                                         <button onClick={() => openTaskModal(vol)} className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-black text-xs font-bold shadow-md transition-all">
                                                             Assign Task
                                                         </button>
@@ -441,12 +474,28 @@ const Dashboard = () => {
                                             <td className="p-6 text-sm text-gray-600">{don.category}</td>
                                             <td className="p-6 text-sm text-gray-500">{new Date(don.createdAt).toLocaleDateString()}</td>
                                             <td className="p-6">
-                                                <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
+                                                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide
+                                                    ${don.status === 'Approved' ? 'bg-green-100 text-green-700' :
+                                                        don.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
+                                                            don.status === 'Rejected' ? 'bg-red-100 text-red-700' :
+                                                                'bg-blue-100 text-blue-700'}`}>
                                                     {don.status}
                                                 </span>
                                             </td>
                                             <td className="p-6 text-right">
-                                                <button onClick={() => openDonationModal(don)} className="text-gray-400 hover:text-blue-600 transition-colors font-bold text-sm">View</button>
+                                                <div className="flex justify-end gap-2 items-center">
+                                                    {don.status === 'Pending' && (
+                                                        <div className="flex gap-2 mr-2">
+                                                            <button onClick={() => handleVerifyDonation(don._id, 'Approved')} className="bg-green-100 text-green-600 p-2 rounded-lg hover:bg-green-200 transition-colors" title="Approve">
+                                                                <FaCheck />
+                                                            </button>
+                                                            <button onClick={() => handleVerifyDonation(don._id, 'Rejected')} className="bg-red-100 text-red-600 p-2 rounded-lg hover:bg-red-200 transition-colors" title="Reject">
+                                                                <FaTimes />
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                    <button onClick={() => openDonationModal(don)} className="text-gray-400 hover:text-blue-600 transition-colors font-bold text-sm bg-gray-50 px-3 py-1.5 rounded-lg">View</button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
@@ -733,7 +782,10 @@ const Dashboard = () => {
                             </div>
                         </div>
 
-                        <div className="p-4 sm:p-6 bg-white border-t border-gray-100 flex justify-end flex-shrink-0">
+                        <div className="p-4 sm:p-6 bg-white border-t border-gray-100 flex justify-between flex-shrink-0">
+                            <button onClick={(e) => handleDeleteMessage(e, selectedMessage._id)} className="px-6 py-2.5 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 transition-colors w-full sm:w-auto mb-2 sm:mb-0">
+                                Delete Message
+                            </button>
                             <button onClick={() => setIsMessageModalOpen(false)} className="px-6 py-2.5 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors w-full sm:w-auto">
                                 Close Window
                             </button>

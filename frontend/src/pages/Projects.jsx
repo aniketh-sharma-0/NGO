@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { FaFilter, FaPlus, FaChevronDown } from 'react-icons/fa';
 import SEO from '../components/common/SEO';
 import { useUI } from '../context/UIContext';
+import useBodyScrollLock from '../hooks/useBodyScrollLock';
 
 const getDemoProjects = () => [
     // GOVERNMENT PROJECTS
@@ -172,6 +173,8 @@ const Projects = () => {
         financialReport: ''
     });
 
+    useBodyScrollLock(isModalOpen);
+
     useEffect(() => {
         const categoryParam = searchParams.get('category');
         if (categoryParam) {
@@ -319,9 +322,9 @@ const Projects = () => {
                     alert("Demo projects cannot be updated in this version.");
                     return;
                 }
-                await api.put(`/projects/${editProject._id}`, projectData);
+                await api.put(`/admin/projects/${editProject._id}`, projectData);
             } else {
-                await api.post('/projects', projectData);
+                await api.post('/admin/projects', projectData);
             }
 
             fetchProjects();
@@ -334,7 +337,7 @@ const Projects = () => {
     };
 
     return (
-        <div className="min-h-screen py-20 bg-soft-blue font-sans">
+        <div className="min-h-screen py-20 bg-[#f4f5f6] font-sans">
             <SEO
                 title="Our Projects"
                 description="Explore our ongoing and completed projects in rural development, education, and healthcare across Andhra Pradesh."
@@ -414,7 +417,7 @@ const Projects = () => {
                                 {projects.map((project) => {
                                     if (!project) return null; // Skip invalid
                                     return (
-                                        <div key={project._id || Math.random()} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100 flex flex-col">
+                                        <div key={project._id || Math.random()} className="bg-[#f4f5f6] rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100 flex flex-col">
                                             <div className="h-48 bg-gray-200 relative">
                                                 <img
                                                     src={project.images?.[0] || 'https://via.placeholder.com/400x300'}

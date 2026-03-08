@@ -3,6 +3,7 @@ import api from '../utils/api';
 import { FaHandHoldingHeart, FaBuilding, FaGlobe, FaUserFriends, FaTimes, FaRupeeSign, FaLandmark, FaHandshake, FaHeart, FaCheck } from 'react-icons/fa';
 import EditableText from '../components/cms/EditableText';
 import SEO from '../components/common/SEO';
+import useBodyScrollLock from '../hooks/useBodyScrollLock';
 
 const Donate = () => {
     const [selectedCategory, setSelectedCategory] = useState(null);
@@ -16,6 +17,8 @@ const Donate = () => {
         message: ''
     });
     const [status, setStatus] = useState('');
+
+    useBodyScrollLock(!!selectedCategory);
 
     const openModal = (category) => {
         setSelectedCategory(category);

@@ -1,18 +1,36 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaHandsHelping, FaNetworkWired, FaGraduationCap } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
+import { useCMS } from '../../context/CMSContext';
+import api from '../../utils/api';
 import SEO from '../../components/common/SEO';
+import EditableImage from '../../components/cms/EditableImage';
 
 const VolunteerLanding = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
+    const { isEditMode } = useCMS();
+    const isAdmin = user?.role?.name === 'Admin';
+    const [pageContent, setPageContent] = useState({});
 
     useEffect(() => {
         if (user && user.role?.name === 'Volunteer') {
             navigate('/volunteer/dashboard');
         }
     }, [user, navigate]);
+
+    useEffect(() => {
+        const fetchContent = async () => {
+            try {
+                const res = await api.get('/content/Volunteer');
+                setPageContent(res.data || {});
+            } catch (err) {
+                console.error("Failed to fetch volunteer content", err);
+            }
+        };
+        fetchContent();
+    }, []);
 
     return (
         <div className="min-h-screen font-sans">
@@ -24,10 +42,17 @@ const VolunteerLanding = () => {
             {/* Hero Section */}
             <div className="relative h-[600px] flex items-center justify-center">
                 <div className="absolute inset-0 overflow-hidden">
-                    <img
-                        src="https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=2070&auto=format&fit=crop"
+                    <EditableImage
+                        defaultSrc={pageContent.hero_bg_image || "https://images.unsplash.com/photo-1559027615-cd46289d2d4a?q=80&w=2070&auto=format&fit=crop"}
                         alt="Volunteers"
-                        className="w-full h-full object-cover"
+                        className="w-full h-full absolute inset-0"
+                        imgClassName="w-full h-full object-cover"
+                        onSave={async (newUrl) => {
+                            await api.put('/admin/content', { key: 'hero_bg_image', value: newUrl, section: 'Volunteer' });
+                            setPageContent(prev => ({ ...prev, hero_bg_image: newUrl }));
+                        }}
+                        editable={isAdmin && isEditMode}
+                        editPosition="bottom-right"
                     />
                     <div className="absolute inset-0 bg-black/50"></div>
                 </div>

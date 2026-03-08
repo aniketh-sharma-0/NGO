@@ -4,9 +4,10 @@ import { FaCalendarAlt, FaMapMarkerAlt, FaUser, FaClock, FaArrowRight, FaPlus, F
 import EditableText from '../components/cms/EditableText';
 import ImageWithFallback from '../components/common/ImageWithFallback';
 import { useAuth } from '../context/AuthContext';
-
 import { useCMS } from '../context/CMSContext';
 import SEO from '../components/common/SEO';
+import useBodyScrollLock from '../hooks/useBodyScrollLock';
+
 const ExpandCard = ({ item, type, isAdmin, isEditMode, onEdit, onDelete, isActive, onClick }) => {
     return (
         <div
@@ -104,6 +105,8 @@ const BlogsEvents = () => {
     const [modalType, setModalType] = useState('blog'); // 'blog' or 'event'
     const [editItem, setEditItem] = useState(null);
     const [formData, setFormData] = useState({});
+
+    useBodyScrollLock(isModalOpen);
 
     // Fetch Data
     const fetchData = async () => {

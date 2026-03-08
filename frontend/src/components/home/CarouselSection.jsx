@@ -179,10 +179,10 @@ const CarouselSection = () => {
                 )}
 
                 {/* Navigation Arrows */}
-                <button onClick={prevSlide} className="absolute left-3 md:left-6 bottom-24 md:top-1/2 md:-translate-y-1/2 bg-black/40 hover:bg-black/60 md:bg-white/50 md:hover:bg-white p-3 min-w-[48px] min-h-[48px] rounded-full backdrop-blur-sm transition-all z-30 flex items-center justify-center active:scale-95 text-white md:text-gray-800 border border-white/20 md:border-none shadow-lg outline-none focus:ring-2 focus:ring-primary/50">
+                <button onClick={prevSlide} className="absolute left-3 md:left-6 bottom-24 md:top-1/2 md:-translate-y-1/2 bg-black/40 hover:bg-black/60 md:bg-white/50 md:hover:bg-white w-12 h-12 rounded-full backdrop-blur-sm transition-all z-30 flex items-center justify-center active:scale-95 text-white md:text-gray-800 border border-white/20 md:border-none shadow-lg outline-none focus:ring-2 focus:ring-primary/50">
                     <FaChevronLeft className="w-5 h-5 md:w-6 md:h-6 drop-shadow-md md:drop-shadow-none" />
                 </button>
-                <button onClick={nextSlide} className="absolute right-3 md:right-6 bottom-24 md:top-1/2 md:-translate-y-1/2 bg-black/40 hover:bg-black/60 md:bg-white/50 md:hover:bg-white p-3 min-w-[48px] min-h-[48px] rounded-full backdrop-blur-sm transition-all z-30 flex items-center justify-center active:scale-95 text-white md:text-gray-800 border border-white/20 md:border-none shadow-lg outline-none focus:ring-2 focus:ring-primary/50">
+                <button onClick={nextSlide} className="absolute right-3 md:right-6 bottom-24 md:top-1/2 md:-translate-y-1/2 bg-black/40 hover:bg-black/60 md:bg-white/50 md:hover:bg-white w-12 h-12 rounded-full backdrop-blur-sm transition-all z-30 flex items-center justify-center active:scale-95 text-white md:text-gray-800 border border-white/20 md:border-none shadow-lg outline-none focus:ring-2 focus:ring-primary/50">
                     <FaChevronRight className="w-5 h-5 md:w-6 md:h-6 drop-shadow-md md:drop-shadow-none" />
                 </button>
 
