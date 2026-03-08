@@ -37,6 +37,14 @@ const Dashboard = () => {
     const [selectedMessage, setSelectedMessage] = useState(null);
     const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
 
+    const [activeActionId, setActiveActionId] = useState(null);
+
+    useEffect(() => {
+        const handleClickOutside = () => setActiveActionId(null);
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, []);
+
     useBodyScrollLock(isTaskModalOpen || isBotModalOpen || isDonationModalOpen || isMessageModalOpen);
 
     const openDonationModal = (donation) => {
@@ -417,24 +425,34 @@ const Dashboard = () => {
                                                 </div>
                                             </td>
                                             <td className="p-6">
-                                                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide
-                                                    ${vol.status === 'Approved' ? 'bg-green-100 text-green-700' :
-                                                        vol.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
-                                                    {vol.status}
-                                                </span>
+                                                {vol.status === 'Pending' ? (
+                                                    activeActionId === `vol-${vol._id}` ? (
+                                                        <div className="flex gap-2 animate-fade-in w-max">
+                                                            <button onClick={(e) => { e.stopPropagation(); handleVerifyVolunteer(vol._id, 'Approved'); setActiveActionId(null); }} className="bg-green-100 text-green-600 p-2 rounded-lg hover:bg-green-200 transition-colors" title="Approve">
+                                                                <FaCheck />
+                                                            </button>
+                                                            <button onClick={(e) => { e.stopPropagation(); handleVerifyVolunteer(vol._id, 'Rejected'); setActiveActionId(null); }} className="bg-red-100 text-red-600 p-2 rounded-lg hover:bg-red-200 transition-colors" title="Reject">
+                                                                <FaTimes />
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <span
+                                                            onClick={(e) => { e.stopPropagation(); setActiveActionId(`vol-${vol._id}`); }}
+                                                            className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-yellow-100 text-yellow-700 cursor-pointer hover:bg-yellow-200 transition-all shadow-sm block w-max"
+                                                            title="Click to Verify"
+                                                        >
+                                                            Pending
+                                                        </span>
+                                                    )
+                                                ) : (
+                                                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide
+                                                        ${vol.status === 'Approved' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} w-max block`}>
+                                                        {vol.status}
+                                                    </span>
+                                                )}
                                             </td>
                                             <td className="p-6 text-right">
                                                 <div className="flex justify-end gap-2">
-                                                    {vol.status === 'Pending' && (
-                                                        <>
-                                                            <button onClick={() => handleVerifyVolunteer(vol._id, 'Approved')} className="bg-green-100 text-green-600 p-2 rounded-lg hover:bg-green-200 transition-colors" title="Approve">
-                                                                <FaCheck />
-                                                            </button>
-                                                            <button onClick={() => handleVerifyVolunteer(vol._id, 'Rejected')} className="bg-red-100 text-red-600 p-2 rounded-lg hover:bg-red-200 transition-colors" title="Reject">
-                                                                <FaTimes />
-                                                            </button>
-                                                        </>
-                                                    )}
                                                     {vol.status === 'Approved' && (
                                                         <button onClick={() => openTaskModal(vol)} className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-black text-xs font-bold shadow-md transition-all">
                                                             Assign Task
@@ -474,26 +492,36 @@ const Dashboard = () => {
                                             <td className="p-6 text-sm text-gray-600">{don.category}</td>
                                             <td className="p-6 text-sm text-gray-500">{new Date(don.createdAt).toLocaleDateString()}</td>
                                             <td className="p-6">
-                                                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide
-                                                    ${don.status === 'Approved' ? 'bg-green-100 text-green-700' :
-                                                        don.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
-                                                            don.status === 'Rejected' ? 'bg-red-100 text-red-700' :
-                                                                'bg-blue-100 text-blue-700'}`}>
-                                                    {don.status}
-                                                </span>
-                                            </td>
-                                            <td className="p-6 text-right">
-                                                <div className="flex justify-end gap-2 items-center">
-                                                    {don.status === 'Pending' && (
-                                                        <div className="flex gap-2 mr-2">
-                                                            <button onClick={() => handleVerifyDonation(don._id, 'Approved')} className="bg-green-100 text-green-600 p-2 rounded-lg hover:bg-green-200 transition-colors" title="Approve">
+                                                {don.status === 'Pending' ? (
+                                                    activeActionId === `don-${don._id}` ? (
+                                                        <div className="flex gap-2 animate-fade-in w-max">
+                                                            <button onClick={(e) => { e.stopPropagation(); handleVerifyDonation(don._id, 'Approved'); setActiveActionId(null); }} className="bg-green-100 text-green-600 p-2 rounded-lg hover:bg-green-200 transition-colors" title="Approve">
                                                                 <FaCheck />
                                                             </button>
-                                                            <button onClick={() => handleVerifyDonation(don._id, 'Rejected')} className="bg-red-100 text-red-600 p-2 rounded-lg hover:bg-red-200 transition-colors" title="Reject">
+                                                            <button onClick={(e) => { e.stopPropagation(); handleVerifyDonation(don._id, 'Rejected'); setActiveActionId(null); }} className="bg-red-100 text-red-600 p-2 rounded-lg hover:bg-red-200 transition-colors" title="Reject">
                                                                 <FaTimes />
                                                             </button>
                                                         </div>
-                                                    )}
+                                                    ) : (
+                                                        <span
+                                                            onClick={(e) => { e.stopPropagation(); setActiveActionId(`don-${don._id}`); }}
+                                                            className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-yellow-100 text-yellow-700 cursor-pointer hover:bg-yellow-200 transition-all shadow-sm w-max block"
+                                                            title="Click to Verify"
+                                                        >
+                                                            Pending
+                                                        </span>
+                                                    )
+                                                ) : (
+                                                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide
+                                                        ${don.status === 'Approved' ? 'bg-green-100 text-green-700' :
+                                                            don.status === 'Rejected' ? 'bg-red-100 text-red-700' :
+                                                                'bg-blue-100 text-blue-700'} w-max block`}>
+                                                        {don.status}
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="p-6 text-right">
+                                                <div className="flex justify-end gap-2 items-center">
                                                     <button onClick={() => openDonationModal(don)} className="text-gray-400 hover:text-blue-600 transition-colors font-bold text-sm bg-gray-50 px-3 py-1.5 rounded-lg">View</button>
                                                 </div>
                                             </td>
