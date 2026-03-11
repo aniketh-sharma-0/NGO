@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { FaCheck, FaTimes } from 'react-icons/fa';
+import api from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 import { useCMS } from '../../context/CMSContext';
 
@@ -14,24 +15,19 @@ const EditableText = ({ contentKey, section, defaultText, className, type = 'tex
     const isAdmin = user?.role?.name === 'Admin';
 
     useEffect(() => {
-        if (!isEditing) {
-            setValue(defaultText || '');
-            setOriginalValue(defaultText || '');
-        }
-    }, [defaultText, isEditing]);
+        setValue(defaultText || '');
+        setOriginalValue(defaultText || '');
+    }, [defaultText]);
 
     const handleSave = async () => {
         try {
             if (onSave) {
                 onSave(value);
             } else {
-                const token = localStorage.getItem('token');
-                await axios.put('/api/admin/content', {
+                await api.put('/admin/content', {
                     key: contentKey,
                     value: value,
                     section: section
-                }, {
-                    headers: { Authorization: `Bearer ${token}` }
                 });
             }
             setIsEditing(false);
@@ -49,25 +45,30 @@ const EditableText = ({ contentKey, section, defaultText, className, type = 'tex
 
     if (isEditing) {
         return (
-            <div className="flex gap-2 items-center">
+            <div className="flex gap-2 items-center text-base font-normal z-50">
                 {type === 'textarea' ? (
                     <textarea
-                        className="border p-1 rounded w-full"
+                        className="border border-gray-300 p-2 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-green-500 shadow-sm text-sm text-gray-800"
                         value={value}
                         onChange={(e) => setValue(e.target.value)}
                         autoComplete="off"
+                        rows={3}
                     />
                 ) : (
                     <input
                         type="text"
-                        className="border p-1 rounded w-full"
+                        className="border border-gray-300 p-1.5 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-green-500 shadow-sm text-sm text-gray-800"
                         value={value}
                         onChange={(e) => setValue(e.target.value)}
                         autoComplete="off"
                     />
                 )}
-                <button onClick={handleSave} className="text-green-600 bg-green-100 px-2 rounded">Save</button>
-                <button onClick={handleCancel} className="text-red-600 bg-red-100 px-2 rounded">Cancel</button>
+                <button onClick={handleSave} className="flex items-center gap-1 bg-green-600 text-white px-3 py-1.5 rounded-md text-sm font-medium hover:bg-green-700 transition-colors shadow-sm whitespace-nowrap">
+                    <FaCheck size={12} /> Save
+                </button>
+                <button onClick={handleCancel} className="flex items-center gap-1 bg-gray-500 text-white px-3 py-1.5 rounded-md text-sm font-medium hover:bg-gray-600 transition-colors shadow-sm whitespace-nowrap">
+                    <FaTimes size={12} /> Cancel
+                </button>
             </div>
         );
     }

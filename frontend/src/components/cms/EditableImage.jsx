@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 import { useCMS } from '../../context/CMSContext';
-import { FaPlus, FaTimes } from 'react-icons/fa';
+import { FaPlus, FaTimes, FaPen } from 'react-icons/fa';
 
 const EditableImage = ({ contentKey, section, defaultSrc, alt, className, imgClassName = "w-full h-full object-cover", onSave, editable = true, editPosition = "center" }) => {
     const { user } = useAuth();
@@ -25,11 +25,9 @@ const EditableImage = ({ contentKey, section, defaultSrc, alt, className, imgCla
         formData.append('image', file);
 
         try {
-            const token = localStorage.getItem('token');
-            const res = await axios.post('/api/admin/upload', formData, {
+            const res = await api.post('/admin/upload', formData, {
                 headers: {
-                    'Content-Type': 'multipart/form-data',
-                    Authorization: `Bearer ${token}`
+                    'Content-Type': 'multipart/form-data'
                 }
             });
             const newSrc = res.data.filePath;
@@ -47,63 +45,67 @@ const EditableImage = ({ contentKey, section, defaultSrc, alt, className, imgCla
         if (onSave) {
             onSave(newVal);
         } else {
-            const token = localStorage.getItem('token');
-            await axios.put('/api/admin/content', {
+            await api.put('/admin/content', {
                 key: contentKey,
                 value: newVal,
                 section: section
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
             });
         }
     };
 
-    const overlayClasses = editPosition === 'center'
-        ? `absolute inset-0 bg-black/50 flex flex-col items-center justify-center transition-all duration-300 ${showImageTools ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`
-        : `absolute left-full top-1/2 -translate-y-1/2 ml-4 z-50 transition-all duration-300 ${showImageTools ? 'opacity-100 visible' : 'opacity-0 invisible group-hover:opacity-100 group-hover:visible'}`;
+
 
     return (
         <div className={`relative group ${className}`}>
             <img src={src} alt={alt} className={imgClassName} />
 
             {isAdmin && isEditMode && editable && (
-                <div className={`${overlayClasses} z-20`}>
-                    {!showImageTools ? (
-                        <button
-                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowImageTools(true); }}
-                            className="bg-white text-gray-900 px-4 py-2 rounded-full font-bold hover:bg-gray-100 shadow-lg transform hover:scale-105 transition-all text-sm whitespace-nowrap"
-                        >
-                            Change Photo
-                        </button>
-                    ) : (
-                        <div className="bg-white p-4 rounded-xl shadow-2xl flex flex-col gap-3 w-64 animate-fade-in border border-gray-100" onClick={e => e.stopPropagation()}>
-                            <div className="flex justify-between items-center border-b pb-2 mb-1">
-                                <span className="font-bold text-gray-700 text-sm">Update Image</span>
-                                <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowImageTools(false); }} className="text-gray-400 hover:text-red-500"><FaTimes /></button>
-                            </div>
+                <div>
+                    {/* Trigger Button - Visible on Hover */}
+                    <button
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowImageTools(true); }}
+                        className="absolute bottom-4 right-0 transform translate-x-1/2 bg-white text-gray-800 p-3 rounded-full shadow-xl hover:bg-primary hover:text-white transition-all z-20 opacity-0 group-hover:opacity-100 border border-gray-100"
+                        title="Change Photo"
+                    >
+                        <FaPen size={14} />
+                    </button>
 
-                            {/* URL Input */}
-                            <input
-                                className="w-full border p-2 rounded text-xs focus:ring-2 focus:ring-primary outline-none text-gray-800"
-                                placeholder="Paste image URL..."
-                                value={src}
-                                onChange={(e) => handleUpdate(e.target.value)}
-                            />
+                    {/* Fixed Modal for Editing */}
+                    {showImageTools && (
+                        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in" onClick={(e) => { e.stopPropagation(); setShowImageTools(false); }}>
+                            <div className="bg-white p-6 rounded-2xl shadow-2xl flex flex-col gap-4 w-80 relative animate-scale-in" onClick={e => e.stopPropagation()}>
+                                <button
+                                    onClick={() => setShowImageTools(false)}
+                                    className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors"
+                                >
+                                    <FaTimes size={18} />
+                                </button>
 
-                            <div className="relative">
-                                <div className="absolute inset-0 flex items-center">
-                                    <div className="w-full border-t border-gray-200"></div>
+                                <h3 className="text-lg font-bold text-gray-800 border-b pb-2">Update Image</h3>
+
+                                {/* URL Input */}
+                                <div>
+                                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Image URL</label>
+                                    <input
+                                        className="w-full border border-gray-300 p-2 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                                        placeholder="https://..."
+                                        value={src}
+                                        onChange={(e) => handleUpdate(e.target.value)}
+                                    />
                                 </div>
-                                <div className="relative flex justify-center text-xs">
-                                    <span className="px-2 bg-white text-gray-500">OR</span>
-                                </div>
-                            </div>
 
-                            {/* Upload Button */}
-                            <label className="w-full bg-primary text-white py-2 rounded-lg text-center cursor-pointer hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm font-medium">
-                                <FaPlus size={10} /> Upload File
-                                <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
-                            </label>
+                                <div className="relative flex py-1 items-center">
+                                    <div className="flex-grow border-t border-gray-200"></div>
+                                    <span className="flex-shrink-0 mx-4 text-gray-400 text-xs font-medium">OR</span>
+                                    <div className="flex-grow border-t border-gray-200"></div>
+                                </div>
+
+                                {/* Upload Button */}
+                                <label className="w-full bg-blue-900 text-white py-3 rounded-xl text-center cursor-pointer hover:bg-blue-700 transition-all transform hover:scale-[1.02] shadow-md flex items-center justify-center gap-2 font-semibold">
+                                    <FaPlus /> Upload New Photo
+                                    <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                                </label>
+                            </div>
                         </div>
                     )}
                 </div>

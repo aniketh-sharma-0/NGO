@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { FaWhatsapp, FaPhoneVolume, FaEnvelopeOpenText, FaComments, FaPaperPlane } from 'react-icons/fa';
 import EditableText from '../components/cms/EditableText';
 import SelectInput from '../components/common/SelectInput';
+import SEO from '../components/common/SEO';
 
 const Contact = () => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         phone: '',
-        subject: '',
-        message: ''
+        message: '',
+        inquiryType: 'General',
+        organization: ''
     });
     const [status, setStatus] = useState('');
 
@@ -22,9 +24,9 @@ const Contact = () => {
         e.preventDefault();
         setStatus('submitting');
         try {
-            await axios.post('/api/contact', formData);
+            await api.post('/contact', formData);
             setStatus('success');
-            setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+            setFormData({ name: '', email: '', phone: '', message: '', inquiryType: 'General', organization: '' });
         } catch (error) {
             console.error(error);
             setStatus('error');
@@ -72,12 +74,17 @@ const Contact = () => {
 
     return (
         <div className="min-h-screen">
+            <SEO
+                title="Contact Us"
+                description="Get in touch with YRDS for inquiries, partnerships, or support. We are here to help."
+                url="/contact"
+            />
             {/* Header */}
-            <div className="bg-gray-900 text-white py-24 text-center px-4 font-heading">
-                <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            <div className="bg-gray-900 text-white py-16 md:py-24 text-center px-4 font-heading">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">
                     <EditableText contentKey="contact_title" section="Contact" defaultText="Get in Touch" />
                 </h1>
-                <p className="text-xl text-gray-300 max-w-2xl mx-auto font-sans font-light">
+                <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto font-sans font-light leading-relaxed px-4">
                     <EditableText contentKey="contact_subtitle" section="Contact" defaultText="Have questions? We'd love to hear from you." />
                 </p>
             </div>
@@ -114,18 +121,18 @@ const Contact = () => {
                             alt="Our Team"
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent flex items-end p-10">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent flex items-end p-6 md:p-10">
                             <div className="text-white text-left">
-                                <h3 className="text-4xl font-bold mb-2 font-heading">Let's Make a Difference</h3>
-                                <p className="text-lg opacity-90 font-light text-gray-200">Reach out to us and start your journey of impact today.</p>
+                                <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 md:mb-4 font-heading leading-tight">Let's Make a Difference</h3>
+                                <p className="text-base md:text-lg opacity-90 font-light text-gray-200 leading-relaxed">Reach out to us and start your journey of impact today.</p>
                             </div>
                         </div>
                     </div>
 
                     {/* Contact Form - Removed Card Wrapper */}
                     <div className="pl-0 md:pl-8">
-                        <h2 className="text-4xl font-bold text-gray-800 mb-8 font-heading">Send a Message</h2>
-                        <p className="text-gray-600 mb-8">We are here to help and answer any question you might have. We look forward to hearing from you.</p>
+                        <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6 md:mb-8 font-heading leading-tight">Send a Message</h2>
+                        <p className="text-gray-600 mb-8 text-base md:text-lg leading-relaxed">We are here to help and answer any question you might have. We look forward to hearing from you.</p>
 
                         {status === 'success' ? (
                             <div className="text-center py-20 bg-green-50 rounded-3xl border border-green-100">
@@ -190,10 +197,18 @@ const Contact = () => {
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Phone</label>
                                     <input
+                                        type="tel"
                                         name="phone"
-                                        value={formData.phone} onChange={handleChange}
+                                        value={formData.phone}
+                                        onChange={(e) => {
+                                            const numericValue = e.target.value.replace(/\D/g, ''); // Strip non-numeric
+                                            if (numericValue.length <= 10) {
+                                                setFormData({ ...formData, phone: numericValue });
+                                            }
+                                        }}
                                         className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-lg py-3 px-4 rounded-xl focus:outline-none focus:bg-white focus:border-blue-900 focus:ring-4 focus:ring-blue-100 transition-all"
-                                        placeholder="+91 ..."
+                                        placeholder="Mobile Number (10 digits)"
+                                        maxLength="10"
                                     />
                                 </div>
 
@@ -216,7 +231,7 @@ const Contact = () => {
                                     {status === 'submitting' ? 'Sending...' : <><FaPaperPlane /> Send Message</>}
                                 </button>
 
-                                {status === 'error' && <p className="text-red-500 text-center">Failed to send message. Please try again.</p>}
+                                {status === 'error' && <p className="text-red-500 text-left mt-2">Failed to send message. Please try again.</p>}
                             </form>
                         )}
                     </div>

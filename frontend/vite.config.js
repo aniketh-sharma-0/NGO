@@ -8,12 +8,12 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'https://ngo-x9e8.onrender.com',
         changeOrigin: true,
         secure: false,
       },
       '/uploads': {
-        target: 'http://localhost:5000',
+        target: 'https://ngo-x9e8.onrender.com',
         changeOrigin: true,
         secure: false,
       },

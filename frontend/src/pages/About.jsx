@@ -3,6 +3,7 @@ import EditableText from '../components/cms/EditableText';
 import DynamicList from '../components/cms/DynamicList';
 import EditableImage from '../components/cms/EditableImage';
 import { FaRocket, FaBullseye } from 'react-icons/fa';
+import SEO from '../components/common/SEO';
 
 const About = () => {
     // Default compliance documents
@@ -16,24 +17,29 @@ const About = () => {
 
     return (
         <div className="min-h-screen font-sans">
+            <SEO
+                title="About Us"
+                description="Learn about YRDS's mission, vision, and legal compliance. We are dedicated to transparent and impactful social work."
+                url="/about"
+            />
             {/* Header */}
-            <div className="bg-gray-900 py-20 text-center text-white font-heading">
-                <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            <div className="bg-gray-900 py-16 md:py-20 text-center text-white font-heading">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 px-4">
                     <EditableText contentKey="about_header_title" section="About" defaultText="About Us" />
                 </h1>
-                <div className="text-xl max-w-2xl mx-auto px-4 opacity-90 font-light">
+                <div className="text-lg md:text-xl max-w-2xl mx-auto px-4 opacity-90 font-light leading-relaxed">
                     <EditableText contentKey="about_header_subtitle" section="About" defaultText="Transparency, Integrity, and Impact." />
                 </div>
             </div>
 
             {/* 1. Brief Summary - White Section */}
-            <section className="py-24 bg-white">
+            <section className="py-16 md:py-24 bg-white">
                 <div className="container mx-auto px-4">
                     <div className="max-w-4xl mx-auto text-center">
-                        <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-8 font-heading">
+                        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-6 md:mb-8 font-heading">
                             <EditableText contentKey="about_brief_title" section="About" defaultText="Who We Are" />
                         </h2>
-                        <div className="text-gray-700 leading-relaxed text-lg md:text-xl font-light">
+                        <div className="text-gray-700 leading-relaxed text-base md:text-lg lg:text-xl font-light">
                             <EditableText
                                 contentKey="about_brief_content"
                                 section="About"
@@ -47,13 +53,13 @@ const About = () => {
             </section>
 
             {/* 2. Documents - Gray Partition */}
-            <section className="py-20 bg-gray-100 border-y border-gray-200">
+            <section className="py-16 md:py-20 bg-gray-100 border-y border-gray-200">
                 <div className="container mx-auto px-4">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl font-bold text-gray-800 mb-4 font-heading">
+                    <div className="text-center mb-10 md:mb-12">
+                        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4 font-heading">
                             <EditableText contentKey="about_docs_title" section="About" defaultText="Legal & Compliance Documents" />
                         </h2>
-                        <p className="text-gray-600 max-w-2xl mx-auto">We operate with verified certifications and full regulatory compliance.</p>
+                        <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">We operate with verified certifications and full regulatory compliance.</p>
                     </div>
 
                     <DynamicList
@@ -75,11 +81,12 @@ const About = () => {
                                     />
                                 </div>
                                 <h3 className="font-semibold text-gray-700 text-center w-full text-sm font-heading">
-                                    <input
+                                    <textarea
                                         value={doc.title}
                                         onChange={(e) => updateDoc('title', e.target.value)}
-                                        className="text-center w-full bg-transparent focus:outline-none focus:border-b border-primary p-1"
+                                        className="text-center w-full bg-transparent focus:outline-none focus:border-b border-primary p-1 resize-none overflow-hidden leading-tight"
                                         placeholder="Document Name"
+                                        rows={2}
                                     />
                                 </h3>
                             </div>
@@ -89,20 +96,20 @@ const About = () => {
             </section>
 
             {/* 3. Vision & Mission - White Section */}
-            <section className="py-20 bg-white">
+            <section className="py-16 md:py-20 bg-white">
                 <div className="container mx-auto px-4">
-                    <div className="grid md:grid-cols-2 gap-12 max-w-7xl mx-auto">
-                        <div className="bg-blue-900 text-white p-10 rounded-3xl shadow-xl relative overflow-hidden transform hover:scale-[1.02] transition-transform duration-300">
+                    <div className="grid md:grid-cols-2 gap-8 md:gap-12 max-w-7xl mx-auto">
+                        <div className="bg-blue-900 text-white p-8 md:p-10 rounded-3xl shadow-xl relative overflow-hidden transform hover:scale-[1.02] transition-transform duration-300">
                             <div className="absolute top-0 right-0 p-10 opacity-10">
-                                <svg className="w-40 h-40" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"></path></svg>
+                                <svg className="w-32 h-32 md:w-40 md:h-40" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"></path></svg>
                             </div>
-                            <h3 className="text-3xl font-bold mb-6 flex items-center gap-4 font-heading">
+                            <h3 className="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-4 font-heading">
                                 <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-md border border-white/10 shadow-inner">
-                                    <FaRocket className="text-4xl text-blue-200 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" />
+                                    <FaRocket className="text-3xl md:text-4xl text-blue-200 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" />
                                 </div>
                                 <EditableText contentKey="vision_title" section="About" defaultText="Our Vision" />
                             </h3>
-                            <div className="text-blue-100 text-lg leading-relaxed font-medium">
+                            <div className="text-blue-100 text-base md:text-lg leading-relaxed font-medium">
                                 <EditableText
                                     contentKey="vision_content"
                                     section="About"
@@ -111,17 +118,17 @@ const About = () => {
                                 />
                             </div>
                         </div>
-                        <div className="bg-emerald-600 text-white p-10 rounded-3xl shadow-xl relative overflow-hidden transform hover:scale-[1.02] transition-transform duration-300">
+                        <div className="bg-emerald-600 text-white p-8 md:p-10 rounded-3xl shadow-xl relative overflow-hidden transform hover:scale-[1.02] transition-transform duration-300">
                             <div className="absolute top-0 right-0 p-10 opacity-10">
-                                <svg className="w-40 h-40" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99z"></path></svg>
+                                <svg className="w-32 h-32 md:w-40 md:h-40" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99z"></path></svg>
                             </div>
-                            <h3 className="text-3xl font-bold mb-6 flex items-center gap-4 font-heading">
+                            <h3 className="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-4 font-heading">
                                 <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-md border border-white/10 shadow-inner">
-                                    <FaBullseye className="text-4xl text-green-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" />
+                                    <FaBullseye className="text-3xl md:text-4xl text-green-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" />
                                 </div>
                                 <EditableText contentKey="mission_title" section="About" defaultText="Our Mission" />
                             </h3>
-                            <div className="text-green-50 text-lg leading-relaxed font-medium">
+                            <div className="text-green-50 text-base md:text-lg leading-relaxed font-medium">
                                 <EditableText
                                     contentKey="mission_content"
                                     section="About"
@@ -135,9 +142,9 @@ const About = () => {
             </section>
 
             {/* 4. Explore Highlights - Gray Partition */}
-            <section className="py-20 bg-gray-100 border-y border-gray-200">
+            <section className="py-16 md:py-20 bg-gray-100 border-y border-gray-200">
                 <div className="container mx-auto px-4">
-                    <h2 className="text-3xl font-bold text-gray-800 mb-10 text-center font-heading">
+                    <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-8 md:mb-10 text-center font-heading">
                         <EditableText contentKey="highlights_title" section="About" defaultText="Explore Our Impact" />
                     </h2>
                     <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
@@ -171,13 +178,13 @@ const About = () => {
 
             {/* 5. Terms & Conditions - White Section */}
             {/* 5. Terms & Conditions - Minimalist Professional Section */}
-            <section className="py-20 bg-white border-t border-gray-100">
+            <section className="py-16 md:py-20 bg-white border-t border-gray-100">
                 <div className="container mx-auto px-4 max-w-6xl">
-                    <div className="pl-6 md:pl-10 border-l-4 border-gray-800">
-                        <h2 className="text-3xl font-bold text-gray-800 mb-6 font-heading">
+                    <div className="pl-4 sm:pl-6 md:pl-10 border-l-4 border-gray-800">
+                        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6 font-heading">
                             <EditableText contentKey="about_terms_title" section="About" defaultText="Terms & Conditions" />
                         </h2>
-                        <div className="text-gray-600 text-lg leading-relaxed font-light">
+                        <div className="text-gray-600 text-base md:text-lg leading-relaxed font-light">
                             <EditableText
                                 contentKey="about_terms_content"
                                 section="About"
@@ -199,6 +206,7 @@ const About = () => {
             </section>
         </div>
     );
+
 };
 
 export default About;

@@ -1,28 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { FaCalendarAlt, FaMapMarkerAlt, FaUser, FaClock, FaArrowRight, FaPlus, FaEdit, FaTrash, FaTimes } from 'react-icons/fa';
 import EditableText from '../components/cms/EditableText';
 import ImageWithFallback from '../components/common/ImageWithFallback';
 import { useAuth } from '../context/AuthContext';
-
 import { useCMS } from '../context/CMSContext';
-const ExpandCard = ({ item, type, isAdmin, isEditMode, onEdit, onDelete }) => {
+import SEO from '../components/common/SEO';
+import useBodyScrollLock from '../hooks/useBodyScrollLock';
+
+const ExpandCard = ({ item, type, isAdmin, isEditMode, onEdit, onDelete, isActive, onClick }) => {
     return (
-        <div className="group relative h-96 min-w-[60px] md:min-w-[80px] flex-1 cursor-pointer overflow-hidden rounded-2xl transition-all duration-500 hover:flex-[3] hover:shadow-2xl">
+        <div
+            onClick={onClick}
+            className={`group relative h-96 min-w-[60px] md:min-w-[80px] flex-1 cursor-pointer overflow-hidden rounded-2xl transition-all duration-500 hover:flex-[3] hover:shadow-2xl ${isActive ? 'flex-[3] shadow-2xl' : ''}`}
+        >
             {/* Background Image */}
             <ImageWithFallback
                 src={type === 'blog' ? (item.coverImage || item.image) : (item.images?.[0] || item.image)}
                 fallbackSrc={type === 'blog' ? 'https://placehold.co/800x600/e2e8f0/1e293b?text=Blog+Image' : 'https://placehold.co/800x600/e2e8f0/1e293b?text=Event+Image'}
                 alt={item.title}
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                className={`absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 ${isActive ? 'scale-110' : ''}`}
             />
 
             {/* Overlay Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent md:bg-gradient-to-r md:from-black/80 md:via-black/20 md:to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+            <div className={`absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent md:bg-gradient-to-r md:from-black/80 md:via-black/20 md:to-transparent opacity-80 group-hover:opacity-90 transition-opacity ${isActive ? 'opacity-90' : ''}`} />
 
             {/* Admin Controls */}
             {isAdmin && isEditMode && (
-                <div className="absolute top-4 right-4 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity delay-200">
+                <div className={`absolute top-4 right-4 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity delay-200 ${isActive ? 'opacity-100' : ''}`}>
                     <button
                         onClick={(e) => { e.stopPropagation(); onEdit(item, type); }}
                         className="p-2 bg-white/20 hover:bg-white text-white hover:text-blue-600 rounded-full backdrop-blur-sm transition-all"
@@ -40,20 +45,21 @@ const ExpandCard = ({ item, type, isAdmin, isEditMode, onEdit, onDelete }) => {
                 </div>
             )}
 
-            {/* Content - Vertical Title (Collapsed) */}
-            <div className="absolute bottom-6 left-6 md:left-4 md:bottom-auto md:top-1/2 md:-translate-y-1/2 w-full origin-left -rotate-90 md:rotate-0 transition-all duration-300 md:group-hover:opacity-0 group-hover:opacity-0 whitespace-nowrap z-10">
-                <h3 className="text-xl font-bold text-white tracking-widest uppercase md:writing-vertical-rl md:text-orientation-mixed drop-shadow-md">
-                    {item.title.substring(0, 15)}...
+            {/* Content - Title (Horizontal on Mobile, Vertical on Desktop) */}
+            <div className={`absolute bottom-6 left-6 right-6 md:right-auto md:left-4 md:bottom-auto md:top-1/2 md:-translate-y-1/2 md:w-full md:origin-left md:-rotate-90 md:rotate-0 transition-all duration-300 md:group-hover:opacity-0 group-hover:opacity-0 z-10 ${isActive ? 'opacity-0' : ''}`}>
+                <h3 className="text-xl md:text-xl font-bold text-white tracking-wide md:tracking-widest uppercase whitespace-normal break-words md:whitespace-nowrap md:writing-vertical-rl md:text-orientation-mixed drop-shadow-md">
+                    <span className="md:hidden">{item.title}</span>
+                    <span className="hidden md:inline">{item.title.substring(0, 15)}...</span>
                 </h3>
             </div>
 
             {/* Content - Expanded Details */}
-            <div className="absolute inset-0 p-8 flex flex-col justify-end md:justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100 translate-y-4 group-hover:translate-y-0">
-                <div className="transform transition-transform duration-500 translate-x-4 group-hover:translate-x-0">
+            <div className={`absolute inset-0 p-8 flex flex-col justify-end md:justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100 translate-y-4 group-hover:translate-y-0 ${isActive ? 'opacity-100 translate-y-0' : ''}`}>
+                <div className={`transform transition-transform duration-500 translate-x-4 group-hover:translate-x-0 ${isActive ? 'translate-x-0' : ''}`}>
                     <div className="bg-primary/90 text-white text-xs font-bold px-3 py-1 rounded-full w-fit mb-4">
                         {type === 'blog' ? 'Blog Post' : 'Event'}
                     </div>
-                    <h3 className="text-3xl font-bold text-white mb-2 leading-tight">{item.title}</h3>
+                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 leading-tight">{item.title}</h3>
 
                     {type === 'event' && (
                         <div className="flex flex-wrap gap-4 text-gray-300 mb-4 text-sm">
@@ -70,12 +76,12 @@ const ExpandCard = ({ item, type, isAdmin, isEditMode, onEdit, onDelete }) => {
                         </div>
                     )}
 
-                    <p className="text-gray-200 mb-6 line-clamp-3 md:line-clamp-4 max-w-lg">
+                    <p className="text-gray-200 mb-6 line-clamp-3 md:line-clamp-4 max-w-lg text-sm md:text-base leading-relaxed">
                         {item.description || item.content?.substring(0, 150)}...
                     </p>
 
                     <button className="flex items-center gap-2 text-white font-bold hover:text-primary transition-colors group/btn">
-                        Read More <FaArrowRight className="transform transition-transform group-hover/btn:translate-x-1" />
+                        Read More <FaArrowRight className={`transform transition-transform group-hover/btn:translate-x-1 ${isActive ? 'translate-x-1' : ''}`} />
                     </button>
                 </div>
             </div>
@@ -91,19 +97,24 @@ const BlogsEvents = () => {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const [activeEventId, setActiveEventId] = useState(null);
+    const [activeBlogId, setActiveBlogId] = useState(null);
+
     // Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalType, setModalType] = useState('blog'); // 'blog' or 'event'
     const [editItem, setEditItem] = useState(null);
     const [formData, setFormData] = useState({});
 
+    useBodyScrollLock(isModalOpen);
+
     // Fetch Data
     const fetchData = async () => {
         setLoading(true);
         try {
             const [resBlogs, resEvents] = await Promise.all([
-                axios.get('/api/media/blogs'),
-                axios.get('/api/media/events')
+                api.get('/media/blogs'),
+                api.get('/media/events')
             ]);
             setBlogs(resBlogs.data);
             setEvents(resEvents.data);
@@ -153,11 +164,9 @@ const BlogsEvents = () => {
         formDataUpload.append('image', file);
 
         try {
-            const token = localStorage.getItem('token');
-            const res = await axios.post('/api/admin/upload', formDataUpload, {
+            const res = await api.post('/admin/upload', formDataUpload, {
                 headers: {
-                    'Content-Type': 'multipart/form-data',
-                    Authorization: `Bearer ${token}`
+                    'Content-Type': 'multipart/form-data'
                 }
             });
             // Handle different field names
@@ -175,10 +184,7 @@ const BlogsEvents = () => {
     const handleDelete = async (id, type) => {
         if (!window.confirm('Are you sure you want to delete this item?')) return;
         try {
-            const token = localStorage.getItem('token');
-            await axios.delete(`/api/media/${type}s/${id}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await api.delete(`/media/${type}s/${id}`);
             fetchData();
         } catch (error) {
             alert('Failed to delete item.');
@@ -188,12 +194,9 @@ const BlogsEvents = () => {
     const handleSave = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem('token');
-            const url = `/api/media/${modalType}s${editItem ? `/${editItem._id}` : ''}`;
+            const url = `/media/${modalType}s${editItem ? `/${editItem._id}` : ''}`;
             const method = editItem ? 'put' : 'post';
-            await axios[method](url, formData, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await api[method](url, formData);
             setIsModalOpen(false);
             fetchData();
         } catch (error) {
@@ -204,14 +207,19 @@ const BlogsEvents = () => {
 
     return (
         <div className="bg-gray-100 min-h-screen pb-20">
+            <SEO
+                title="Stories & Updates"
+                description="Read our latest blogs and stay updated with upcoming events at YRDS."
+                url="/media"
+            />
             {/* ... (Header and Sections remain same until Modal) ... */}
 
             {/* Header */}
-            <div className="bg-gray-900 text-white py-20 px-4 text-center">
-                <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in-down">
+            <div className="bg-gray-900 text-white py-16 md:py-20 px-4 text-center">
+                <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold mb-4 md:mb-6 animate-fade-in-down leading-tight">
                     <EditableText contentKey="media_title" section="BlogsEvents" defaultText="Stories & Updates" />
                 </h1>
-                <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+                <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed px-4">
                     <EditableText contentKey="media_subtitle" section="BlogsEvents" defaultText="Stay connected with our latest activities, upcoming events, and impactful stories." />
                 </p>
             </div>
@@ -221,9 +229,9 @@ const BlogsEvents = () => {
                 {/* Upcoming Events Section */}
                 <section>
                     <div className="flex justify-between items-center mb-8">
-                        <div className="flex items-center gap-4">
-                            <div className="h-10 w-2 bg-blue-900"></div>
-                            <h2 className="text-3xl font-bold text-gray-800">
+                        <div className="flex items-center gap-3 md:gap-4">
+                            <div className="h-8 md:h-10 w-2 bg-blue-900"></div>
+                            <h2 className="text-2xl md:text-3xl font-bold text-gray-800 leading-tight">
                                 <EditableText contentKey="media_events_title" section="BlogsEvents" defaultText="Upcoming Events" />
                             </h2>
                         </div>
@@ -245,6 +253,8 @@ const BlogsEvents = () => {
                                 isEditMode={isEditMode}
                                 onEdit={handleEdit}
                                 onDelete={handleDelete}
+                                isActive={activeEventId === (event._id || idx)}
+                                onClick={() => setActiveEventId(activeEventId === (event._id || idx) ? null : (event._id || idx))}
                             />
                         )) : (
                             <div className="w-full h-full flex items-center justify-center bg-white rounded-2xl shadow-sm text-gray-400">
@@ -257,9 +267,9 @@ const BlogsEvents = () => {
                 {/* Recent Blogs Section */}
                 <section>
                     <div className="flex justify-between items-center mb-8">
-                        <div className="flex items-center gap-4">
-                            <div className="h-10 w-2 bg-emerald-500"></div>
-                            <h2 className="text-3xl font-bold text-gray-800">
+                        <div className="flex items-center gap-3 md:gap-4">
+                            <div className="h-8 md:h-10 w-2 bg-emerald-500"></div>
+                            <h2 className="text-2xl md:text-3xl font-bold text-gray-800 leading-tight">
                                 <EditableText contentKey="media_blogs_title" section="BlogsEvents" defaultText="Recent Articles" />
                             </h2>
                         </div>
@@ -280,6 +290,8 @@ const BlogsEvents = () => {
                                 isEditMode={isEditMode}
                                 onEdit={handleEdit}
                                 onDelete={handleDelete}
+                                isActive={activeBlogId === (blog._id || idx)}
+                                onClick={() => setActiveBlogId(activeBlogId === (blog._id || idx) ? null : (blog._id || idx))}
                             />
                         )) : (
                             <div className="w-full h-full flex items-center justify-center bg-white rounded-2xl shadow-sm text-gray-400">

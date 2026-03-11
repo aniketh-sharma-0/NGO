@@ -1,6 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700;800;900&display=swap');
 @import "tailwindcss";
-/* Reload Trigger */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap');
+
+@theme {
+    --color-primary: #1e3a8a;
+    --color-accent: #3b82f6;
+    --color-secondary: #10b981;
+    --color-soft-blue: #eff6ff;
+    --color-soft-green: #f0fdf4;
+    --font-sans: 'Inter', sans-serif;
+    --font-heading: 'Poppins', sans-serif;
+}
 
 @layer base {
     body {

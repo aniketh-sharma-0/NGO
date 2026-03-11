@@ -13,7 +13,7 @@ const volunteerSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['Active', 'Inactive', 'Pending'],
+        enum: ['Approved', 'Rejected', 'Pending'],
         default: 'Pending'
     },
     phone: {

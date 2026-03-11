@@ -38,7 +38,30 @@ const getDonations = async (req, res) => {
     }
 };
 
+// @desc    Update donation status (Admin)
+// @route   PUT /api/donations/:id/status
+// @access  Private/Admin
+const updateDonationStatus = async (req, res) => {
+    const { status } = req.body;
+
+    try {
+        const donation = await Donation.findById(req.params.id);
+
+        if (!donation) {
+            return res.status(404).json({ message: 'Donation not found' });
+        }
+
+        donation.status = status;
+        await donation.save();
+
+        res.json(donation);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     createDonation,
-    getDonations
+    getDonations,
+    updateDonationStatus
 };

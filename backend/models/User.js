@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true /* Make required for local auth, handle oauth separately if needed by making sparse or validating */
+        required: false
     },
     role: {
         type: mongoose.Schema.Types.ObjectId,

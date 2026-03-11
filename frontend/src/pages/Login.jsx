@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { FcGoogle } from 'react-icons/fc';
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
+import SEO from '../components/common/SEO';
 
 const Login = () => {
     const [isLogin, setIsLogin] = useState(true);
@@ -52,6 +52,11 @@ const Login = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center p-4">
+            <SEO
+                title={isLogin ? "Login" : "Sign Up"}
+                description="Login or Sign Up to Yaswanth Rural Development Society."
+                url="/login"
+            />
             <div className="bg-white rounded-2xl shadow-2xl flex flex-col md:flex-row w-full max-w-4xl overflow-hidden h-[650px]">
 
                 {/* Visual Side */}
@@ -150,17 +155,6 @@ const Login = () => {
                             {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')}
                         </button>
                     </form>
-
-                    <div className="my-6 flex items-center gap-4">
-                        <div className="h-px bg-gray-200 flex-1"></div>
-                        <span className="text-gray-400 text-sm">OR</span>
-                        <div className="h-px bg-gray-200 flex-1"></div>
-                    </div>
-
-                    <button className="w-full border border-gray-200 py-3 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors font-medium text-gray-600">
-                        <FcGoogle size={22} />
-                        {isLogin ? 'Sign in with Google' : 'Sign up with Google'}
-                    </button>
 
                     <div className="mt-6 text-center text-sm pb-4">
                         <span className="text-gray-600">{isLogin ? "Don't have an account?" : "Already have an account?"}</span>

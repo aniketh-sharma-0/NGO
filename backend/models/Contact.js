@@ -12,9 +12,15 @@ const contactSchema = new mongoose.Schema({
     phone: {
         type: String
     },
-    subject: {
+    inquiryType: {
         type: String,
-        required: true
+        default: 'General'
+    },
+    organization: {
+        type: String
+    },
+    subject: {
+        type: String
     },
     message: {
         type: String,

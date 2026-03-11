@@ -1,11 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaHandsHelping, FaNetworkWired, FaGraduationCap } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
+import { useCMS } from '../../context/CMSContext';
+import api from '../../utils/api';
+import SEO from '../../components/common/SEO';
+import EditableImage from '../../components/cms/EditableImage';
 
 const VolunteerLanding = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
+    const { isEditMode } = useCMS();
+    const isAdmin = user?.role?.name === 'Admin';
+    const [pageContent, setPageContent] = useState({});
 
     useEffect(() => {
         if (user && user.role?.name === 'Volunteer') {
@@ -13,15 +20,39 @@ const VolunteerLanding = () => {
         }
     }, [user, navigate]);
 
+    useEffect(() => {
+        const fetchContent = async () => {
+            try {
+                const res = await api.get('/content/Volunteer');
+                setPageContent(res.data || {});
+            } catch (err) {
+                console.error("Failed to fetch volunteer content", err);
+            }
+        };
+        fetchContent();
+    }, []);
+
     return (
         <div className="min-h-screen font-sans">
+            <SEO
+                title="Volunteer With Us"
+                description="Join YRDS as a volunteer and make a real impact in rural communities. Sign up or log in to your dashboard."
+                url="/volunteer"
+            />
             {/* Hero Section */}
             <div className="relative h-[600px] flex items-center justify-center">
                 <div className="absolute inset-0 overflow-hidden">
-                    <img
-                        src="https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=2070&auto=format&fit=crop"
+                    <EditableImage
+                        defaultSrc={pageContent.hero_bg_image || "https://images.unsplash.com/photo-1559027615-cd46289d2d4a?q=80&w=2070&auto=format&fit=crop"}
                         alt="Volunteers"
-                        className="w-full h-full object-cover"
+                        className="w-full h-full absolute inset-0"
+                        imgClassName="w-full h-full object-cover"
+                        onSave={async (newUrl) => {
+                            await api.put('/admin/content', { key: 'hero_bg_image', value: newUrl, section: 'Volunteer' });
+                            setPageContent(prev => ({ ...prev, hero_bg_image: newUrl }));
+                        }}
+                        editable={isAdmin && isEditMode}
+                        editPosition="bottom-right"
                     />
                     <div className="absolute inset-0 bg-black/50"></div>
                 </div>
@@ -78,7 +109,7 @@ const VolunteerLanding = () => {
             </div>
 
             {/* Call to Action */}
-            <div className="bg-gray-900 text-white py-24 text-center px-4 relative overflow-hidden">
+            <div className="bg-gray-900 text-white pt-24 pb-32 md:pb-24 text-center px-4 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
                     <svg className="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                         <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" />
