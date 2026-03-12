@@ -43,7 +43,7 @@ const VolunteerLanding = () => {
             <div className="relative h-[600px] flex items-center justify-center">
                 <div className="absolute inset-0 overflow-hidden">
                     <EditableImage
-                        defaultSrc={pageContent.hero_bg_image || "https://images.unsplash.com/photo-1559027615-cd46289d2d4a?q=80&w=2070&auto=format&fit=crop"}
+                        defaultSrc={pageContent.hero_bg_image || "https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=2070&auto=format&fit=crop"}
                         alt="Volunteers"
                         className="w-full h-full absolute inset-0"
                         imgClassName="w-full h-full object-cover"

@@ -50,7 +50,7 @@ const TopMarquee = () => {
                     <EditableText
                         contentKey="top_marquee_phone"
                         section="Home"
-                        defaultText={content?.top_marquee_phone || '+91 98765 43210'}
+                        defaultText={content?.top_marquee_phone || '9538026060'}
                         className="font-semibold text-xs md:text-sm"
                     />
                 </div>

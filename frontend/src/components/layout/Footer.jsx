@@ -16,7 +16,7 @@ const Footer = () => {
                         <div className="space-y-3">
                             <div className="flex items-center gap-3">
                                 <FaPhoneAlt className="text-accent" />
-                                +91 98765 43210
+                                9538026060
                             </div>
                             <div className="flex items-center gap-3">
                                 <FaEnvelope className="text-accent" />

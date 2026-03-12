@@ -18,6 +18,11 @@
         /* slate-900 */
         font-family: 'Inter', sans-serif;
         -webkit-font-smoothing: antialiased;
+        caret-color: transparent; /* Fix global blinking caret issue */
+    }
+
+    input, textarea, [contenteditable="true"] {
+        caret-color: auto;
     }
 
     ::selection {

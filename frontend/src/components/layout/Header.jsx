@@ -49,7 +49,7 @@ const Header = () => {
     };
 
     return (
-        <header className="bg-white shadow-sm sticky top-0 z-40 font-heading">
+        <header className="bg-white shadow-sm z-40 font-heading">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 md:py-4 flex justify-between items-center">
                 {/* Logo and Name */}
                 <Link to="/" className="flex items-center gap-3 active:opacity-70 transition-opacity">
@@ -92,7 +92,7 @@ const Header = () => {
                             <span>Projects</span>
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                         </div>
-                        <div className={`absolute top-full left-0 w-48 bg-white shadow-xl rounded-b-lg border border-gray-100 transition-all duration-200 transform ${isProjectsDropdownOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible group-hover/dropdown:opacity-100 group-hover/dropdown:visible translate-y-2 group-hover/dropdown:translate-y-0'}`}>
+                        <div className={`absolute top-full left-0 w-48 bg-white shadow-xl rounded-b-lg border border-gray-100 transition-all duration-200 transform ${isProjectsDropdownOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible translate-y-2'}`}>
                             <Link to="/projects?category=Government" onClick={() => setIsProjectsDropdownOpen(false)} className="block px-4 py-3 hover:bg-gray-50 text-gray-700 hover:text-blue-600 border-b border-gray-50">Government Projects</Link>
                             <Link to="/projects?category=CSR" onClick={() => setIsProjectsDropdownOpen(false)} className="block px-4 py-3 hover:bg-gray-50 text-gray-700 hover:text-blue-600 border-b border-gray-50">CSR Projects</Link>
                             <Link to="/projects?category=Client" onClick={() => setIsProjectsDropdownOpen(false)} className="block px-4 py-3 hover:bg-gray-50 text-gray-700 hover:text-blue-600">Client Projects</Link>
@@ -120,7 +120,7 @@ const Header = () => {
                             </button>
 
                             {/* Dropdown Menu */}
-                            <div className={`absolute right-0 top-full mt-2 w-60 bg-white shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] rounded-2xl border border-gray-100 transition-all duration-300 transform overflow-hidden z-50 ${isProfileDropdownOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-2 group-hover:translate-y-0'}`}>
+                            <div className={`absolute right-0 top-full mt-2 w-60 bg-white shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] rounded-2xl border border-gray-100 transition-all duration-300 transform overflow-hidden z-50 ${isProfileDropdownOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible translate-y-2'}`}>
                                 {/* User Header */}
                                 <div className="px-5 py-4 border-b border-gray-50">
                                     <p className="font-bold text-gray-900 truncate text-sm">{user.name}</p>

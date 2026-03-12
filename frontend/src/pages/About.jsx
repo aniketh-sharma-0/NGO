@@ -166,7 +166,7 @@ const About = () => {
                         </a>
                         {/* Volunteers */}
                         <a href="/volunteer" className="group relative h-80 rounded-3xl overflow-hidden shadow-lg cursor-pointer transform hover:-translate-y-2 transition-all duration-300">
-                            <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&q=80&w=800" alt="Volunteers" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                            <img src="https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&q=80&w=800" alt="Volunteers" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8 text-white">
                                 <h3 className="text-2xl font-bold mb-2 font-heading">Join as Volunteer</h3>
                                 <span className="text-sm font-bold uppercase tracking-wider bg-white/20 backdrop-blur-sm self-start px-3 py-1 rounded-full">Get Involved</span>

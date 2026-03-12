@@ -22,6 +22,7 @@ const VolunteerRegister = () => {
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -36,7 +37,7 @@ const VolunteerRegister = () => {
                 skills: skillsArray
             });
 
-            navigate('/volunteer/dashboard');
+            setSuccess(true);
         } catch (err) {
             setError(err.response?.data?.message || 'Registration failed');
         } finally {
@@ -49,7 +50,7 @@ const VolunteerRegister = () => {
             {/* Hero Section */}
             <section className="relative h-[400px] flex items-center justify-center text-white">
                 <div className="absolute inset-0 overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?q=80&w=2070&auto=format&fit=crop" alt="Volunteer" className="w-full h-full object-cover" />
+                    <img src="https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=2070&auto=format&fit=crop" alt="Volunteer" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-gray-900/70"></div>
                 </div>
                 <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
@@ -99,7 +100,23 @@ const VolunteerRegister = () => {
 
                     {/* Form Side */}
                     <div className="p-12 md:p-16">
-                        <div className="text-center mb-10">
+                        {success ? (
+                            <div className="text-center py-10 h-full flex flex-col justify-center items-center">
+                                <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6 shadow-sm">
+                                    <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <h2 className="text-3xl font-bold text-gray-900 font-heading mb-4">Application Submitted</h2>
+                                <p className="text-gray-600 mb-8 max-w-sm mx-auto">Thank you for registering to volunteer with us. Your application is now <span className="font-bold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded">under review</span> by our NGO team.</p>
+                                <button
+                                    onClick={() => navigate('/volunteer/dashboard')}
+                                    className="px-8 py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-colors shadow-lg"
+                                >
+                                    Go to Dashboard
+                                </button>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="text-center mb-10">
                             <h2 className="text-3xl font-bold text-gray-900 font-heading">Volunteer Registration</h2>
                             <p className="text-gray-500 mt-2">Fill in the details to get started.</p>
                         </div>
@@ -175,6 +192,8 @@ const VolunteerRegister = () => {
                                 {loading ? 'Submitting...' : 'Enroll as Volunteer'}
                             </button>
                         </form>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

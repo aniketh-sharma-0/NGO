@@ -38,7 +38,7 @@ const Contact = () => {
             icon: <FaWhatsapp className="text-4xl text-white" />,
             title: 'WhatsApp',
             action: 'Chat with us',
-            link: 'https://wa.me/919876543210',
+            link: 'https://wa.me/919538026060',
             bg: 'bg-green-500',
             hover: 'hover:bg-green-600',
             text: 'text-green-600'
@@ -46,8 +46,8 @@ const Contact = () => {
         {
             icon: <FaPhoneVolume className="text-3xl text-white" />,
             title: 'Call Us',
-            action: '+91 987 654 3210',
-            link: 'tel:+919876543210',
+            action: '9538026060',
+            link: 'tel:+919538026060',
             bg: 'bg-blue-900',
             hover: 'hover:bg-opacity-90',
             text: 'text-blue-600'
@@ -65,7 +65,7 @@ const Contact = () => {
             icon: <FaComments className="text-4xl text-white" />,
             title: 'SMS',
             action: 'Send a text',
-            link: 'sms:+919876543210',
+            link: 'sms:+919538026060',
             bg: 'bg-yellow-500',
             hover: 'hover:bg-yellow-600',
             text: 'text-yellow-600'
