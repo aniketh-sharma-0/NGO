@@ -12,6 +12,19 @@ dotenv.config();
 
 const app = express();
 
+// Import Routes
+const authRoutes = require('./routes/authRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const contentRoutes = require('./routes/contentRoutes');
+const projectRoutes = require('./routes/projectRoutes');
+const donationRoutes = require('./routes/donationRoutes');
+const volunteerRoutes = require('./routes/volunteerRoutes');
+const blogEventRoutes = require('./routes/blogEventRoutes');
+const contactRoutes = require('./routes/contactRoutes');
+const chatRoutes = require('./routes/chatRoutes');
+const securityRoutes = require('./routes/securityRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+
 // 1. STATICS WITH EXPLICIT HEADERS - Critical for images
 app.use('/uploads', express.static('uploads', {
     setHeaders: (res, path) => {
@@ -42,24 +55,24 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Routes
-app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/admin', require('./routes/adminRoutes'));
-app.use('/api/content', require('./routes/contentRoutes'));
-app.use('/api/projects', require('./routes/projectRoutes'));
-app.use('/api/donations', require('./routes/donationRoutes'));
-app.use('/api/volunteers', require('./routes/volunteerRoutes'));
-app.use('/api/media', require('./routes/blogEventRoutes'));
-app.use('/api/contact', require('./routes/contactRoutes'));
-app.use('/api/chat', require('./routes/chatRoutes'));
-app.use('/api/security', require('./routes/securityRoutes'));
-app.use('/api/notifications', require('./routes/notificationRoutes'));
+app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/content', contentRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/donations', donationRoutes);
+app.use('/api/volunteers', volunteerRoutes);
+app.use('/api/media', blogEventRoutes);
+app.use('/api/contact', contactRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/security', securityRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.get('/api/health', (req, res) => {
     res.send('Server running');
 });
 
 app.get("/", (req, res) => {
-    res.send("Backend is running successfully 🚀");
+    res.send("Backend is running successfully - v1.0.1 🚀");
 });
 
 const startServer = async () => {
