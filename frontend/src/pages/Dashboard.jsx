@@ -12,7 +12,7 @@ const Dashboard = () => {
     const { user } = useAuth();
     const { isEditMode } = useCMS();
     const { unreadCount, fetchUnreadCount } = useUI();
-    const isAdmin = user?.role?.name === 'Admin';
+    const isAdmin = user?.role?.name === 'Admin' || user?.role?.name === 'Super Admin';
     const [activeTab, setActiveTab] = useState('Overview');
     const [loading, setLoading] = useState(false);
 
@@ -91,8 +91,26 @@ const Dashboard = () => {
     useEffect(() => {
         if (isAdmin) {
             fetchData();
+            // Real-time polling for admin data stats and lists
+            const interval = setInterval(() => {
+                fetchData();
+            }, 30000); // Poll every 30 seconds
+            return () => clearInterval(interval);
         }
     }, [isAdmin, activeTab]);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const volunteerId = params.get('volunteerId');
+        if (volunteerId && volunteers.length > 0) {
+            const targetVol = volunteers.find(v => v._id === volunteerId);
+            if (targetVol) {
+                handleViewVolunteerDetails(targetVol);
+                // Clear the param so it doesn't open again on tab switch or refresh
+                window.history.replaceState({}, '', window.location.pathname);
+            }
+        }
+    }, [volunteers]);
 
     const fetchData = async () => {
         setLoading(true);
@@ -102,6 +120,7 @@ const Dashboard = () => {
 
             if (activeTab === 'Volunteers' || fetchAll) {
                 const res = await api.get('/admin/volunteers');
+                console.log("[Admin Dashboard] Volunteers Data Received:", res.data);
                 setVolunteers(res.data);
             }
             if (activeTab === 'Donations' || fetchAll) {
@@ -230,6 +249,20 @@ const Dashboard = () => {
             const res = await api.get(fetchUrl);
             setSelectedVolunteerTasks(res.data);
             setIsVolunteerTasksModalOpen(true);
+
+            // If there are unread notifications for this volunteer's submissions, we could mark them read here.
+            // But usually we do it when they click the notification itself. 
+            // The user wanted: "if the assignment is read the notification should go for the volunteer"
+            // Let's create a notification for the volunteer that admin is reviewing their work.
+            if (vol.pendingSubmissions > 0) {
+                await api.post('/notifications', {
+                    userId: vol.user?._id || vol.user, // The volunteer's user ID
+                    title: 'Work Under Review',
+                    message: 'An administrator is currently reviewing your recent task submissions.',
+                    type: 'Info',
+                    redirectLink: '/volunteer/dashboard'
+                });
+            }
         } catch (error) {
             console.error('Fetch volunteer details error:', error);
             const msg = error.response?.data?.message || error.message || 'Unknown error';
@@ -500,13 +533,13 @@ const Dashboard = () => {
                                             </td>
                                             <td className="p-6 text-right">
                                                 <div className="flex justify-end items-center">
-                                                    {vol.pendingSubmissions > 0 ? (
-                                                        <div className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-full border border-red-100 animate-pulse-subtle shadow-sm">
-                                                            <span className="w-2 h-2 bg-red-500 rounded-full"></span>
-                                                            <span className="text-xs font-extrabold uppercase tracking-widest">{vol.pendingSubmissions} New Submission{vol.pendingSubmissions > 1 ? 's' : ''}</span>
+                                                    {(vol.pendingSubmissions !== undefined && vol.pendingSubmissions > 0) ? (
+                                                        <div className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2.5 rounded-2xl border-2 border-red-100 animate-pulse-subtle shadow-lg ring-2 ring-red-500/10">
+                                                            <span className="w-2.5 h-2.5 bg-red-600 rounded-full shadow-[0_0_8px_rgba(220,38,38,0.5)]"></span>
+                                                            <span className="text-[11px] font-black uppercase tracking-widest">{vol.pendingSubmissions} NEW SUBMISSION{vol.pendingSubmissions > 1 ? 'S' : ''}</span>
                                                         </div>
                                                     ) : (
-                                                        <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest px-3">No New</span>
+                                                        <span className="text-[11px] font-bold text-gray-300 uppercase tracking-widest px-4 py-2 border border-dashed border-gray-100 rounded-xl">No New</span>
                                                     )}
                                                 </div>
                                             </td>

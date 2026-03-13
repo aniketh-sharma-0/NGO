@@ -40,7 +40,8 @@ const Header = () => {
     }, []);
 
     useEffect(() => {
-        if (user && user.role?.name === 'Admin') {
+        const role = user?.role?.name;
+        if (user && (role === 'Admin' || role === 'Super Admin')) {
             fetchUnreadCount();
         }
     }, [user, fetchUnreadCount]);
@@ -139,28 +140,57 @@ const Header = () => {
                                         className="relative p-2 text-gray-500 hover:text-blue-600 transition-colors rounded-full hover:bg-gray-100"
                                     >
                                         <FaBell size={20} />
+                                        {notifUnread > 0 && (
+                                            <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-500 text-white text-[10px] flex items-center justify-center rounded-full border border-white font-bold leading-none">
+                                                {notifUnread > 9 ? '9+' : notifUnread}
+                                            </span>
+                                        )}
                                     </button>
                                     
                                     {/* Notification Dropdown Menu */}
-                                    <div className={`absolute right-0 top-full mt-2 w-80 bg-white shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] rounded-2xl border border-gray-100 transition-all duration-300 transform overflow-hidden z-50 ${isNotificationDropdownOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible translate-y-2'}`}>
-                                        <div className="px-4 py-3 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-                                            <span className="font-bold text-gray-800 text-sm tracking-wide uppercase">Notifications</span>
+                                    <div className={`absolute right-0 top-full mt-2 w-80 bg-white shadow-[0_10px_40px_-20px_rgba(0,0,0,0.2)] rounded-2xl border border-gray-100 transition-all duration-300 transform overflow-hidden z-[100] ${isNotificationDropdownOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible translate-y-2'}`}>
+                                        <div className="px-5 py-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                                            <span className="font-bold text-gray-900 text-xs tracking-wider uppercase">Notifications</span>
+                                            {notifUnread > 0 && (
+                                                <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full uppercase truncate">
+                                                    {notifUnread} New
+                                                </span>
+                                            )}
                                         </div>
-                                        <div className="max-h-[320px] overflow-y-auto">
+                                        <div className="max-h-[360px] overflow-y-auto custom-scrollbar">
                                             {notifications.length > 0 ? (
-                                                notifications.slice(0, 5).map(n => (
-                                                    <div key={n._id} onClick={() => handleNotificationClick(n)} className={`px-4 py-3 border-b border-gray-50 cursor-pointer hover:bg-gray-50 transition-colors ${!n.isRead ? 'bg-blue-50/30' : ''}`}>
+                                                notifications.map(n => (
+                                                    <div 
+                                                        key={n._id} 
+                                                        onClick={() => handleNotificationClick(n)} 
+                                                        className={`px-5 py-4 border-b border-gray-50 cursor-pointer hover:bg-blue-50/30 transition-all relative group/item
+                                                            ${!n.isRead ? 'bg-blue-50/20' : ''}`}
+                                                    >
+                                                        {!n.isRead && (
+                                                            <div className="absolute left-2 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-500 rounded-full opacity-0 group-hover/item:opacity-100 transition-opacity"></div>
+                                                        )}
                                                         <div className="flex justify-between items-start gap-2">
-                                                            <p className={`text-sm leading-tight ${!n.isRead ? 'font-bold text-gray-900' : 'font-medium text-gray-700'}`}>{n.title}</p>
+                                                            <p className={`text-sm leading-tight mb-1 truncate ${!n.isRead ? 'font-bold text-gray-900' : 'font-semibold text-gray-600'}`}>{n.title}</p>
                                                         </div>
-                                                        <p className="text-xs text-gray-500 mt-1 line-clamp-2 leading-snug">{n.message}</p>
-                                                        <p className="text-[10px] text-gray-400 mt-1.5">{new Date(n.createdAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                                                        <p className={`text-xs mt-1 line-clamp-2 leading-relaxed ${!n.isRead ? 'text-gray-700 font-medium' : 'text-gray-500'}`}>{n.message}</p>
+                                                        <div className="flex items-center justify-between mt-3">
+                                                            <span className="text-[10px] text-gray-400 font-medium flex items-center gap-1">
+                                                                <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                                                                {new Date(n.createdAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                                            </span>
+                                                            {!n.isRead && <span className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></span>}
+                                                        </div>
                                                     </div>
                                                 ))
                                             ) : (
-                                                <div className="px-4 py-8 text-center text-gray-500 text-sm flex flex-col items-center gap-2">
-                                                    <FaBell className="text-gray-300 text-2xl" />
-                                                    <p>All caught up!</p>
+                                                <div className="px-5 py-12 text-center text-gray-400 text-sm flex flex-col items-center gap-3">
+                                                    <div className="p-4 bg-gray-50 rounded-full">
+                                                        <FaBell className="text-gray-200 text-3xl" />
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <p className="font-bold text-gray-500">All caught up!</p>
+                                                        <p className="text-xs text-gray-400">No new notifications right now.</p>
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>

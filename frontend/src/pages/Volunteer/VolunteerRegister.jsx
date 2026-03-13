@@ -11,8 +11,12 @@ const VolunteerRegister = () => {
     const navigate = useNavigate();
 
     React.useEffect(() => {
-        if (user && user.role?.name === 'Volunteer') {
-            navigate('/volunteer/dashboard');
+        if (user) {
+            if (user.role?.name === 'Volunteer') {
+                navigate('/volunteer/dashboard');
+            } else if (user.role?.name === 'Admin' || user.role?.name === 'Super Admin') {
+                setError('As an Administrator, you cannot register as a volunteer. You already have access to the Admin Dashboard.');
+            }
         }
     }, [user, navigate]);
 
@@ -181,10 +185,10 @@ const VolunteerRegister = () => {
 
                             <button
                                 type="submit"
-                                disabled={loading}
-                                className="w-full py-4 px-6 mt-4 bg-gray-900 hover:bg-black text-white font-bold rounded-xl shadow-lg transform active:scale-95 transition-all text-lg"
+                                disabled={loading || user?.role?.name === 'Admin'}
+                                className={`w-full py-4 px-6 mt-4 ${user?.role?.name === 'Admin' ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-900 hover:bg-black'} text-white font-bold rounded-xl shadow-lg transform active:scale-95 transition-all text-lg`}
                             >
-                                {loading ? 'Submitting...' : 'Enroll as Volunteer'}
+                                {loading ? 'Submitting...' : user?.role?.name === 'Admin' ? 'Admin Access Only' : 'Enroll as Volunteer'}
                             </button>
                         </form>
                             </>

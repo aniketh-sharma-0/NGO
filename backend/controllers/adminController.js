@@ -113,13 +113,20 @@ const updateProjectStatus = async (req, res) => {
 // @access  Admin
 const getVolunteers = async (req, res) => {
     try {
-        const volunteers = await Volunteer.find().populate('user', 'name email').lean();
+        const volunteers = await Volunteer.find().populate('user', 'name email');
         
         const volunteersWithStats = await Promise.all(volunteers.map(async (vol) => {
-            const allTasks = await VolunteerTask.find({ volunteer: vol._id }).lean();
+            const allTasks = await VolunteerTask.find({ volunteer: vol._id });
             
             const approvedTasks = allTasks.filter(t => ['Approved', 'Completed'].includes(t.status));
-            const pendingSubmissions = allTasks.filter(t => t.status === 'Submitted').length;
+            
+            // Use case-insensitive regex for safety
+            const pendingSubmissions = await VolunteerTask.countDocuments({ 
+                volunteer: vol._id, 
+                status: { $regex: /^submitted$/i } 
+            });
+            
+// console.log(`[Admin Debug] Volunteer: ${vol.user?.name} (ID: ${vol._id}) -> Pending: ${pendingSubmissions}, Statuses found: ${allTasks.map(t => t.status).join(',')}`);
             
             const totalHours = approvedTasks.reduce((sum, task) => {
                 const h = task.assignedHours !== undefined ? task.assignedHours : 1;
@@ -127,7 +134,7 @@ const getVolunteers = async (req, res) => {
             }, 0);
             
             return {
-                ...vol,
+                ...vol.toObject(),
                 totalHours,
                 completedTasks: approvedTasks.length,
                 pendingSubmissions
@@ -142,7 +149,7 @@ const getVolunteers = async (req, res) => {
 
 // @desc    Verify/Approve Volunteer
 // @route   PUT /api/admin/volunteers/:id/verify
-// @access  Admin
+// @access  Admin/Super Admin
 const verifyVolunteer = async (req, res) => {
     const { status } = req.body; // 'Approved', 'Rejected'
 

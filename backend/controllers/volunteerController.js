@@ -11,6 +11,12 @@ const registerVolunteer = async (req, res) => {
     try {
         const { availability, phone, address } = req.body;
 
+        // Check if Admin
+        const roleName = req.user.role?.name;
+        if (roleName === 'Admin' || roleName === 'Super Admin') {
+            return res.status(403).json({ message: 'Administrators cannot register as volunteers. You already have full access.' });
+        }
+
         // Check if already registered
         const existing = await Volunteer.findOne({ user: req.user._id });
         if (existing) {
@@ -123,7 +129,7 @@ const submitTask = async (req, res) => {
                 title: 'Volunteer Task Submitted',
                 message: `${req.user.name} has submitted the task: ${task.title}. Awaiting approval.`,
                 type: 'Task Submission',
-                redirectLink: '/dashboard'
+                redirectLink: `/dashboard?volunteerId=${volunteer._id}`
             });
         }
 
