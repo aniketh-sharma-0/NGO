@@ -39,7 +39,29 @@ app.use(helmet({
     crossOriginResourcePolicy: false,
     contentSecurityPolicy: false,
 }));
-app.use(cors({ origin: [process.env.CLIENT_URL, 'http://localhost:5173', 'http://127.0.0.1:5173'].filter(Boolean) }));
+
+// CORS Configuration
+const allowedOrigins = [
+    process.env.CLIENT_URL,
+    'https://ngo-indol.vercel.app',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173'
+].map(url => url?.replace(/\/$/, '')).filter(Boolean);
+
+console.log('CORS Allowed Origins:', allowedOrigins);
+
+app.use(cors({ 
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            console.log('Blocked by CORS:', origin);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true
+}));
+
 app.use(mongoSanitize());
 app.use(xss());
 
@@ -72,7 +94,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.get("/", (req, res) => {
-    res.send("Backend is running successfully - v1.0.1 🚀");
+    res.send("Backend is running successfully - v1.0.2 🚀");
 });
 
 const startServer = async () => {
