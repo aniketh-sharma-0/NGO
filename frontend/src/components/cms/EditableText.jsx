@@ -45,7 +45,7 @@ const EditableText = ({ contentKey, section, defaultText, className, type = 'tex
 
     if (isEditing) {
         return (
-            <div className="flex gap-2 items-center text-base font-normal z-50">
+            <span className="flex gap-2 items-center text-base font-normal z-50">
                 {type === 'textarea' ? (
                     <textarea
                         className="border border-gray-300 p-2 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-green-500 shadow-sm text-sm text-gray-800"
@@ -63,28 +63,25 @@ const EditableText = ({ contentKey, section, defaultText, className, type = 'tex
                         autoComplete="off"
                     />
                 )}
-                <button onClick={handleSave} className="flex items-center gap-1 bg-green-600 text-white px-3 py-1.5 rounded-md text-sm font-medium hover:bg-green-700 transition-colors shadow-sm whitespace-nowrap">
-                    <FaCheck size={12} /> Save
+                <button 
+                    onClick={handleSave} 
+                    className="flex-shrink-0 w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center hover:bg-green-600 transition-colors shadow-sm"
+                    title="Save"
+                >
+                    <FaCheck size={12} />
                 </button>
-                <button onClick={handleCancel} className="flex items-center gap-1 bg-gray-500 text-white px-3 py-1.5 rounded-md text-sm font-medium hover:bg-gray-600 transition-colors shadow-sm whitespace-nowrap">
-                    <FaTimes size={12} /> Cancel
-                </button>
-            </div>
+            </span>
         );
     }
 
     return (
-        <div className={`relative group ${className}`}>
-            {type === 'textarea' ? <p className="whitespace-pre-wrap">{value}</p> : <span>{value}</span>}
-            {isAdmin && isEditMode && editable && (
-                <button
-                    onClick={() => setIsEditing(true)}
-                    className="absolute -top-4 -right-4 bg-gray-200 text-gray-600 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                    Edit
-                </button>
-            )}
-        </div>
+        <span 
+            className={`relative group inline-block ${isAdmin && isEditMode && editable ? 'cursor-pointer hover:ring-2 hover:ring-blue-100 hover:ring-offset-2 rounded px-1 transition-all' : ''} ${className}`}
+            onClick={() => { if (isAdmin && isEditMode && editable) setIsEditing(true); }}
+            title={isAdmin && isEditMode && editable ? "Click to edit" : ""}
+        >
+            {type === 'textarea' ? <span className="inline whitespace-pre-wrap">{value}</span> : <span>{value}</span>}
+        </span>
     );
 };
 

@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useCMS } from '../../context/CMSContext';
 import api from '../../utils/api';
 
-const EditableImage = ({ contentKey, section, defaultSrc, alt, className, imgClassName = "w-full h-full object-cover", onSave, editable = true, editPosition = "center" }) => {
+const EditableImage = ({ contentKey, section, defaultSrc, alt, className, imgClassName = "w-full h-full object-cover", onSave, editable = true, editPosition = "bottom-right" }) => {
     const { user } = useAuth();
     const { isEditMode } = useCMS();
     const [src, setSrc] = useState(defaultSrc);

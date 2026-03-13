@@ -32,6 +32,7 @@ const SummarySection = () => {
                                 alt="About Our NGO"
                                 className="w-full h-[500px] object-cover"
                                 defaultSrc={content.summary_image || "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?q=80&w=1000&auto=format&fit=crop"}
+                                editPosition="top-right"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none"></div>
                         </div>
@@ -42,8 +43,20 @@ const SummarySection = () => {
                                 <FaSmile />
                             </div>
                             <div>
-                                <div className="text-[10px] md:text-xs font-bold text-gray-500 tracking-wider uppercase">Trusted By</div>
-                                <div className="text-base md:text-lg font-black text-gray-900 whitespace-nowrap">20k+ People</div>
+                                <div className="text-[10px] md:text-xs font-bold text-gray-500 tracking-wider uppercase">
+                                    <EditableText 
+                                        contentKey="summary_trusted_label"
+                                        section="Home"
+                                        defaultText={content.summary_trusted_label || "Trusted By"}
+                                    />
+                                </div>
+                                <div className="text-base md:text-lg font-black text-gray-900 whitespace-nowrap">
+                                    <EditableText 
+                                        contentKey="summary_trusted_count"
+                                        section="Home"
+                                        defaultText={content.summary_trusted_count || "20k+ People"}
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>

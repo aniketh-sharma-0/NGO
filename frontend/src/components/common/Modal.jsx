@@ -42,7 +42,7 @@ const Modal = ({
             ></div>
 
             {/* Modal Content */}
-            <div className={`bg-white rounded-2xl shadow-2xl w-full ${maxWidth} relative z-10 animate-scale-in overflow-hidden flex flex-col max-h-[90vh]`}>
+            <div className={`bg-white rounded-2xl shadow-2xl w-full ${maxWidth} relative z-10 animate-scale-in overflow-hidden flex flex-col max-h-[95vh]`}>
                 {/* Header */}
                 <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-20">
                     <h3 className="text-xl font-bold text-gray-900 font-heading">
@@ -53,8 +53,8 @@ const Modal = ({
                             icon={FaTimes}
                             onClick={onClose}
                             title="Close"
-                            variant="ghost"
-                            className="text-gray-400 hover:text-red-500 bg-transparent shadow-none border-none !min-w-[40px] !min-h-[40px]"
+                            variant="transparent"
+                            className="text-gray-400 hover:text-red-500 !min-w-[40px] !min-h-[40px] !shadow-none"
                         />
                     )}
                 </div>

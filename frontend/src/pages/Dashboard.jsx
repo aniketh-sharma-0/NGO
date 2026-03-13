@@ -225,19 +225,16 @@ const Dashboard = () => {
             return;
         }
         setSelectedVolunteer(vol);
+        const fetchUrl = `/admin/volunteers/tasks/list/${vol._id}`;
         try {
-            const res = await api.get(`/admin/volunteers/${vol._id}/tasks`); // This line fetches data from the backend
-            // The following line is a placeholder from the instruction, which seems to be backend logic.
-            // Assuming the backend endpoint `/admin/volunteers/${vol._id}/tasks` now returns sorted tasks,
-            // we will use `res.data` directly. If the intention was to sort on the frontend,
-            // it would require a different approach.
-            // const tasks = await VolunteerTask.find({ volunteer: volunteer._id }).populate('project', 'title').sort({ createdAt: -1 });
-            setSelectedVolunteerTasks(res.data); // Use res.data from the API call
+            const res = await api.get(fetchUrl);
+            setSelectedVolunteerTasks(res.data);
             setIsVolunteerTasksModalOpen(true);
         } catch (error) {
             console.error('Fetch volunteer details error:', error);
             const msg = error.response?.data?.message || error.message || 'Unknown error';
-            alert(`Failed to fetch volunteer details: ${msg}`);
+            const fullUrl = `${api.defaults.baseURL}${fetchUrl}`;
+            alert(`Failed to fetch volunteer details.\n\nURL: ${fullUrl}\nStatus: ${error.response?.status || 'N/A'}\nError: ${msg}\n\nPlease ensure the backend is correctly deployed.`);
         }
     };
 

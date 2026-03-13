@@ -10,7 +10,7 @@ import SEO from '../components/common/SEO';
 import useBodyScrollLock from '../hooks/useBodyScrollLock';
 import api from '../utils/api';
 
-const ExpandCard = ({ item, type, isAdmin, isEditMode, onEdit, onDelete, isActive, onClick }) => {
+const ExpandCard = ({ item, type, isAdmin, isEditMode, onEdit, onDelete, isActive, onClick, onReadMore }) => {
     return (
         <div
             onClick={onClick}
@@ -84,7 +84,10 @@ const ExpandCard = ({ item, type, isAdmin, isEditMode, onEdit, onDelete, isActiv
                         {item.description || item.content?.substring(0, 150)}...
                     </p>
 
-                    <button className="flex items-center gap-2 text-white font-bold hover:text-primary transition-colors group/btn">
+                    <button 
+                        onClick={(e) => { e.stopPropagation(); onReadMore(item, type); }}
+                        className="flex items-center gap-2 text-white font-bold hover:text-primary transition-colors group/btn"
+                    >
                         Read More <FaArrowRight className={`transform transition-transform group-hover/btn:translate-x-1 ${isActive ? 'translate-x-1' : ''}`} />
                     </button>
                 </div>
@@ -103,6 +106,9 @@ const BlogsEvents = () => {
 
     const [activeEventId, setActiveEventId] = useState(null);
     const [activeBlogId, setActiveBlogId] = useState(null);
+
+    const [viewItem, setViewItem] = useState(null);
+    const [viewType, setViewType] = useState(null); // 'blog' or 'event'
 
     // Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -196,16 +202,40 @@ const BlogsEvents = () => {
     };
 
     const handleSave = async (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
         try {
-            const url = `/media/${modalType}s${editItem ? `/${editItem._id}` : ''}`;
-            const method = editItem ? 'put' : 'post';
-            await api[method](url, formData);
-            setIsModalOpen(false);
-            fetchData();
+            const type = viewItem ? viewType : modalType;
+            const item = viewItem || editItem;
+            const data = viewItem ? { ...viewItem } : formData;
+
+            const url = `/media/${type}s${item ? `/${item._id}` : ''}`;
+            const method = item ? 'put' : 'post';
+            await api[method](url, data);
+            
+            if (viewItem) {
+                // Refresh data but keep modal if needed? Usually better to just refresh.
+                fetchData();
+            } else {
+                setIsModalOpen(false);
+                fetchData();
+            }
         } catch (error) {
             console.error(error);
             alert('Failed to save item.');
+        }
+    };
+
+    const handleDirectUpdate = async (field, value) => {
+        if (!viewItem) return;
+        
+        try {
+            const updatedItem = { ...viewItem, [field]: value };
+            const url = `/media/${viewType}s/${viewItem._id}`;
+            await api.put(url, updatedItem);
+            setViewItem(updatedItem); // Update local state for modal
+            fetchData(); // Update background state
+        } catch (error) {
+            console.error('Failed to update field', error);
         }
     };
 
@@ -223,9 +253,9 @@ const BlogsEvents = () => {
                 <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold mb-4 md:mb-6 animate-fade-in-down leading-tight">
                     <EditableText contentKey="media_title" section="BlogsEvents" defaultText="Stories & Updates" />
                 </h1>
-                <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed px-4">
+                <div className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed px-4">
                     <EditableText contentKey="media_subtitle" section="BlogsEvents" defaultText="Stay connected with our latest activities, upcoming events, and impactful stories." />
-                </p>
+                </div>
             </div>
 
             <div className="container mx-auto px-4 mt-8 relative z-10 space-y-20">
@@ -259,6 +289,10 @@ const BlogsEvents = () => {
                                 onDelete={handleDelete}
                                 isActive={activeEventId === (event._id || idx)}
                                 onClick={() => setActiveEventId(activeEventId === (event._id || idx) ? null : (event._id || idx))}
+                                onReadMore={(item, type) => {
+                                    setViewItem(item);
+                                    setViewType(type);
+                                }}
                             />
                         )) : (
                             <div className="w-full h-full flex items-center justify-center bg-white rounded-2xl shadow-sm text-gray-400">
@@ -296,6 +330,10 @@ const BlogsEvents = () => {
                                 onDelete={handleDelete}
                                 isActive={activeBlogId === (blog._id || idx)}
                                 onClick={() => setActiveBlogId(activeBlogId === (blog._id || idx) ? null : (blog._id || idx))}
+                                onReadMore={(item, type) => {
+                                    setViewItem(item);
+                                    setViewType(type);
+                                }}
                             />
                         )) : (
                             <div className="w-full h-full flex items-center justify-center bg-white rounded-2xl shadow-sm text-gray-400">
@@ -432,6 +470,88 @@ const BlogsEvents = () => {
                         </button>
                     </div>
                 </form>
+            </Modal>
+
+            {/* Read More Detail View Modal */}
+            <Modal
+                isOpen={!!viewItem}
+                onClose={() => setViewItem(null)}
+                title={viewItem?.title || "Detail View"}
+                maxWidth="max-w-4xl"
+            >
+                {viewItem && (
+                    <div className="flex flex-col space-y-6">
+                        {/* Cover Image */}
+                        <div className="w-full h-64 md:h-96 rounded-2xl overflow-hidden shadow-lg border border-gray-100">
+                            <ImageWithFallback 
+                                src={viewType === 'blog' ? (viewItem.coverImage || viewItem.image) : (viewItem.images?.[0] || viewItem.image)}
+                                fallbackSrc={viewType === 'blog' ? 'https://placehold.co/800x600/e2e8f0/1e293b?text=Blog+Image' : 'https://placehold.co/800x600/e2e8f0/1e293b?text=Event+Image'}
+                                alt={viewItem.title}
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+
+                        {/* Content Area */}
+                        <div className="space-y-4 px-2 pt-2">
+                            <div className="flex items-center justify-between">
+                                <div className="bg-primary/10 text-primary text-xs font-bold px-4 py-1.5 rounded-full border border-primary/20">
+                                    {viewType === 'blog' ? 'Blog Post' : 'Event'}
+                                </div>
+                                <div className="text-gray-400 text-sm flex items-center gap-4">
+                                    {viewType === 'event' && (
+                                        <>
+                                            <span className="flex items-center gap-1.5"><FaCalendarAlt className="text-blue-900" /> {new Date(viewItem.date).toLocaleDateString()}</span>
+                                            <span className="flex items-center gap-1.5"><FaMapMarkerAlt className="text-blue-900" /> {viewItem.location}</span>
+                                        </>
+                                    )}
+                                    {viewType === 'blog' && (
+                                        <>
+                                            <span className="flex items-center gap-1.5"><FaUser className="text-emerald-500" /> {viewItem.authorName || 'Admin'}</span>
+                                            <span className="flex items-center gap-1.5"><FaClock className="text-emerald-500" /> 5 min read</span>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+
+                            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight font-heading">
+                                {isAdmin && isEditMode ? (
+                                    <EditableText 
+                                        contentKey="detail_view_title" 
+                                        section="DetailView" 
+                                        defaultText={viewItem.title}
+                                        onSave={(val) => handleDirectUpdate('title', val)}
+                                    />
+                                ) : viewItem.title}
+                            </h2>
+
+                            <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed font-light">
+                                {isAdmin && isEditMode ? (
+                                    <EditableText 
+                                        contentKey="detail_view_content" 
+                                        section="DetailView" 
+                                        type="textarea"
+                                        defaultText={viewType === 'blog' ? viewItem.content : viewItem.description}
+                                        onSave={(val) => handleDirectUpdate(viewType === 'blog' ? 'content' : 'description', val)}
+                                        className="whitespace-pre-wrap min-h-[200px]"
+                                    />
+                                ) : (
+                                    <p className="whitespace-pre-wrap">
+                                        {viewType === 'blog' ? viewItem.content : viewItem.description}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="pt-8 border-t border-gray-100 flex justify-center pb-4">
+                            <button 
+                                onClick={() => setViewItem(null)}
+                                className="px-10 py-4 bg-gray-900 text-white font-bold rounded-2xl hover:bg-black transition-all shadow-xl active:scale-[0.98]"
+                            >
+                                Back to Stories
+                            </button>
+                        </div>
+                    </div>
+                )}
             </Modal>
         </div>
     );

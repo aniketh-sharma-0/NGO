@@ -7,15 +7,25 @@ import EditableText from '../components/cms/EditableText';
 import SelectInput from '../components/common/SelectInput';
 import SEO from '../components/common/SEO';
 
+import { useAuth } from '../context/AuthContext';
+
 const Contact = () => {
+    const { user } = useAuth();
     const [formData, setFormData] = useState({
         name: '',
-        email: '',
+        email: user?.email || '',
         phone: '',
         message: '',
         inquiryType: 'General',
         organization: ''
     });
+
+    React.useEffect(() => {
+        if (user?.email) {
+            setFormData(prev => ({ ...prev, email: user.email }));
+        }
+    }, [user]);
+
     const [status, setStatus] = useState('');
     const [fieldErrors, setFieldErrors] = useState({});
 
@@ -182,7 +192,7 @@ const Contact = () => {
                                     </div>
                                 )}
 
-                                <div className="grid grid-cols-2 gap-8">
+                                <div className={`grid ${user ? 'grid-cols-1' : 'grid-cols-2'} gap-8`}>
                                     <div>
                                         <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Name</label>
                                         <input
@@ -194,17 +204,19 @@ const Contact = () => {
                                         />
                                         {fieldErrors.name && <p className="text-red-500 text-xs font-bold mt-1 pl-1">{fieldErrors.name}</p>}
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Email</label>
-                                        <input
-                                            type="email" name="email"
-                                            value={formData.email} onChange={handleChange}
-                                            className={`w-full bg-gray-50 border ${fieldErrors.email ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200'} text-gray-800 text-lg py-3 px-4 rounded-xl focus:outline-none focus:bg-white focus:border-blue-900 focus:ring-4 focus:ring-blue-100 transition-all`}
-                                            placeholder="email@example.com"
-                                            required
-                                        />
-                                        {fieldErrors.email && <p className="text-red-500 text-xs font-bold mt-1 pl-1">{fieldErrors.email}</p>}
-                                    </div>
+                                    {!user && (
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Email</label>
+                                            <input
+                                                type="email" name="email"
+                                                value={formData.email} onChange={handleChange}
+                                                className={`w-full bg-gray-50 border ${fieldErrors.email ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200'} text-gray-800 text-lg py-3 px-4 rounded-xl focus:outline-none focus:bg-white focus:border-blue-900 focus:ring-4 focus:ring-blue-100 transition-all`}
+                                                placeholder="email@example.com"
+                                                required
+                                            />
+                                            {fieldErrors.email && <p className="text-red-500 text-xs font-bold mt-1 pl-1">{fieldErrors.email}</p>}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className={fieldErrors.phone ? 'ring-2 ring-red-500 rounded-xl' : ''}>

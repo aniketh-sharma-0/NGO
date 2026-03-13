@@ -1,7 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { FaPen, FaSave, FaTimes } from 'react-icons/fa';
-import CMSIconButton from '../common/CMSIconButton';
-import Modal from '../common/Modal';
 import SectionTitle from '../common/SectionTitle';
 import EditableImage from '../cms/EditableImage';
 import EditableText from '../cms/EditableText';
@@ -10,26 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useCMS } from '../../context/CMSContext';
 import api from '../../utils/api';
 
-// Sub-component for individual Field Item to manage its own Edit state
 const FieldItem = ({ field, updateField, isAdmin, isEditMode }) => {
-    const [isEditingTitle, setIsEditingTitle] = useState(false);
-    const [tempTitle, setTempTitle] = useState(field.title);
-
-    const handleEditTitle = () => {
-        setTempTitle(field.title);
-        setIsEditingTitle(true);
-    };
-
-    const handleCancelTitle = () => {
-        setTempTitle(field.title);
-        setIsEditingTitle(false);
-    };
-
-    const handleSaveTitle = () => {
-        if (tempTitle !== field.title) updateField('title', tempTitle);
-        setIsEditingTitle(false);
-    };
-
     return (
         <div
             className="flex-none w-60 md:w-72 lg:w-80 relative group overflow-hidden rounded-xl shadow-lg cursor-pointer"
@@ -50,50 +28,19 @@ const FieldItem = ({ field, updateField, isAdmin, isEditMode }) => {
 
                 <div className="absolute bottom-0 left-0 w-full p-4 md:p-6 z-10">
                     <h3 className="text-lg md:text-xl font-bold text-white mb-2">
-                        <span>{field.title}</span>
+                        {isAdmin && isEditMode ? (
+                            <textarea
+                                value={field.title}
+                                onChange={(e) => updateField('title', e.target.value)}
+                                className="w-full bg-black/20 hover:bg-black/40 focus:bg-black/60 text-white rounded px-2 py-1 outline-none border border-white/20 focus:border-white transition-all resize-none overflow-hidden"
+                                rows={1}
+                            />
+                        ) : (
+                            <span>{field.title}</span>
+                        )}
                     </h3>
-
-                    {/* Title Edit Trigger */}
-                    {isAdmin && isEditMode && (
-                        <CMSIconButton 
-                            icon={FaPen}
-                            onClick={handleEditTitle}
-                            title="Edit Title"
-                            variant="ghost"
-                            className="absolute top-2 right-2"
-                        />
-                    )}
                 </div>
             </div>
-
-            {/* Stable Title Edit Modal - Rendered via Portal */}
-            <Modal
-                isOpen={isEditingTitle}
-                onClose={handleCancelTitle}
-                title="Edit Field Title"
-                maxWidth="max-w-sm"
-            >
-                <div className="space-y-4">
-                    <div>
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">Category Title</label>
-                        <input
-                            value={tempTitle}
-                            onChange={(e) => setTempTitle(e.target.value)}
-                            className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all font-bold"
-                            placeholder="e.g. Education"
-                            autoFocus
-                        />
-                    </div>
-                    <div className="flex gap-2">
-                        <button onClick={handleSaveTitle} className="flex-1 bg-gray-900 text-white py-3 rounded-xl flex items-center justify-center gap-2 font-bold hover:bg-black transition-all">
-                            <FaSave size={14} /> Save
-                        </button>
-                        <button onClick={handleCancelTitle} className="bg-gray-100 text-gray-400 px-4 py-3 rounded-xl font-bold hover:bg-gray-200 transition-all">
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-            </Modal>
         </div>
     );
 };
@@ -143,7 +90,7 @@ const FieldsOfWork = () => {
                         defaultText={homeContent.fields_title_prefix || "Our Fields"}
                         className="inline-block"
                     />
-                    <span className="ml-3 inline-block">
+                    <span className="ml-2 sm:ml-3 inline-block">
                         <EditableText
                             contentKey="fields_title_suffix"
                             section="Home"

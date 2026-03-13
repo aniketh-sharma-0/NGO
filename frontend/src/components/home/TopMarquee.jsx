@@ -32,7 +32,12 @@ const TopMarquee = () => {
             {/* Scrolling Left Section */}
             <div className="flex-1 overflow-hidden relative h-full flex items-center mask-image-gradient">
                 <div className="animate-marquee whitespace-nowrap flex items-center gap-4 md:gap-8 text-xs md:text-sm lg:text-base font-medium tracking-wide">
-                    <span>Yaswanth Rural Development Society</span>
+                    <EditableText
+                        contentKey="ngo_name_marquee"
+                        section="Header"
+                        defaultText="Yaswanth Rural Development Society"
+                        className="font-bold"
+                    />
                     <span>•</span>
                     <EditableText
                         contentKey="top_marquee_text"

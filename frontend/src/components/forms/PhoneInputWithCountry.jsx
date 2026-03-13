@@ -11,27 +11,40 @@ const countryCodes = [
 ];
 
 const PhoneInputWithCountry = ({ value = '', onChange, className = '', required = false }) => {
-    // Initialize parsed states based on incoming value
-    const initialMatchedCountry = countryCodes.find(c => value && value.startsWith(c.code)) || countryCodes[0];
-    const initialCode = initialMatchedCountry.code;
-    const initialNumber = value ? value.replace(new RegExp(`^\\${initialCode}\\s?`), '') : '';
+    // Initialize parsed states safely
+    const getSafeInitialData = (val) => {
+        const safeVal = typeof val === 'string' ? val : '';
+        const initialMatchedCountry = countryCodes.find(c => safeVal && safeVal.startsWith(c.code)) || countryCodes[0];
+        const initialCode = initialMatchedCountry.code;
+        const initialNumber = safeVal ? safeVal.replace(new RegExp(`^\\${initialCode}\\s?`), '') : '';
+        return { initialCode, initialNumber };
+    };
 
-    const [selectedCode, setSelectedCode] = useState(initialCode);
-    const [phoneNumber, setPhoneNumber] = useState(initialNumber);
+    const data = getSafeInitialData(value);
+    const [selectedCode, setSelectedCode] = useState(data.initialCode);
+    const [phoneNumber, setPhoneNumber] = useState(data.initialNumber);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    // Sync state if value prop changes from outside (e.g. form reset or parent update)
+    useEffect(() => {
+        const newData = getSafeInitialData(value);
+        setSelectedCode(newData.initialCode);
+        setPhoneNumber(newData.initialNumber);
+    }, [value]);
 
     const activeCountry = countryCodes.find(c => c.code === selectedCode) || countryCodes[0];
 
     const handleSelect = (code) => {
         setSelectedCode(code);
         setDropdownOpen(false);
-        onChange({ target: { name: 'phone', value: `${code} ${phoneNumber}` } });
+        const currentNum = phoneNumber || '';
+        onChange({ target: { name: 'phone', value: `${code} ${currentNum}`.trim() } });
     };
 
     const handleNumberChange = (e) => {
-        const val = e.target.value.replace(/\D/g, ''); // Allow only numbers
+        const val = (e.target.value || '').replace(/\D/g, ''); // Allow only numbers
         setPhoneNumber(val);
-        onChange({ target: { name: 'phone', value: `${selectedCode} ${val}` } });
+        onChange({ target: { name: 'phone', value: `${selectedCode} ${val}`.trim() } });
     };
 
     return (
@@ -74,7 +87,7 @@ const PhoneInputWithCountry = ({ value = '', onChange, className = '', required 
                 pattern={activeCountry.pattern}
                 maxLength={activeCountry.maxLength}
                 title={`Valid Format: ${activeCountry.maxLength} digits expected (${activeCountry.placeholder})`}
-                className="flex-1 w-full bg-transparent p-3 outline-none text-gray-900 placeholder-gray-400 font-bold text-base"
+                className="flex-1 w-full bg-transparent p-3 outline-none text-gray-900 placeholder-gray-300 font-bold text-base"
             />
             {/* Backdrop for closing dropdown */}
             {dropdownOpen && (

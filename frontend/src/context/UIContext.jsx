@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import api from '../utils/api';
 
 const UIContext = createContext();
@@ -19,12 +19,17 @@ export const UIProvider = ({ children }) => {
                 }
             }
         } catch (error) {
-            // Silence 401s as they are handled by the API interceptor
             if (error.response?.status !== 401) {
                 console.warn("Failed to fetch unread count", error.message);
             }
         }
     }, []);
+
+    useEffect(() => {
+        fetchUnreadCount();
+        const interval = setInterval(fetchUnreadCount, 15000); // Poll every 15 seconds
+        return () => clearInterval(interval);
+    }, [fetchUnreadCount]);
 
     return (
         <UIContext.Provider value={{

@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { FaPen, FaSave, FaTimes, FaPlus } from 'react-icons/fa';
-import CMSIconButton from '../common/CMSIconButton';
-import Modal from '../common/Modal';
+import { FaPlus } from 'react-icons/fa';
 import SectionTitle from '../common/SectionTitle';
-import ImageWithFallback from '../common/ImageWithFallback';
 import EditableText from '../cms/EditableText';
 import EditableImage from '../cms/EditableImage';
 import DynamicList from '../cms/DynamicList';
@@ -13,156 +10,40 @@ import api from '../../utils/api';
 
 
 const MemberItem = ({ member, updateMember, isAdmin, isEditMode }) => {
-    const [isEditing, setIsEditing] = useState(false);
-    const [tempName, setTempName] = useState(member.name);
-    const [tempRole, setTempRole] = useState(member.role);
-    const [tempImage, setTempImage] = useState(member.image);
-
-    const handleEdit = () => {
-        setTempName(member.name);
-        setTempRole(member.role);
-        setTempImage(member.image);
-        setIsEditing(true);
-    };
-
-    const handleCancel = () => {
-        setTempName(member.name);
-        setTempRole(member.role);
-        setTempImage(member.image);
-        setIsEditing(false);
-    };
-
-    const handleSave = () => {
-        const updates = {};
-        if (tempName !== member.name) updates.name = tempName;
-        if (tempRole !== member.role) updates.role = tempRole;
-        if (tempImage !== member.image) updates.image = tempImage;
-
-        if (Object.keys(updates).length > 0) {
-            updateMember(updates);
-        }
-        setIsEditing(false);
-    };
-
     return (
         <div
             className="flex-none w-64 bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100 group relative"
         >
             <div className="h-64 w-full relative overflow-hidden bg-gray-200">
-                <ImageWithFallback
-                    src={member.image}
+                <EditableImage
+                    defaultSrc={member.image}
                     alt={member.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="w-full h-full absolute inset-0"
+                    imgClassName="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    onSave={(newSrc) => updateMember({ image: newSrc })}
+                    editable={isAdmin && isEditMode}
+                    editPosition="bottom-right"
                 />
-
-                {/* Edit Trigger Button - Always stable in the container */}
-                {isAdmin && isEditMode && (
-                    <CMSIconButton 
-                        icon={FaPen}
-                        onClick={handleEdit}
-                        title="Edit Member"
-                        className="absolute bottom-2 right-2"
-                    />
-                )}
             </div>
 
             <div className="p-4 text-center">
                 <h5 className="font-bold text-lg text-gray-800">
-                    <span>{member.name}</span>
+                    <EditableText
+                        defaultText={member.name}
+                        onSave={(val) => updateMember({ name: val })}
+                        editable={isAdmin && isEditMode}
+                        className="w-full inline-block"
+                    />
                 </h5>
                 <p className="text-blue-600 text-sm font-medium mt-1">
-                    <span>{member.role}</span>
+                    <EditableText
+                        defaultText={member.role}
+                        onSave={(val) => updateMember({ role: val })}
+                        editable={isAdmin && isEditMode}
+                        className="w-full inline-block"
+                    />
                 </p>
             </div>
-
-            {/* Stable Member Edit Modal - Rendered via Portal */}
-            <Modal
-                isOpen={isEditing}
-                onClose={handleCancel}
-                title="Edit Team Member"
-                maxWidth="max-w-md"
-            >
-                <div className="space-y-6">
-                    {/* Profile Preview */}
-                    <div className="flex justify-center">
-                        <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-50 shadow-xl">
-                            <img src={tempImage} alt="Preview" className="w-full h-full object-cover" />
-                        </div>
-                    </div>
-
-                    <div className="space-y-4">
-                        <div>
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5 block">Full Name</label>
-                            <input
-                                value={tempName}
-                                onChange={(e) => setTempName(e.target.value)}
-                                className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all font-medium"
-                                placeholder="Member Name"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5 block">Designation / Role</label>
-                            <input
-                                value={tempRole}
-                                onChange={(e) => setTempRole(e.target.value)}
-                                className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all font-medium text-blue-600"
-                                placeholder="e.g. Field Coordinator"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5 block">Profile Photo URL</label>
-                            <div className="flex gap-2">
-                                <input
-                                    value={tempImage}
-                                    onChange={(e) => setTempImage(e.target.value)}
-                                    className="flex-1 bg-gray-50 border border-gray-100 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all text-xs"
-                                    placeholder="https://images.unsplash.com/..."
-                                />
-                                <label className="bg-gray-900 text-white w-12 h-12 rounded-xl flex items-center justify-center cursor-pointer hover:bg-black transition-colors flex-shrink-0" title="Upload Image">
-                                    <FaPlus size={14} />
-                                    <input
-                                        type="file"
-                                        className="hidden"
-                                        accept="image/*"
-                                        onChange={async (e) => {
-                                            const file = e.target.files[0];
-                                            if (!file) return;
-
-                                            if (file.size > 5 * 1024 * 1024) {
-                                                alert('File size too large (Max 5MB)');
-                                                return;
-                                            }
-
-                                            const formData = new FormData();
-                                            formData.append('image', file);
-                                            try {
-                                                const res = await api.post('/admin/upload', formData, {
-                                                    headers: { 'Content-Type': 'multipart/form-data' }
-                                                });
-                                                setTempImage(res.data.filePath);
-                                            } catch (err) {
-                                                console.error(err);
-                                                alert('Upload Failed');
-                                            }
-                                        }}
-                                    />
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex gap-3 pt-2">
-                        <button onClick={handleSave} className="flex-1 bg-green-600 text-white py-3.5 rounded-2xl flex justify-center items-center gap-2 hover:bg-green-700 font-bold active:scale-95 transition-all shadow-lg shadow-green-200">
-                            <FaSave /> Save Changes
-                        </button>
-                        <button onClick={handleCancel} className="bg-gray-100 text-gray-600 px-6 py-3.5 rounded-2xl flex justify-center items-center gap-2 hover:bg-gray-200 font-bold active:scale-95 transition-all">
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-            </Modal>
         </div>
     );
 };

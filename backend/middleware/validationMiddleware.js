@@ -21,7 +21,13 @@ const registerValidationRules = () => {
             .trim()
             .notEmpty().withMessage('Email is required')
             .isEmail().withMessage('Please provide a valid email')
-            .normalizeEmail(),
+            .normalizeEmail()
+            .custom((value) => {
+                const domain = value.split('@')[1]?.toLowerCase();
+                const typos = { 'gmial.com': 'gmail.com', 'gmal.com': 'gmail.com', 'gmaill.com': 'gmail.com', 'gnail.com': 'gmail.com', 'yaho.com': 'yahoo.com', 'hotmial.com': 'hotmail.com', 'outlok.com': 'outlook.com' };
+                if (typos[domain]) throw new Error(`Did you mean ${typos[domain]}? (Typo in "${domain}")`);
+                return true;
+            }),
         check('password')
             .notEmpty().withMessage('Password is required')
             .isLength({ min: 8 }).withMessage('Password must be at least 8 characters long')
@@ -39,7 +45,13 @@ const loginValidationRules = () => {
             .trim()
             .notEmpty().withMessage('Email is required')
             .isEmail().withMessage('Please provide a valid email')
-            .normalizeEmail(),
+            .normalizeEmail()
+            .custom((value) => {
+                const domain = value.split('@')[1]?.toLowerCase();
+                const typos = { 'gmial.com': 'gmail.com', 'gmal.com': 'gmail.com', 'gmaill.com': 'gmail.com', 'gnail.com': 'gmail.com', 'yaho.com': 'yahoo.com', 'hotmial.com': 'hotmail.com', 'outlok.com': 'outlook.com' };
+                if (typos[domain]) throw new Error(`Did you mean ${typos[domain]}? (Typo in "${domain}")`);
+                return true;
+            }),
         check('password')
             .notEmpty().withMessage('Password is required')
     ];
@@ -57,7 +69,13 @@ const contactValidationRules = () => {
             .trim()
             .notEmpty().withMessage('Email is required')
             .isEmail().withMessage('Please provide a valid email')
-            .normalizeEmail(),
+            .normalizeEmail()
+            .custom((value) => {
+                const domain = value.split('@')[1]?.toLowerCase();
+                const typos = { 'gmial.com': 'gmail.com', 'gmal.com': 'gmail.com', 'gmaill.com': 'gmail.com', 'gnail.com': 'gmail.com', 'yaho.com': 'yahoo.com', 'hotmial.com': 'hotmail.com', 'outlok.com': 'outlook.com' };
+                if (typos[domain]) throw new Error(`Did you mean ${typos[domain]}? (Typo in "${domain}")`);
+                return true;
+            }),
         check('message')
             .trim()
             .notEmpty().withMessage('Message is required')
@@ -87,7 +105,13 @@ const donationValidationRules = () => {
             .trim()
             .notEmpty().withMessage('Email is required')
             .isEmail().withMessage('Please provide a valid email')
-            .normalizeEmail(),
+            .normalizeEmail()
+            .custom((value) => {
+                const domain = value.split('@')[1]?.toLowerCase();
+                const typos = { 'gmial.com': 'gmail.com', 'gmal.com': 'gmail.com', 'gmaill.com': 'gmail.com', 'gnail.com': 'gmail.com', 'yaho.com': 'yahoo.com', 'hotmial.com': 'hotmail.com', 'outlok.com': 'outlook.com' };
+                if (typos[domain]) throw new Error(`Did you mean ${typos[domain]}? (Typo in "${domain}")`);
+                return true;
+            }),
         check('category')
             .trim()
             .notEmpty().withMessage('Category is required')

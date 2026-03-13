@@ -9,7 +9,8 @@ const {
     getVolunteers,
     verifyVolunteer,
     assignTask,
-    getVolunteerTasks
+    getVolunteerTasks,
+    updateTaskStatus
 } = require('../controllers/adminController');
 const { protect } = require('../middleware/authMiddleware');
 const { checkRole } = require('../middleware/roleMiddleware'); // Admin check
@@ -32,6 +33,7 @@ router.put('/projects/:id/status', updateProjectStatus);
 router.get('/volunteers', getVolunteers);
 router.put('/volunteers/:id/verify', verifyVolunteer);
 router.post('/volunteers/:id/assign', assignTask);
-router.get('/volunteers/:id/tasks', getVolunteerTasks);
+router.get('/volunteers/tasks/list/:id', getVolunteerTasks);
+router.put('/volunteers/tasks/:taskId/status', updateTaskStatus);
 
 module.exports = router;

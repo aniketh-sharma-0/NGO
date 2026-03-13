@@ -6,18 +6,31 @@ import PhoneInputWithCountry from '../components/forms/PhoneInputWithCountry';
 import Modal from '../components/common/Modal';
 import SEO from '../components/common/SEO';
 import useBodyScrollLock from '../hooks/useBodyScrollLock';
+import { useAuth } from '../context/AuthContext';
 
 const Donate = () => {
+    const { user } = useAuth();
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [formData, setFormData] = useState({
-        name: '',
+        name: user?.name || '',
         organization: '',
-        email: '',
+        email: user?.email || '',
         phone: '',
         address: '',
         pan: '',
         message: ''
     });
+
+    React.useEffect(() => {
+        if (user) {
+            setFormData(prev => ({ 
+                ...prev, 
+                name: prev.name || user.name || '',
+                email: user.email || '' 
+            }));
+        }
+    }, [user]);
+
     const [status, setStatus] = useState('');
 
     useBodyScrollLock(!!selectedCategory);
@@ -96,9 +109,9 @@ const Donate = () => {
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 mb-4 font-heading leading-tight">
                         <EditableText contentKey="donate_title" section="Donate" defaultText="Make a Difference" />
                     </h1>
-                    <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed px-4">
+                    <div className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed px-4">
                         <EditableText contentKey="donate_subtitle" section="Donate" defaultText="Your support enables us to continue our mission of empowering communities." />
-                    </p>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto z-10 relative">
@@ -152,7 +165,7 @@ const Donate = () => {
                             </div>
                             
                             <form onSubmit={handleSubmit} className="space-y-4">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className={`grid grid-cols-1 ${user ? '' : 'sm:grid-cols-2'} gap-4`}>
                                     <div className="space-y-1.5">
                                         <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Full Name</label>
                                         <input
@@ -164,25 +177,27 @@ const Donate = () => {
                                             required
                                         />
                                     </div>
-                                    <div className="space-y-1.5">
-                                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Email Address</label>
-                                        <input
-                                            type="email"
-                                            name="email"
-                                            value={formData.email}
-                                            onChange={handleInputChange}
-                                            className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all font-medium"
-                                            placeholder="you@example.com"
-                                            required
-                                        />
-                                    </div>
+                                    {!user && (
+                                        <div className="space-y-1.5">
+                                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Email Address</label>
+                                            <input
+                                                type="email"
+                                                name="email"
+                                                value={formData.email}
+                                                onChange={handleInputChange}
+                                                className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all font-medium"
+                                                placeholder="you@example.com"
+                                                required
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-1.5 flex flex-col">
                                         <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Phone Number</label>
                                         <PhoneInputWithCountry
                                             value={formData.phone}
-                                            onChange={(val) => setFormData({ ...formData, phone: val })}
+                                            onChange={handleInputChange}
                                             className="w-full"
                                         />
                                     </div>

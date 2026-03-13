@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import EditableText from '../components/cms/EditableText';
 import DynamicList from '../components/cms/DynamicList';
 import EditableImage from '../components/cms/EditableImage';
-import { FaRocket, FaBullseye } from 'react-icons/fa';
+import { FaRocket, FaBullseye, FaSearchPlus } from 'react-icons/fa';
+import Modal from '../components/common/Modal';
 import SEO from '../components/common/SEO';
 
 const About = () => {
+    const [selectedDoc, setSelectedDoc] = useState(null);
     // Default compliance documents
     const defaultDocs = [
         { id: 1, title: 'Registration Certificate', image: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400&h=560' }, // Certificate like
@@ -69,7 +71,10 @@ const About = () => {
                         className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6"
                         newItemTemplate={{ title: 'New Document', image: 'https://via.placeholder.com/200x280' }}
                         renderItem={(doc, updateDoc) => (
-                            <div className="bg-white p-4 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 flex flex-col items-center group transform hover:-translate-y-1">
+                            <div 
+                                className="bg-white p-4 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 flex flex-col items-center group transform hover:-translate-y-1 cursor-pointer"
+                                onClick={() => setSelectedDoc(doc)}
+                            >
                                 <div className="w-full aspect-[3/4] bg-gray-50 rounded-xl overflow-hidden relative mb-4 border border-gray-100">
                                     <EditableImage
                                         contentKey="temp_key"
@@ -79,8 +84,12 @@ const About = () => {
                                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                         onSave={(newSrc) => updateDoc('image', newSrc)}
                                     />
+                                    {/* Hover Overlay */}
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                                        <FaSearchPlus className="text-white text-3xl" />
+                                    </div>
                                 </div>
-                                <h3 className="font-semibold text-gray-700 text-center w-full text-sm font-heading">
+                                <h3 className="font-semibold text-gray-700 text-center w-full text-sm font-heading" onClick={(e) => e.stopPropagation()}>
                                     <textarea
                                         value={doc.title}
                                         onChange={(e) => updateDoc('title', e.target.value)}
@@ -92,6 +101,30 @@ const About = () => {
                             </div>
                         )}
                     />
+
+                    {/* Document Viewer Modal */}
+                    <Modal
+                        isOpen={!!selectedDoc}
+                        onClose={() => setSelectedDoc(null)}
+                        title={selectedDoc?.title || "Document Viewer"}
+                        maxWidth="max-w-4xl"
+                    >
+                        <div className="flex flex-col items-center">
+                            <img 
+                                src={selectedDoc?.image} 
+                                alt={selectedDoc?.title} 
+                                className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-2xl"
+                            />
+                            <div className="mt-6 flex justify-center">
+                                <button 
+                                    onClick={() => setSelectedDoc(null)}
+                                    className="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-black transition-all"
+                                >
+                                    Close Viewer
+                                </button>
+                            </div>
+                        </div>
+                    </Modal>
                 </div>
             </section>
 
