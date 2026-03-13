@@ -463,19 +463,23 @@ const Dashboard = () => {
                                         <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
                                         <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Stats</th>
                                         <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                                        <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
+                                        <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Notifications</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
                                     {volunteers.map(vol => (
-                                        <tr key={vol._id} className="hover:bg-blue-50/30 transition-colors group">
+                                        <tr 
+                                            key={vol._id} 
+                                            className="hover:bg-blue-50/50 transition-all cursor-pointer group active:bg-blue-100/30"
+                                            onClick={() => handleViewVolunteerDetails(vol)}
+                                        >
                                             <td className="p-6 font-bold text-gray-900">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-600">
-                                                        {vol.user?.name ? vol.user.name.charAt(0) : '?'}
+                                                    <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                                        {vol.user?.name ? vol.user.name.charAt(0).toUpperCase() : '?'}
                                                     </div>
                                                     <div>
-                                                        <p>{vol.user?.name || 'Unknown'}</p>
+                                                        <p className="group-hover:text-blue-700 transition-colors">{vol.user?.name || 'Unknown'}</p>
                                                         <p className="text-xs text-gray-400 font-normal">{vol.user?.email}</p>
                                                     </div>
                                                 </div>
@@ -487,18 +491,23 @@ const Dashboard = () => {
                                                 </div>
                                             </td>
                                             <td className="p-6">
-                                                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide
+                                                <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider
                                                     ${vol.status === 'Approved' ? 'bg-green-100 text-green-700' :
                                                         vol.status === 'Rejected' ? 'bg-red-100 text-red-700' :
-                                                            'bg-yellow-100 text-yellow-700'} w-max block`}>
+                                                            'bg-yellow-100 text-yellow-700'} w-max block shadow-sm border border-black/5`}>
                                                     {vol.status}
                                                 </span>
                                             </td>
                                             <td className="p-6 text-right">
-                                                <div className="flex justify-end gap-2">
-                                                    <button onClick={() => handleViewVolunteerDetails(vol)} className="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-100 text-xs font-bold shadow-sm transition-all border border-blue-100">
-                                                        View Details
-                                                    </button>
+                                                <div className="flex justify-end items-center">
+                                                    {vol.pendingSubmissions > 0 ? (
+                                                        <div className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-full border border-red-100 animate-pulse-subtle shadow-sm">
+                                                            <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                                                            <span className="text-xs font-extrabold uppercase tracking-widest">{vol.pendingSubmissions} New Submission{vol.pendingSubmissions > 1 ? 's' : ''}</span>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest px-3">No New</span>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>

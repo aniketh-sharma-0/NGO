@@ -116,13 +116,12 @@ const getVolunteers = async (req, res) => {
         const volunteers = await Volunteer.find().populate('user', 'name email').lean();
         
         const volunteersWithStats = await Promise.all(volunteers.map(async (vol) => {
-            const tasks = await VolunteerTask.find({ 
-                volunteer: vol._id, 
-                status: { $in: ['Approved', 'Completed'] }
-            }).lean();
+            const allTasks = await VolunteerTask.find({ volunteer: vol._id }).lean();
             
-            const totalHours = tasks.reduce((sum, task) => {
-                // Use assignedHours with a fallback to 1 if missing for backwards compatibility
+            const approvedTasks = allTasks.filter(t => ['Approved', 'Completed'].includes(t.status));
+            const pendingSubmissions = allTasks.filter(t => t.status === 'Submitted').length;
+            
+            const totalHours = approvedTasks.reduce((sum, task) => {
                 const h = task.assignedHours !== undefined ? task.assignedHours : 1;
                 return sum + (Number(h) || 0);
             }, 0);
@@ -130,7 +129,8 @@ const getVolunteers = async (req, res) => {
             return {
                 ...vol,
                 totalHours,
-                completedTasks: tasks.length
+                completedTasks: approvedTasks.length,
+                pendingSubmissions
             };
         }));
 

@@ -95,7 +95,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.get("/", (req, res) => {
-    res.send("Backend is running successfully - v1.0.3 🚀");
+    res.send("Backend is running successfully - v1.0.4 🚀");
 });
 
 const startServer = async () => {
