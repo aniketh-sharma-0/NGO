@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import api from '../utils/api';
 import { useAuth } from './AuthContext';
+import { useToast } from './ToastContext';
 
 const NotificationContext = createContext();
 
@@ -10,26 +11,48 @@ export const NotificationProvider = ({ children }) => {
     const { user } = useAuth();
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
+    const knownNotifIds = React.useRef(new Set());
+    const { showToast } = useToast();
 
-    const fetchNotifications = useCallback(async () => {
+    const fetchNotifications = useCallback(async (isInitial = false) => {
         if (!user) return;
         try {
             const res = await api.get('/notifications');
-            setNotifications(res.data);
-            setUnreadCount(res.data.filter(n => !n.isRead).length);
+            const data = res.data;
+            
+            setNotifications(data);
+            setUnreadCount(data.filter(n => !n.isRead).length);
+
+            // Toast Logic for new unread notifications
+            if (!isInitial) {
+                data.forEach(n => {
+                    if (!n.isRead && !knownNotifIds.current.has(n._id)) {
+                        showToast(
+                            n.title || 'New Notification',
+                            n.message,
+                            'info',
+                            n.redirectLink || '/dashboard'
+                        );
+                    }
+                });
+            }
+
+            // Update known IDs
+            data.forEach(n => knownNotifIds.current.add(n._id));
         } catch (error) {
             console.error('Failed to fetch notifications:', error);
         }
-    }, [user]);
+    }, [user, showToast]);
 
     useEffect(() => {
         if (user) {
-            fetchNotifications();
-            const interval = setInterval(fetchNotifications, 15000); // Polling every 15 seconds
+            fetchNotifications(true); // Initial fetch
+            const interval = setInterval(() => fetchNotifications(false), 15000);
             return () => clearInterval(interval);
         } else {
             setNotifications([]);
             setUnreadCount(0);
+            knownNotifIds.current.clear();
         }
     }, [user, fetchNotifications]);
 

@@ -5,6 +5,7 @@ import { AuthProvider } from './context/AuthContext';
 import { CMSProvider } from './context/CMSContext';
 import { UIProvider } from './context/UIContext';
 import { NotificationProvider } from './context/NotificationContext';
+import { ToastProvider } from './context/ToastContext';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import PrivateRoute from './utils/PrivateRoute';
@@ -58,7 +59,8 @@ function App() {
   return (
     <HelmetProvider>
       <AuthProvider>
-        <NotificationProvider>
+        <ToastProvider>
+          <NotificationProvider>
           <CMSProvider>
             <UIProvider>
               <Router>
@@ -97,6 +99,7 @@ function App() {
           </UIProvider>
         </CMSProvider>
         </NotificationProvider>
+        </ToastProvider>
       </AuthProvider>
     </HelmetProvider>
   );

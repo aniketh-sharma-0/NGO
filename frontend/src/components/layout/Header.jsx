@@ -177,8 +177,11 @@ const Header = () => {
                                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                                 className="flex items-center gap-3 pl-1 pr-3 py-1.5 rounded-full hover:bg-blue-50 transition-all group-hover:bg-blue-50/50 border border-transparent hover:border-blue-100"
                             >
-                                <div className="w-9 h-9 rounded-full bg-[#1e3a8a] text-white flex items-center justify-center font-bold text-sm shadow-sm font-heading">
+                                <div className="w-9 h-9 rounded-full bg-[#1e3a8a] text-white flex items-center justify-center font-bold text-sm shadow-sm font-heading relative">
                                     {user.name ? user.name.charAt(0).toUpperCase() : <FaUserCircle />}
+                                    {notifUnread > 0 && (
+                                        <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-red-500 border-2 border-white rounded-full shadow-sm"></span>
+                                    )}
                                 </div>
                                 <div className="flex flex-col items-start px-1 text-left">
                                     <span className="max-w-[100px] truncate font-bold text-gray-800 text-sm leading-tight font-sans group-hover:text-blue-900 transition-colors">{user.name}</span>
@@ -205,7 +208,14 @@ const Header = () => {
                                             <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center group-hover/item:bg-blue-600 group-hover/item:text-white transition-colors relative">
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                                             </div>
-                                            <span className="font-bold text-sm">Dashboard</span>
+                                            <div className="flex-1 flex justify-between items-center">
+                                                <span className="font-bold text-sm">Dashboard</span>
+                                                {notifUnread > 0 && (
+                                                    <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center shadow-sm">
+                                                        {notifUnread > 9 ? '9+' : notifUnread}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </Link>
                                     )}
                                     {user.role?.name === 'Volunteer' && (
@@ -217,7 +227,14 @@ const Header = () => {
                                             <div className="w-8 h-8 rounded-full bg-green-50 text-green-600 flex items-center justify-center group-hover/item:bg-green-600 group-hover/item:text-white transition-colors">
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                                             </div>
-                                            <span className="font-bold text-sm">Volunteer Hub</span>
+                                            <div className="flex-1 flex justify-between items-center">
+                                                <span className="font-bold text-sm">Volunteer Hub</span>
+                                                {notifUnread > 0 && (
+                                                    <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center shadow-sm">
+                                                        {notifUnread > 9 ? '9+' : notifUnread}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </Link>
                                     )}
 
