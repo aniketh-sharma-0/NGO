@@ -1,11 +1,11 @@
-import { FaUsers, FaTasks, FaHandHoldingHeart, FaCheck, FaTimes, FaPlus, FaSearch, FaTrash, FaEdit, FaInbox, FaEnvelope } from 'react-icons/fa';
+import { FaUsers, FaTasks, FaHandHoldingHeart, FaCheck, FaTimes, FaPlus, FaSearch, FaTrash, FaEdit, FaInbox, FaEnvelope, FaArrowRight } from 'react-icons/fa';
 import CMSIconButton from '../components/common/CMSIconButton';
 import Modal from '../components/common/Modal';
 import useBodyScrollLock from '../hooks/useBodyScrollLock';
 import { useAuth } from '../context/AuthContext';
 import { useCMS } from '../context/CMSContext';
 import { useUI } from '../context/UIContext';
-import api from '../utils/api';
+import api, { API_URL } from '../utils/api';
 import React, { useState, useEffect } from 'react';
 
 const Dashboard = () => {
@@ -30,6 +30,7 @@ const Dashboard = () => {
     // Volunteer Tasks Viewer
     const [selectedVolunteerTasks, setSelectedVolunteerTasks] = useState([]);
     const [isVolunteerTasksModalOpen, setIsVolunteerTasksModalOpen] = useState(false);
+    const [expandedTaskId, setExpandedTaskId] = useState(null);
 
     // Chatbot Modal
     const [isBotModalOpen, setIsBotModalOpen] = useState(false);
@@ -96,19 +97,22 @@ const Dashboard = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            if (activeTab === 'Volunteers' || activeTab === 'Overview') {
+            // In Overview, we want to fetch everything to show accurate counts
+            const fetchAll = activeTab === 'Overview';
+
+            if (activeTab === 'Volunteers' || fetchAll) {
                 const res = await api.get('/admin/volunteers');
                 setVolunteers(res.data);
             }
-            if (activeTab === 'Donations' || activeTab === 'Overview') {
+            if (activeTab === 'Donations' || fetchAll) {
                 const res = await api.get('/donations');
                 setDonations(res.data);
             }
-            if (activeTab === 'Chatbot') {
+            if (activeTab === 'Chatbot' || fetchAll) {
                 const res = await api.get('/chat/intents');
                 setIntents(res.data);
             }
-            if (activeTab === 'Inbox' || activeTab === 'Overview') {
+            if (activeTab === 'Inbox' || fetchAll) {
                 const res = await api.get('/contact');
                 setMessages(res.data);
                 fetchUnreadCount();
@@ -120,10 +124,12 @@ const Dashboard = () => {
         }
     };
 
+
     const handleVerifyVolunteer = async (id, status) => {
         if (!window.confirm(`Are you sure you want to ${status.toLowerCase()} this volunteer?`)) return;
         try {
             await api.put(`/admin/volunteers/${id}/verify`, { status });
+            alert(`Volunteer ${status.toLowerCase()} successfully`);
             fetchData(); // Refresh
             // If viewing this volunteer in modal, update selectedVolunteer state locally
             if (selectedVolunteer && selectedVolunteer._id === id) {
@@ -138,9 +144,26 @@ const Dashboard = () => {
         if (!window.confirm(`Are you sure you want to ${status.toLowerCase()} this donation enquiry?`)) return;
         try {
             await api.put(`/donations/${id}/status`, { status });
+            alert(`Donation enquiry ${status.toLowerCase()} successfully`);
             fetchData(); // Refresh
+            setIsDonationModalOpen(false);
         } catch (error) {
             alert('Action failed');
+        }
+    };
+
+    const handleVerifyTask = async (taskId, status) => {
+        if (!window.confirm(`Are you sure you want to ${status.toLowerCase()} this task submission?`)) return;
+        try {
+            await api.put(`/admin/volunteers/tasks/${taskId}/status`, { status });
+            alert(`Task ${status.toLowerCase()} successfully`);
+            // Refresh volunteer tasks
+            if (selectedVolunteer) {
+                handleViewVolunteerDetails(selectedVolunteer);
+            }
+            fetchData(); // For stats update
+        } catch (error) {
+            alert('Task verification failed');
         }
     };
 
@@ -197,13 +220,24 @@ const Dashboard = () => {
     };
 
     const handleViewVolunteerDetails = async (vol) => {
+        if (!vol || !vol._id) {
+            alert('Invalid volunteer data selected');
+            return;
+        }
         setSelectedVolunteer(vol);
         try {
-            const res = await api.get(`/admin/volunteers/${vol._id}/tasks`);
-            setSelectedVolunteerTasks(res.data);
+            const res = await api.get(`/admin/volunteers/${vol._id}/tasks`); // This line fetches data from the backend
+            // The following line is a placeholder from the instruction, which seems to be backend logic.
+            // Assuming the backend endpoint `/admin/volunteers/${vol._id}/tasks` now returns sorted tasks,
+            // we will use `res.data` directly. If the intention was to sort on the frontend,
+            // it would require a different approach.
+            // const tasks = await VolunteerTask.find({ volunteer: volunteer._id }).populate('project', 'title').sort({ createdAt: -1 });
+            setSelectedVolunteerTasks(res.data); // Use res.data from the API call
             setIsVolunteerTasksModalOpen(true);
         } catch (error) {
-            alert('Failed to fetch volunteer details');
+            console.error('Fetch volunteer details error:', error);
+            const msg = error.response?.data?.message || error.message || 'Unknown error';
+            alert(`Failed to fetch volunteer details: ${msg}`);
         }
     };
 
@@ -265,15 +299,9 @@ const Dashboard = () => {
                                 </div>
 
                                 {badgeCount > 0 && (
-                                    tab === 'Inbox' ? (
-                                        <span className={`text-[10px] px-2 py-0.5 rounded-full ${activeTab === tab ? 'bg-blue-500 text-white' : 'bg-blue-100 text-blue-600'}`}>
-                                            {badgeCount} New
-                                        </span>
-                                    ) : (
-                                        <span className={`w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold ${activeTab === tab ? 'bg-white text-gray-900' : 'bg-red-500 text-white'}`}>
-                                            {badgeCount}
-                                        </span>
-                                    )
+                                    <span className={`text-[10px] px-2 py-0.5 rounded-full ${activeTab === tab ? 'bg-blue-500 text-white' : 'bg-blue-100 text-blue-600'}`}>
+                                        {badgeCount} {tab === 'Inbox' ? 'New' : 'Pending'}
+                                    </span>
                                 )}
                             </button>
                         );
@@ -508,33 +536,13 @@ const Dashboard = () => {
                                             <td className="p-6 text-sm text-gray-600">{don.category}</td>
                                             <td className="p-6 text-sm text-gray-500">{new Date(don.createdAt).toLocaleDateString()}</td>
                                             <td className="p-6">
-                                                {don.status === 'Pending' ? (
-                                                    activeActionId === `don-${don._id}` ? (
-                                                        <div className="flex gap-2 animate-fade-in w-max">
-                                                            <button onClick={(e) => { e.stopPropagation(); handleVerifyDonation(don._id, 'Approved'); setActiveActionId(null); }} className="bg-green-100 text-green-600 p-2 rounded-lg hover:bg-green-200 transition-colors" title="Approve">
-                                                                <FaCheck />
-                                                            </button>
-                                                            <button onClick={(e) => { e.stopPropagation(); handleVerifyDonation(don._id, 'Rejected'); setActiveActionId(null); }} className="bg-red-100 text-red-600 p-2 rounded-lg hover:bg-red-200 transition-colors" title="Reject">
-                                                                <FaTimes />
-                                                            </button>
-                                                        </div>
-                                                    ) : (
-                                                        <span
-                                                            onClick={(e) => { e.stopPropagation(); setActiveActionId(`don-${don._id}`); }}
-                                                            className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-yellow-100 text-yellow-700 cursor-pointer hover:bg-yellow-200 transition-all shadow-sm w-max block"
-                                                            title="Click to Verify"
-                                                        >
-                                                            Pending
-                                                        </span>
-                                                    )
-                                                ) : (
-                                                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide
-                                                        ${don.status === 'Approved' ? 'bg-green-100 text-green-700' :
-                                                            don.status === 'Rejected' ? 'bg-red-100 text-red-700' :
-                                                                'bg-blue-100 text-blue-700'} w-max block`}>
-                                                        {don.status}
-                                                    </span>
-                                                )}
+                                                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide
+                                                    ${don.status === 'Approved' ? 'bg-green-100 text-green-700' :
+                                                        don.status === 'Rejected' ? 'bg-red-100 text-red-700' :
+                                                            'bg-yellow-100 text-yellow-700'} w-max block`}
+                                                >
+                                                    {don.status}
+                                                </span>
                                             </td>
                                             <td className="p-6 text-right">
                                                 <div className="flex justify-end gap-2 items-center">
@@ -607,11 +615,11 @@ const Dashboard = () => {
                 isOpen={isVolunteerTasksModalOpen}
                 onClose={() => setIsVolunteerTasksModalOpen(false)}
                 title={`Volunteer: ${selectedVolunteer?.user?.name}`}
-                maxWidth="max-w-5xl"
+                maxWidth="max-w-6xl"
             >
-                <div className="flex flex-col md:flex-row gap-8">
+                <div className="flex flex-col md:flex-row gap-8 min-h-[500px]">
                     {/* Left Column: Profile & Management */}
-                    <div className="w-full md:w-80 space-y-8 flex-shrink-0">
+                    <div className="w-full md:w-80 space-y-8 flex-shrink-0 sticky top-0 h-fit">
                         <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100 space-y-6">
                             <h4 className="font-bold text-gray-900 uppercase tracking-widest text-[10px]">Applicant Profile</h4>
                             <div className="space-y-4">
@@ -669,52 +677,108 @@ const Dashboard = () => {
 
                     {/* Right Column: Task History & Submissions */}
                     <div className="flex-1 space-y-6">
-                        <div className="flex justify-between items-center bg-gray-50 p-4 rounded-2xl border border-gray-100 mb-6 sticky top-0 z-10">
+                        <div className="flex justify-between items-center bg-gray-50 p-4 rounded-2xl border border-gray-100 mb-6 transition-all">
                             <h4 className="font-bold text-gray-900 uppercase tracking-widest text-[10px]">Activity & Submissions</h4>
                             <span className="text-[10px] font-bold text-gray-400">{selectedVolunteerTasks.length} Tasks Total</span>
                         </div>
                         
-                        <div className="grid grid-cols-1 gap-6 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                        <div className="grid grid-cols-1 gap-6 pr-2">
                             {selectedVolunteerTasks.length === 0 ? (
                                 <div className="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-100">
                                     <p className="text-gray-400 font-medium">No tasks assigned yet.</p>
                                 </div>
                             ) : (
-                                [...selectedVolunteerTasks].reverse().map(task => (
-                                    <div key={task._id} className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
+                                [...selectedVolunteerTasks].map(task => (
+                                    <div 
+                                        key={task._id} 
+                                        className={`bg-white border rounded-3xl p-6 shadow-sm hover:shadow-md transition-[border-color,box-shadow,ring] relative overflow-hidden group cursor-pointer ${expandedTaskId === task._id ? 'border-blue-200 ring-1 ring-blue-50' : 'border-gray-100'}`}
+                                        onClick={() => setExpandedTaskId(expandedTaskId === task._id ? null : task._id)}
+                                    >
                                         <div className="flex justify-between items-start mb-4">
                                             <div>
-                                                <h4 className="font-bold text-gray-900 text-lg group-hover:text-blue-600 transition-colors">{task.title}</h4>
+                                                <h4 className="font-bold text-gray-900 text-lg group-hover:text-blue-600 transition-colors flex items-center gap-2">
+                                                    {task.title}
+                                                    {task.submissionText && <span className="w-2 h-2 rounded-full bg-blue-500" title="Has Submission"></span>}
+                                                </h4>
                                                 <div className="flex gap-4 mt-1">
                                                     <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Hrs: {task.assignedHours}</span>
                                                     {task.dueDate && <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Due: {new Date(task.dueDate).toLocaleDateString()}</span>}
                                                 </div>
                                             </div>
                                             <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm
-                                            ${task.status === 'Completed' ? 'bg-green-100 text-green-700' :
-                                                    task.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-600'}`}>
+                                            ${task.status === 'Completed' || task.status === 'Approved' ? 'bg-green-100 text-green-700' :
+                                                    task.status === 'Pending' || task.status === 'Assigned' ? 'bg-blue-50 text-blue-600' : 
+                                                    task.status === 'Submitted' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-600'}`}>
                                                 {task.status}
                                             </span>
                                         </div>
-                                        <p className="text-sm text-gray-600 mb-6 leading-relaxed">{task.description}</p>
+                                        <p className="text-sm text-gray-600 mb-2 leading-relaxed line-clamp-2">{task.description}</p>
 
-                                        {task.status === 'Completed' && (
-                                            <div className="bg-blue-50/30 rounded-2xl p-6 border border-blue-100/30 space-y-4">
-                                                <div className="flex justify-between items-center">
-                                                    <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Submission Report</p>
-                                                    <p className="text-[9px] text-gray-400 font-medium">{task.submittedAt ? new Date(task.submittedAt).toLocaleString() : 'N/A'}</p>
+                                        {expandedTaskId === task._id && (
+                                            <div className="animate-fade-in space-y-4 mt-4 pt-4 border-t border-gray-50">
+                                                <div className="bg-gray-50/50 p-4 rounded-2xl space-y-3">
+                                                    <p className="text-xs text-gray-500 font-medium">Full Description:</p>
+                                                    <p className="text-sm text-gray-700 leading-relaxed">{task.description}</p>
                                                 </div>
-                                                <div className="text-sm text-gray-800 whitespace-pre-wrap font-medium leading-relaxed italic border-l-2 border-blue-200 pl-4 py-1">
-                                                    "{task.submissionText}"
-                                                </div>
-                                                {task.submissionImage && (
-                                                    <div className="relative group/img overflow-hidden rounded-2xl border border-gray-200 aspect-video">
-                                                        <img src={task.submissionImage} alt="Proof" className="w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-110" />
-                                                        <a href={task.submissionImage} target="_blank" rel="noopener noreferrer" className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-all">
-                                                            <span className="text-white text-xs font-bold uppercase tracking-widest bg-white/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/30">View High Res</span>
-                                                        </a>
+
+                                                {(task.submissionText || task.submissionImage) ? (
+                                                    <div className="bg-blue-50/30 rounded-2xl p-6 border border-blue-100/30 space-y-4">
+                                                        <div className="flex justify-between items-center">
+                                                            <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Submission Report</p>
+                                                            <p className="text-[9px] text-gray-400 font-medium">{task.submittedAt ? new Date(task.submittedAt).toLocaleString() : 'Date N/A'}</p>
+                                                        </div>
+                                                        {task.submissionText && (
+                                                            <div className="text-sm text-gray-800 whitespace-pre-wrap font-medium leading-relaxed italic border-l-2 border-blue-200 pl-4 py-1">
+                                                                "{task.submissionText}"
+                                                            </div>
+                                                        )}
+                                                        {task.submissionImage && (
+                                                            <div className="pt-2">
+                                                                <a 
+                                                                    href={`${task.submissionImage.startsWith('http') ? task.submissionImage : `${API_URL}${task.submissionImage}`}?t=${new Date().getTime()}`} 
+                                                                    target="_blank" 
+                                                                    rel="noopener noreferrer"
+                                                                    className="flex items-center gap-3 bg-white p-4 rounded-2xl border border-blue-100 hover:border-blue-300 transition-all group shadow-sm w-fit"
+                                                                >
+                                                                    <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                                                    </div>
+                                                                    <div className="flex flex-col">
+                                                                        <span className="text-xs font-bold text-gray-800 tracking-wide uppercase">Proof Attachment</span>
+                                                                        <span className="text-[10px] text-blue-500 font-bold uppercase tracking-widest">Click to View Image</span>
+                                                                    </div>
+                                                                </a>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <div className="py-4 text-center text-gray-400 italic text-sm">
+                                                        No submission data available yet.
                                                     </div>
                                                 )}
+
+                                                {task.status === 'Submitted' && (
+                                                    <div className="flex gap-3 pt-2">
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); handleVerifyTask(task._id, 'Approved'); }}
+                                                            className="flex-1 bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700 transition-all text-xs"
+                                                        >
+                                                            Approve Task
+                                                        </button>
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); handleVerifyTask(task._id, 'Rejected'); }}
+                                                            className="flex-1 bg-red-50 text-red-600 font-bold py-3 rounded-xl hover:bg-red-100 transition-all text-xs"
+                                                        >
+                                                            Reject Submission
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                        
+                                        {!expandedTaskId && (task.submissionText || task.submissionImage) && (
+                                            <div className="mt-2 text-[10px] font-bold text-blue-500 uppercase flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                                                Click to view submission <FaArrowRight size={8} />
                                             </div>
                                         )}
                                     </div>
@@ -790,28 +854,32 @@ const Dashboard = () => {
                     </div>
                 </form>
             </Modal>
-            {/* Donation Receipt Modal - Rendered via Portal */}
+            {/* Donation Enquiry Modal - Rendered via Portal */}
             <Modal
                 isOpen={isDonationModalOpen}
                 onClose={() => setIsDonationModalOpen(false)}
-                title="Donation Receipt"
+                title="Donation Enquiry"
                 maxWidth="max-w-lg"
             >
                 <div className="space-y-8">
                     <div className="text-center">
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Enquiry Status</p>
-                        <span className="inline-block px-4 py-1.5 bg-green-100 text-green-700 rounded-full text-[10px] font-bold uppercase tracking-wider">{selectedDonation?.status}</span>
+                        <span className={`inline-block px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider
+                            ${selectedDonation?.status === 'Approved' ? 'bg-green-100 text-green-700' : 
+                              selectedDonation?.status === 'Rejected' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
+                            {selectedDonation?.status}
+                        </span>
                     </div>
 
                     <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100 space-y-6">
                         <div className="flex justify-between items-start">
                             <div>
-                                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Donor Name</label>
+                                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Donor Details</label>
                                 <p className="text-gray-900 font-bold text-xl">{selectedDonation?.name}</p>
                             </div>
                             <div className="text-right">
-                                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Date</label>
-                                <p className="text-gray-900 font-bold text-sm">{selectedDonation?.createdAt && new Date(selectedDonation.createdAt).toLocaleDateString()}</p>
+                                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Received On</label>
+                                <p className="text-gray-900 font-bold text-sm">{selectedDonation?.createdAt && new Date(selectedDonation.createdAt).toLocaleDateString('en-GB')}</p>
                             </div>
                         </div>
 
@@ -842,8 +910,25 @@ const Dashboard = () => {
                         </div>
                     )}
 
+                    {selectedDonation?.status === 'Pending' && (
+                        <div className="flex gap-4">
+                            <button 
+                                onClick={() => handleVerifyDonation(selectedDonation._id, 'Approved')}
+                                className="flex-1 bg-green-50 text-green-600 font-bold py-4 rounded-2xl hover:bg-green-100 transition-all flex items-center justify-center gap-2"
+                            >
+                                <FaCheck /> Approve
+                            </button>
+                            <button 
+                                onClick={() => handleVerifyDonation(selectedDonation._id, 'Rejected')}
+                                className="flex-1 bg-red-50 text-red-600 font-bold py-4 rounded-2xl hover:bg-red-100 transition-all flex items-center justify-center gap-2"
+                            >
+                                <FaTimes /> Reject
+                            </button>
+                        </div>
+                    )}
+
                     <button onClick={() => setIsDonationModalOpen(false)} className="w-full bg-gray-900 text-white font-bold py-4 rounded-2xl hover:bg-black transition-all shadow-xl">
-                        Close Receipt
+                        Back to List
                     </button>
                 </div>
             </Modal>

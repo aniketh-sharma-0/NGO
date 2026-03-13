@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../utils/api';
+import api, { API_URL } from '../../utils/api';
 import { useNavigate } from 'react-router-dom';
 import { FaUpload, FaCheckCircle, FaClock, FaClipboardList, FaTimes } from 'react-icons/fa';
 import useBodyScrollLock from '../../hooks/useBodyScrollLock';
@@ -191,7 +191,7 @@ Challenges/Notes: ${reportData.challenges}
                                                         </span>
                                                         {task.dueDate && (
                                                             <span className="text-xs text-red-600 font-medium bg-red-50 px-2 py-0.5 rounded">
-                                                                Due: {new Date(task.dueDate).toLocaleDateString()}
+                                                                Due: {new Date(task.dueDate).toLocaleDateString('en-GB')}
                                                             </span>
                                                         )}
                                                         <span className="text-xs text-purple-600 font-medium bg-purple-50 px-2 py-0.5 rounded flex items-center gap-1">
@@ -211,21 +211,40 @@ Challenges/Notes: ${reportData.challenges}
                                                 </div>
 
                                                 <div className="flex-shrink-0 w-full md:w-auto">
-                                                    {(task.status === 'Assigned' || task.status === 'Pending') ? (
-                                                        <button
-                                                            onClick={() => openModal(task)}
-                                                            className="w-full md:w-auto bg-gray-900 text-white px-6 py-3 rounded-xl font-bold hover:bg-black transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 transform active:scale-95 text-sm"
-                                                        >
-                                                            <FaClipboardList /> Report
-                                                        </button>
-                                                    ) : (
-                                                        <button 
-                                                            onClick={() => setViewingTask(task)} 
-                                                            className="w-full md:w-auto bg-blue-50 text-blue-600 px-6 py-3 rounded-xl font-bold hover:bg-blue-100 transition-all shadow-sm flex items-center justify-center gap-2 text-sm border border-blue-100"
-                                                        >
-                                                            <FaClipboardList /> View Report
-                                                        </button>
-                                                    )}
+                                                    {(() => {
+                                                        const isPastDue = task.dueDate && new Date() > new Date(task.dueDate);
+                                                        const isPending = task.status === 'Assigned' || task.status === 'Pending';
+                                                        
+                                                        if (isPending && isPastDue) {
+                                                            return (
+                                                                <div className="text-right">
+                                                                    <span className="inline-block px-4 py-2 bg-red-50 text-red-600 rounded-xl font-bold text-xs border border-red-100 italic">
+                                                                        Deadline Passed - Not Attended
+                                                                    </span>
+                                                                </div>
+                                                            );
+                                                        }
+
+                                                        if (isPending) {
+                                                            return (
+                                                                <button
+                                                                    onClick={() => openModal(task)}
+                                                                    className="w-full md:w-auto bg-gray-900 text-white px-6 py-3 rounded-xl font-bold hover:bg-black transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 transform active:scale-95 text-sm"
+                                                                >
+                                                                    <FaClipboardList /> Report
+                                                                </button>
+                                                            );
+                                                        }
+
+                                                        return (
+                                                            <button 
+                                                                onClick={() => setViewingTask(task)} 
+                                                                className="w-full md:w-auto bg-blue-50 text-blue-600 px-6 py-3 rounded-xl font-bold hover:bg-blue-100 transition-all shadow-sm flex items-center justify-center gap-2 text-sm border border-blue-100"
+                                                            >
+                                                                <FaClipboardList /> View Report
+                                                            </button>
+                                                        );
+                                                    })()}
                                                 </div>
                                             </div>
                                         </div>
@@ -386,9 +405,22 @@ Challenges/Notes: ${reportData.challenges}
                             {viewingTask.submissionImage && (
                                 <div>
                                     <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Proof of Work</p>
-                                    <a href={viewingTask.submissionImage} target="_blank" rel="noopener noreferrer" className="block w-full max-w-sm rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-shadow group bg-white p-2">
-                                        <img src={viewingTask.submissionImage} alt="Task proof" className="w-full h-auto object-cover rounded-lg transform group-hover:scale-[1.02] transition-transform duration-300" />
-                                    </a>
+                                    <div className="pt-2">
+                                        <a 
+                                            href={`${viewingTask.submissionImage.startsWith('http') ? viewingTask.submissionImage : `${API_URL}${viewingTask.submissionImage}`}?t=${new Date().getTime()}`} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-3 bg-white p-4 rounded-2xl border border-blue-100 hover:border-blue-300 transition-all group shadow-sm w-fit"
+                                        >
+                                            <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                            </div>
+                                            <div className="flex flex-col text-left">
+                                                <span className="text-xs font-bold text-gray-800 tracking-wide uppercase">Proof Attachment</span>
+                                                <span className="text-[10px] text-blue-500 font-bold uppercase tracking-widest">Click to View Image</span>
+                                            </div>
+                                        </a>
+                                    </div>
                                     <p className="text-[10px] text-gray-400 mt-2 font-bold uppercase tracking-wider pl-1">Click image to enlarge</p>
                                 </div>
                             )}
@@ -398,7 +430,7 @@ Challenges/Notes: ${reportData.challenges}
                                 <span className="text-blue-700 text-lg">{viewingTask.assignedHours} hrs</span>
                             </div>
                             <div className="text-[10px] font-bold text-gray-400 uppercase text-right pt-4 border-t border-gray-200">
-                                Submitted: {viewingTask.submittedAt ? new Date(viewingTask.submittedAt).toLocaleString() : 'N/A'}
+                                Submitted: {viewingTask.submittedAt ? new Date(viewingTask.submittedAt).toLocaleString('en-GB') : 'N/A'}
                             </div>
                         </div>
                     </div>

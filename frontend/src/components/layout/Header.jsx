@@ -17,6 +17,7 @@ const Header = () => {
     const [isProjectsDropdownOpen, setIsProjectsDropdownOpen] = useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
     const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] = useState(false);
+    const notificationRef = React.useRef(null);
 
     const handleNotificationClick = async (notification) => {
         if (!notification.isRead) {
@@ -27,6 +28,16 @@ const Header = () => {
             navigate(notification.redirectLink);
         }
     };
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+                setIsNotificationDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     useEffect(() => {
         if (user && user.role?.name === 'Admin') {
@@ -65,8 +76,8 @@ const Header = () => {
         <header className="bg-white shadow-sm z-40 font-heading">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 md:py-4 flex justify-between items-center">
                 {/* Logo and Name */}
-                <Link to="/" className="flex items-center gap-3 active:opacity-70 transition-opacity">
-                    <div className="w-11 h-11 md:w-12 md:h-12 relative overflow-hidden rounded-full border border-gray-200 shadow-sm flex-shrink-0">
+                <Link to="/" className="flex items-center gap-2 sm:gap-3 active:opacity-70 transition-opacity min-w-0">
+                    <div className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 relative overflow-hidden rounded-full border border-gray-200 shadow-sm flex-shrink-0">
                         <EditableImage
                             contentKey="ngo_logo"
                             section="Header"
@@ -78,10 +89,10 @@ const Header = () => {
                         />
                     </div>
                     <div className="flex flex-col justify-center overflow-hidden min-w-0">
-                        <span className="text-[13px] sm:text-lg md:text-xl font-bold text-slate-800 leading-none sm:leading-tight truncate">
+                        <span className="text-xs sm:text-base md:text-lg lg:text-xl font-bold text-slate-800 leading-tight truncate">
                             Yaswanth Rural
                         </span>
-                        <span className="text-[13px] sm:text-lg md:text-xl font-bold text-slate-800 leading-none sm:leading-tight truncate">
+                        <span className="text-xs sm:text-base md:text-lg lg:text-xl font-bold text-slate-800 leading-tight truncate">
                             Development Society
                         </span>
                     </div>
@@ -122,24 +133,18 @@ const Header = () => {
                         <div className="flex items-center gap-1">
                             {/* Notification Bell */}
                             {(user.role?.name === 'Admin' || user.role?.name === 'Volunteer') && (
-                                <div className="relative group z-50 h-full flex items-center mr-1">
+                                <div className="relative group z-50 h-full flex items-center mr-1" ref={notificationRef}>
                                     <button
                                         onClick={() => setIsNotificationDropdownOpen(!isNotificationDropdownOpen)}
                                         className="relative p-2 text-gray-500 hover:text-blue-600 transition-colors rounded-full hover:bg-gray-100"
                                     >
                                         <FaBell size={20} />
-                                        {notifUnread > 0 && (
-                                            <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full">
-                                                {notifUnread > 99 ? '99+' : notifUnread}
-                                            </span>
-                                        )}
                                     </button>
                                     
                                     {/* Notification Dropdown Menu */}
                                     <div className={`absolute right-0 top-full mt-2 w-80 bg-white shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] rounded-2xl border border-gray-100 transition-all duration-300 transform overflow-hidden z-50 ${isNotificationDropdownOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible translate-y-2'}`}>
                                         <div className="px-4 py-3 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
                                             <span className="font-bold text-gray-800 text-sm tracking-wide uppercase">Notifications</span>
-                                            {notifUnread > 0 && <span className="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full">{notifUnread} New</span>}
                                         </div>
                                         <div className="max-h-[320px] overflow-y-auto">
                                             {notifications.length > 0 ? (
@@ -147,7 +152,6 @@ const Header = () => {
                                                     <div key={n._id} onClick={() => handleNotificationClick(n)} className={`px-4 py-3 border-b border-gray-50 cursor-pointer hover:bg-gray-50 transition-colors ${!n.isRead ? 'bg-blue-50/30' : ''}`}>
                                                         <div className="flex justify-between items-start gap-2">
                                                             <p className={`text-sm leading-tight ${!n.isRead ? 'font-bold text-gray-900' : 'font-medium text-gray-700'}`}>{n.title}</p>
-                                                            {!n.isRead && <div className="w-2 h-2 rounded-full bg-blue-500 mt-1 flex-shrink-0"></div>}
                                                         </div>
                                                         <p className="text-xs text-gray-500 mt-1 line-clamp-2 leading-snug">{n.message}</p>
                                                         <p className="text-[10px] text-gray-400 mt-1.5">{new Date(n.createdAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
@@ -180,9 +184,6 @@ const Header = () => {
                                     <span className="max-w-[100px] truncate font-bold text-gray-800 text-sm leading-tight font-sans group-hover:text-blue-900 transition-colors">{user.name}</span>
                                     <span className="text-[10px] font-medium text-gray-500 leading-tight uppercase tracking-wider font-sans">{user.role?.name || 'User'}</span>
                                 </div>
-                                {unreadCount > 0 && user.role?.name === 'Admin' && (
-                                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white"></div>
-                                )}
                             </button>
 
                             {/* Dropdown Menu */}
@@ -194,7 +195,6 @@ const Header = () => {
                                 </div>
 
                                 {/* Menu Items */}
-                                {/* Menu Items */}
                                 <div className="p-1.5">
                                     {user.role?.name === 'Admin' && (
                                         <Link
@@ -204,14 +204,8 @@ const Header = () => {
                                         >
                                             <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center group-hover/item:bg-blue-600 group-hover/item:text-white transition-colors relative">
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                                                {unreadCount > 0 && (
-                                                    <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-blue-500 rounded-full"></div>
-                                                )}
                                             </div>
-                                            <span className="font-bold text-sm flex items-center gap-2">
-                                                Dashboard
-                                                {unreadCount > 0 && <span className="bg-blue-100 text-blue-600 text-[10px] px-1.5 py-0.5 rounded-full">{unreadCount}</span>}
-                                            </span>
+                                            <span className="font-bold text-sm">Dashboard</span>
                                         </Link>
                                     )}
                                     {user.role?.name === 'Volunteer' && (
@@ -240,7 +234,7 @@ const Header = () => {
                                     </button>
                                 </div>
                             </div>
-                        </div>
+                            </div>
                         </div>
                     ) : (
                         <Link to="/login" className="bg-blue-900 text-white px-6 py-2 rounded-full hover:bg-blue-800 transition-versions shadow-md hover:shadow-lg font-bold tracking-wide">
@@ -251,81 +245,101 @@ const Header = () => {
                 </nav >
 
                 {/* Mobile Menu Button */}
-                <button className="lg:hidden text-gray-700 focus:outline-none p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full active:bg-gray-100 transition-colors ml-2" onClick={toggleMobileMenu}>
+                <button className="lg:hidden text-gray-700 focus:outline-none p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full active:bg-gray-100 transition-colors ml-2 flex-shrink-0" onClick={toggleMobileMenu}>
                     {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
                 </button>
             </div >
 
-            {/* Mobile Navigation Slide-in/Dropdown */}
+            {/* Mobile Navigation Overlay */}
             {isMobileMenuOpen && (
-                <div className="lg:hidden absolute top-full left-0 w-full bg-white shadow-2xl border-t border-gray-100 flex flex-col max-h-[calc(100vh-70px)] overflow-y-auto z-40 animate-fade-in">
-                    <div className="flex flex-col px-6 py-2">
-                        <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 px-3 text-lg font-medium text-gray-700 hover:text-blue-600 hover:no-underline active:bg-blue-50 active:text-blue-700 active:no-underline rounded-xl transition-all">Home</Link>
-                        <Link to="/about" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 px-3 text-lg font-medium text-gray-700 hover:text-blue-600 hover:no-underline active:bg-blue-50 active:text-blue-700 active:no-underline rounded-xl transition-all">About Us</Link>
-                        <Link to="/media" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 px-3 text-lg font-medium text-gray-700 hover:text-blue-600 hover:no-underline active:bg-blue-50 active:text-blue-700 active:no-underline rounded-xl transition-all">Blogs & Events</Link>
-                        <Link to="/donate" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 px-3 text-lg font-medium text-gray-700 hover:text-blue-600 hover:no-underline active:bg-blue-50 active:text-blue-700 active:no-underline rounded-xl transition-all">Donation</Link>
-                        <Link to="/volunteer" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 px-3 text-lg font-medium text-gray-700 hover:text-blue-600 hover:no-underline active:bg-blue-50 active:text-blue-700 active:no-underline rounded-xl transition-all mb-2">Volunteering</Link>
+                <>
+                    {/* Backdrop */}
+                    <div 
+                        className="lg:hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] animate-fade-in"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                    />
+                    
+                    {/* Menu Content */}
+                    <div className="lg:hidden fixed top-0 right-0 w-4/5 max-w-sm h-full bg-white shadow-2xl z-[101] flex flex-col animate-slide-in-right overflow-hidden">
+                        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                            <span className="font-bold text-gray-900 uppercase tracking-widest text-sm">Navigation</span>
+                            <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-gray-500 hover:text-red-500 transition-colors">
+                                <FaTimes size={24} />
+                            </button>
+                        </div>
 
-                        <div className="py-2 px-3 bg-gray-50 rounded-xl">
-                            <span className="text-gray-400 text-sm font-bold uppercase tracking-wider block mb-3 pl-2">Projects</span>
-                            <div className="flex flex-col gap-1 pl-4 border-l-2 border-blue-200 ml-1">
-                                <Link to="/projects?category=Government" onClick={() => setIsMobileMenuOpen(false)} className="block py-3 px-3 text-gray-600 hover:text-blue-900 hover:no-underline active:bg-blue-100 active:text-blue-800 active:no-underline font-medium rounded-lg transition-all">Government Projects</Link>
-                                <Link to="/projects?category=CSR" onClick={() => setIsMobileMenuOpen(false)} className="block py-3 px-3 text-gray-600 hover:text-blue-900 hover:no-underline active:bg-blue-100 active:text-blue-800 active:no-underline font-medium rounded-lg transition-all">CSR Projects</Link>
-                                <Link to="/projects?category=Client" onClick={() => setIsMobileMenuOpen(false)} className="block py-3 px-3 text-gray-600 hover:text-blue-900 hover:no-underline active:bg-blue-100 active:text-blue-800 active:no-underline font-medium rounded-lg transition-all">Client Projects</Link>
+                        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-1">
+                            <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 text-lg font-bold text-gray-800 hover:text-blue-600 transition-all border-b border-gray-50">Home</Link>
+                            <Link to="/about" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 text-lg font-bold text-gray-800 hover:text-blue-600 transition-all border-b border-gray-50">About Us</Link>
+                            <Link to="/media" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 text-lg font-bold text-gray-800 hover:text-blue-600 transition-all border-b border-gray-50">Blogs & Events</Link>
+                            <Link to="/donate" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 text-lg font-bold text-gray-800 hover:text-blue-600 transition-all border-b border-gray-50">Donation</Link>
+                            <Link to="/volunteer" onClick={() => setIsMobileMenuOpen(false)} className="block py-4 text-lg font-bold text-gray-800 hover:text-blue-600 transition-all border-b border-gray-50">Volunteering</Link>
+
+                            <div className="pt-6 pb-4">
+                                <span className="text-gray-400 text-[10px] font-bold uppercase tracking-[0.2em] block mb-4">Focus Areas</span>
+                                <div className="space-y-3">
+                                    <Link to="/projects?category=Government" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 text-gray-600 font-bold hover:text-blue-600 transition-all text-sm group">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-200 group-hover:bg-blue-600 transition-all"></div>
+                                        Government Projects
+                                    </Link>
+                                    <Link to="/projects?category=CSR" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 text-gray-600 font-bold hover:text-blue-600 transition-all text-sm group">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-200 group-hover:bg-blue-600 transition-all"></div>
+                                        CSR Projects
+                                    </Link>
+                                    <Link to="/projects?category=Client" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 text-gray-600 font-bold hover:text-blue-600 transition-all text-sm group">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-200 group-hover:bg-blue-600 transition-all"></div>
+                                        Client Projects
+                                    </Link>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Distinct Contact Us Button in Mobile */}
-                        <div className="pt-6 pb-24">
+                        <div className="p-6 bg-gray-50 border-t border-gray-100 mt-auto">
                             <Link
                                 to="/contact"
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className="block w-full bg-green-600 text-white text-center py-4 rounded-xl font-bold hover:bg-green-700 transition-colors shadow-sm mb-4"
+                                className="block w-full bg-green-600 text-white text-center py-4 rounded-xl font-bold hover:bg-green-700 transition-all shadow-lg active:scale-[0.98] mb-4"
                             >
                                 Contact Us
                             </Link>
 
                             {user ? (
-                                <div className="flex flex-col gap-4 bg-gray-50 p-5 rounded-2xl border border-gray-100">
-                                    <div className="flex items-center gap-4 font-bold text-gray-800">
-                                        <div className="w-12 h-12 rounded-full bg-[#1e3a8a] text-white flex items-center justify-center text-lg shadow-sm font-heading flex-shrink-0">
-                                            {user.name ? user.name.charAt(0).toUpperCase() : <FaUserCircle size={24} />}
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-3 bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
+                                        <div className="w-10 h-10 rounded-full bg-blue-900 text-white flex items-center justify-center font-bold text-sm">
+                                            {user.name?.charAt(0).toUpperCase()}
                                         </div>
-                                        <div className="flex flex-col overflow-hidden">
-                                            <span className="truncate text-base" title={user.name}>{user.name}</span>
-                                            <span className="text-sm text-gray-500 font-normal truncate" title={user.email}>{user.email}</span>
+                                        <div className="flex flex-col min-w-0">
+                                            <span className="font-bold text-gray-900 text-sm truncate">{user.name}</span>
+                                            <span className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">{user.role?.name}</span>
                                         </div>
                                     </div>
-
-                                    <div className="grid grid-cols-2 gap-3 mt-2">
+                                    <div className="grid grid-cols-2 gap-2">
                                         {(user.role?.name === 'Admin' || user.role?.name === 'Volunteer') && (
                                             <Link
                                                 to={user.role?.name === 'Admin' ? "/dashboard" : "/volunteer/dashboard"}
                                                 onClick={() => setIsMobileMenuOpen(false)}
-                                                className="relative text-center py-3 bg-white border border-gray-200 rounded-xl text-sm font-bold text-blue-900 hover:bg-blue-50 shadow-sm transition-colors"
+                                                className="py-3 bg-white border border-gray-200 rounded-xl text-xs font-bold text-blue-900 text-center shadow-sm"
                                             >
-                                                {user.role?.name === 'Admin' ? 'Dashboard' : 'Hub'}
-                                                {unreadCount > 0 && user.role?.name === 'Admin' && (
-                                                    <span className="absolute -top-2 -right-2 w-5 h-5 bg-blue-500 text-white text-[10px] flex items-center justify-center rounded-full shadow-sm">{unreadCount}</span>
-                                                )}
+                                                Dashboard
                                             </Link>
                                         )}
                                         <button
                                             onClick={handleLogout}
-                                            className={`text-center py-3 bg-white border border-gray-200 rounded-xl text-sm font-bold text-red-600 hover:bg-red-50 shadow-sm transition-colors ${(user.role?.name === 'Admin' || user.role?.name === 'Volunteer') ? 'col-span-1' : 'col-span-2 w-full'}`}
+                                            className="py-3 bg-red-50 border border-red-100 rounded-xl text-xs font-bold text-red-600 hover:bg-red-100 transition-all shadow-sm"
                                         >
                                             Logout
                                         </button>
                                     </div>
                                 </div>
                             ) : (
-                                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="block w-full bg-[#1e3a8a] text-white text-center py-4 rounded-xl font-bold shadow-md hover:bg-blue-800 transition-colors">
+                                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="block w-full bg-blue-900 text-white text-center py-4 rounded-xl font-bold shadow-xl active:scale-[0.98]">
                                     Login
                                 </Link>
                             )}
                         </div>
                     </div>
-                </div>
+                </>
             )}
         </header >
     );

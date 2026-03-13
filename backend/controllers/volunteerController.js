@@ -74,7 +74,7 @@ const getMyTasks = async (req, res) => {
             return res.status(404).json({ message: 'Volunteer profile not found' });
         }
 
-        const tasks = await VolunteerTask.find({ volunteer: volunteer._id }).populate('project', 'title');
+        const tasks = await VolunteerTask.find({ volunteer: volunteer._id }).populate('project', 'title').sort({ createdAt: -1 });
         res.json(tasks);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -94,6 +94,11 @@ const submitTask = async (req, res) => {
             return res.status(404).json({ message: 'Task not found' });
         }
 
+        // Deadline Check
+        if (task.dueDate && new Date() > new Date(task.dueDate)) {
+            return res.status(400).json({ message: 'Submission deadline has passed. This task is marked as not attended.' });
+        }
+
         // Verify ownership indirectly? 
         // Ideally check if task.volunteer belongs to req.user. 
         // But for MVB (Minimum Viable Build), let's assume ID match is enough or trust the logic.
@@ -103,25 +108,21 @@ const submitTask = async (req, res) => {
 
         task.submissionText = submissionText;
         task.submissionImage = submissionImage;
-        task.status = 'Completed';
+        task.status = 'Submitted';
         task.submittedAt = new Date();
         task.completedAt = new Date();
 
         await task.save();
 
-        // Automatically update the volunteer's stats
+        // Admin will approve this later to update stats
         const volunteer = await Volunteer.findById(task.volunteer);
         if (volunteer) {
-            volunteer.totalHours += task.assignedHours || 0;
-            volunteer.completedTasks += 1;
-            await volunteer.save();
-
-            // Trigger Admin notification
+            console.log(`[Volunteer] Creating notification for Admin about task: ${task.title}`);
             await createNotification({
                 role: 'Admin',
-                title: 'Volunteer Task Completed',
-                message: `${req.user.name} has completed the task: ${task.title}. (+${task.assignedHours || 0} hours)`,
-                type: 'Task Completed',
+                title: 'Volunteer Task Submitted',
+                message: `${req.user.name} has submitted the task: ${task.title}. Awaiting approval.`,
+                type: 'Task Submission',
                 redirectLink: '/dashboard'
             });
         }

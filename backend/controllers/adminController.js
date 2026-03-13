@@ -113,8 +113,28 @@ const updateProjectStatus = async (req, res) => {
 // @access  Admin
 const getVolunteers = async (req, res) => {
     try {
-        const volunteers = await Volunteer.find().populate('user', 'name email');
-        res.json(volunteers);
+        const volunteers = await Volunteer.find().populate('user', 'name email').lean();
+        
+        const volunteersWithStats = await Promise.all(volunteers.map(async (vol) => {
+            const tasks = await VolunteerTask.find({ 
+                volunteer: vol._id, 
+                status: { $in: ['Approved', 'Completed'] }
+            }).lean();
+            
+            const totalHours = tasks.reduce((sum, task) => {
+                // Use assignedHours with a fallback to 1 if missing for backwards compatibility
+                const h = task.assignedHours !== undefined ? task.assignedHours : 1;
+                return sum + (Number(h) || 0);
+            }, 0);
+            
+            return {
+                ...vol,
+                totalHours,
+                completedTasks: tasks.length
+            };
+        }));
+
+        res.json(volunteersWithStats);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -196,8 +216,64 @@ const assignTask = async (req, res) => {
 // @access  Admin
 const getVolunteerTasks = async (req, res) => {
     try {
+        console.log(`[Admin] Fetching tasks for volunteer ID: ${req.params.id}`);
         const tasks = await VolunteerTask.find({ volunteer: req.params.id }).populate('project', 'title').sort({ createdAt: -1 });
+        console.log(`[Admin] Found ${tasks.length} tasks for volunteer: ${req.params.id}`);
         res.json(tasks);
+    } catch (error) {
+        console.error(`[Admin] Error fetching volunteer tasks for ID ${req.params.id}:`, error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Update Volunteer Task Status (Approve/Reject)
+// @route   PUT /api/admin/volunteers/tasks/:taskId/status
+// @access  Admin
+const updateTaskStatus = async (req, res) => {
+    const { status, feedback } = req.body; // 'Approved', 'Rejected'
+
+    try {
+        const task = await VolunteerTask.findById(req.params.taskId);
+
+        if (!task) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+
+        task.status = status;
+        if (feedback) task.feedback = feedback;
+        if (status === 'Approved') task.completedAt = new Date();
+        
+        await task.save();
+
+        // RE-CALCULATE AND SYNC STATS IMMEDIATELY
+        const volunteerTasks = await VolunteerTask.find({ 
+            volunteer: task.volunteer, 
+            status: { $in: ['Approved', 'Completed'] } 
+        });
+        
+        const totalHours = volunteerTasks.reduce((sum, t) => sum + (Number(t.assignedHours) || 0), 0);
+        const completedTasks = volunteerTasks.length;
+
+        const volunteer = await Volunteer.findById(task.volunteer);
+        if (volunteer) {
+            console.log(`[Admin] Updating stats for volunteer ${volunteer._id} after task verification: Hours=${totalHours}, Tasks=${completedTasks}`);
+            volunteer.totalHours = totalHours;
+            volunteer.completedTasks = completedTasks;
+            await volunteer.save();
+
+            // Trigger Notification for Volunteer
+            await createNotification({
+                userId: volunteer.user,
+                title: `Task Submission ${status}`,
+                message: `Your submission for task "${task.title}" has been ${status.toLowerCase()}.`,
+                type: 'Task Status',
+                redirectLink: '/volunteer/dashboard'
+            });
+        }
+
+        await logActivity(req.user._id, 'VERIFY_TASK', 'VolunteerTask', task._id, { status });
+
+        res.json(task);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -212,5 +288,6 @@ module.exports = {
     getVolunteers,
     verifyVolunteer,
     assignTask,
-    getVolunteerTasks
+    getVolunteerTasks,
+    updateTaskStatus
 };

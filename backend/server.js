@@ -12,8 +12,20 @@ dotenv.config();
 
 const app = express();
 
-// Security Middleware
-app.use(helmet());
+// 1. STATICS WITH EXPLICIT HEADERS - Critical for images
+app.use('/uploads', express.static('uploads', {
+    setHeaders: (res, path) => {
+        res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate'); // Force fresh headers
+    }
+}));
+
+// 2. Security Middleware
+app.use(helmet({
+    crossOriginResourcePolicy: false,
+    contentSecurityPolicy: false,
+}));
 app.use(cors({ origin: [process.env.CLIENT_URL, 'http://localhost:5173', 'http://127.0.0.1:5173'].filter(Boolean) }));
 app.use(mongoSanitize());
 app.use(xss());
@@ -26,7 +38,6 @@ const authLimiter = rateLimit({
 });
 app.use('/api/auth/', authLimiter);
 
-app.use(express.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -42,8 +53,6 @@ app.use('/api/contact', require('./routes/contactRoutes'));
 app.use('/api/chat', require('./routes/chatRoutes'));
 app.use('/api/security', require('./routes/securityRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
-
-app.use('/uploads', express.static('uploads'));
 
 app.get('/api/health', (req, res) => {
     res.send('Server running');
