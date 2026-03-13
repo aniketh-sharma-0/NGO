@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../../utils/api';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import SelectInput from '../../components/common/SelectInput';
+import PhoneInputWithCountry from '../../components/forms/PhoneInputWithCountry';
+
 
 const VolunteerRegister = () => {
     const { user } = useAuth();
@@ -17,29 +19,34 @@ const VolunteerRegister = () => {
     const [formData, setFormData] = useState({
         phone: '',
         address: '',
-        skills: '', // Comma separated
         availability: 'Weekends' // Default
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [fieldErrors, setFieldErrors] = useState({});
     const [success, setSuccess] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError('');
+        setFieldErrors({});
 
         try {
-            const skillsArray = formData.skills.split(',').map(s => s.trim());
-
-            await api.post('/volunteers/register', {
-                ...formData,
-                skills: skillsArray
-            });
+            await api.post('/volunteers/register', formData);
 
             setSuccess(true);
         } catch (err) {
-            setError(err.response?.data?.message || 'Registration failed');
+            if (err.response?.data?.errors) {
+                const formattedErrors = {};
+                err.response.data.errors.forEach(e => {
+                    formattedErrors[e.path || e.param] = e.msg;
+                });
+                setFieldErrors(formattedErrors);
+                setError('Please correct the highlighted errors.');
+            } else {
+                setError(err.response?.data?.message || 'Registration failed');
+            }
         } finally {
             setLoading(false);
         }
@@ -124,15 +131,14 @@ const VolunteerRegister = () => {
                         {error && <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm text-center mb-6 border border-red-100 font-medium">{error}</div>}
 
                         <form className="space-y-6" onSubmit={handleSubmit}>
-                            <div>
+                            <div className={fieldErrors.phone ? 'ring-2 ring-red-500 rounded-xl' : ''}>
                                 <label className="block text-sm font-bold text-gray-700 mb-2">Phone Number</label>
-                                <input
-                                    type="tel" required
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                                    placeholder="+91 9876543210"
+                                <PhoneInputWithCountry
+                                    required
                                     value={formData.phone}
                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                 />
+                                {fieldErrors.phone && <p className="text-red-500 text-xs font-bold mt-1 pl-1">{fieldErrors.phone}</p>}
                             </div>
 
                             <div>
@@ -144,17 +150,6 @@ const VolunteerRegister = () => {
                                     placeholder="Tell us about your motivation..."
                                     value={formData.motivation || ''}
                                     onChange={(e) => setFormData({ ...formData, motivation: e.target.value })}
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Skills / Experience</label>
-                                <input
-                                    type="text"
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                                    placeholder="e.g. Teaching, Design, Medical..."
-                                    value={formData.skills}
-                                    onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
                                 />
                             </div>
 

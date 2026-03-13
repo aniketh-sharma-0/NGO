@@ -8,7 +8,8 @@ const {
     updateProjectStatus,
     getVolunteers,
     verifyVolunteer,
-    assignTask
+    assignTask,
+    getVolunteerTasks
 } = require('../controllers/adminController');
 const { protect } = require('../middleware/authMiddleware');
 const { checkRole } = require('../middleware/roleMiddleware'); // Admin check
@@ -31,5 +32,6 @@ router.put('/projects/:id/status', updateProjectStatus);
 router.get('/volunteers', getVolunteers);
 router.put('/volunteers/:id/verify', verifyVolunteer);
 router.post('/volunteers/:id/assign', assignTask);
+router.get('/volunteers/:id/tasks', getVolunteerTasks);
 
 module.exports = router;

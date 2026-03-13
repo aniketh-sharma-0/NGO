@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import api from '../utils/api';
+import Modal from '../components/common/Modal';
 import { FaCalendarAlt, FaMapMarkerAlt, FaUser, FaClock, FaArrowRight, FaPlus, FaEdit, FaTrash, FaTimes } from 'react-icons/fa';
+import CMSIconButton from '../components/common/CMSIconButton';
 import EditableText from '../components/cms/EditableText';
 import ImageWithFallback from '../components/common/ImageWithFallback';
 import { useAuth } from '../context/AuthContext';
 import { useCMS } from '../context/CMSContext';
 import SEO from '../components/common/SEO';
 import useBodyScrollLock from '../hooks/useBodyScrollLock';
+import api from '../utils/api';
 
 const ExpandCard = ({ item, type, isAdmin, isEditMode, onEdit, onDelete, isActive, onClick }) => {
     return (
@@ -27,21 +29,23 @@ const ExpandCard = ({ item, type, isAdmin, isEditMode, onEdit, onDelete, isActiv
 
             {/* Admin Controls */}
             {isAdmin && isEditMode && (
-                <div className={`absolute top-4 right-4 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity delay-200 ${isActive ? 'opacity-100' : ''}`}>
-                    <button
+                <div className={`absolute top-4 right-4 z-20 flex gap-2 transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-80 group-hover:opacity-100'}`}>
+                    <CMSIconButton 
+                        icon={FaEdit}
                         onClick={(e) => { e.stopPropagation(); onEdit(item, type); }}
-                        className="p-2 bg-white/20 hover:bg-white text-white hover:text-blue-600 rounded-full backdrop-blur-sm transition-all"
                         title="Edit"
-                    >
-                        <FaEdit />
-                    </button>
-                    <button
+                        variant="default"
+                        className="!min-w-[40px] !min-h-[40px]"
+                        size={16}
+                    />
+                    <CMSIconButton 
+                        icon={FaTrash}
                         onClick={(e) => { e.stopPropagation(); onDelete(item._id, type); }}
-                        className="p-2 bg-white/20 hover:bg-white text-white hover:text-red-600 rounded-full backdrop-blur-sm transition-all"
                         title="Delete"
-                    >
-                        <FaTrash />
-                    </button>
+                        variant="danger-light"
+                        className="!min-w-[40px] !min-h-[40px]"
+                        size={16}
+                    />
                 </div>
             )}
 
@@ -303,114 +307,132 @@ const BlogsEvents = () => {
 
             </div>
 
-            {/* Modal */}
-            {isModalOpen && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in">
-                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                        <div className="p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10">
-                            <h2 className="text-2xl font-bold text-gray-800">
-                                {editItem ? 'Edit' : 'Add'} {modalType === 'blog' ? 'Article' : 'Event'}
-                            </h2>
-                            <button onClick={() => setIsModalOpen(false)} className="text-gray-500 hover:text-red-500">
-                                <FaTimes size={24} />
-                            </button>
+            {/* Standardized Modal - Rendered via Portal */}
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title={`${editItem ? 'Edit' : 'Add'} ${modalType === 'blog' ? 'Article' : 'Event'}`}
+                maxWidth="max-w-2xl"
+            >
+                <form onSubmit={handleSave} className="space-y-6">
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Title</label>
+                            <input
+                                className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all font-medium"
+                                value={formData.title}
+                                onChange={e => setFormData({ ...formData, title: e.target.value })}
+                                required
+                                placeholder="Enter title"
+                            />
                         </div>
-                        <form onSubmit={handleSave} className="p-6 space-y-4">
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">Title</label>
-                                <input
-                                    className="w-full border p-2 rounded focus:ring-2 focus:ring-primary/20 outline-none"
-                                    value={formData.title}
-                                    onChange={e => setFormData({ ...formData, title: e.target.value })}
-                                    required
-                                />
-                            </div>
 
-                            {modalType === 'blog' ? (
-                                <>
+                        {modalType === 'blog' ? (
+                            <>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Content</label>
+                                    <textarea
+                                        className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl h-48 focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all resize-none custom-scrollbar"
+                                        value={formData.content}
+                                        onChange={e => setFormData({ ...formData, content: e.target.value })}
+                                        required
+                                        placeholder="Write your article content here..."
+                                    />
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">Content</label>
-                                        <textarea
-                                            className="w-full border p-2 rounded h-32 focus:ring-2 focus:ring-primary/20 outline-none"
-                                            value={formData.content}
-                                            onChange={e => setFormData({ ...formData, content: e.target.value })}
-                                            required
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">Author Name</label>
+                                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Author Name</label>
                                         <input
-                                            className="w-full border p-2 rounded focus:ring-2 focus:ring-primary/20 outline-none"
+                                            className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all"
                                             value={formData.authorName}
                                             onChange={e => setFormData({ ...formData, authorName: e.target.value })}
+                                            placeholder="Admin"
                                         />
                                     </div>
-                                </>
-                            ) : (
-                                <>
                                     <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
-                                        <textarea
-                                            className="w-full border p-2 rounded h-24 focus:ring-2 focus:ring-primary/20 outline-none"
-                                            value={formData.description}
-                                            onChange={e => setFormData({ ...formData, description: e.target.value })}
+                                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Status</label>
+                                        <select 
+                                            className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all"
+                                            value={formData.published ? 'true' : 'false'}
+                                            onChange={e => setFormData({ ...formData, published: e.target.value === 'true' })}
+                                        >
+                                            <option value="true">Published</option>
+                                            <option value="false">Draft</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Description</label>
+                                    <textarea
+                                        className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl h-24 focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all resize-none custom-scrollbar"
+                                        value={formData.description}
+                                        onChange={e => setFormData({ ...formData, description: e.target.value })}
+                                        required
+                                        placeholder="Brief event overview..."
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Date</label>
+                                        <input
+                                            type="date"
+                                            className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all"
+                                            value={formData.date}
+                                            onChange={e => setFormData({ ...formData, date: e.target.value })}
                                             required
                                         />
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-bold text-gray-700 mb-1">Date</label>
-                                            <input
-                                                type="date"
-                                                className="w-full border p-2 rounded focus:ring-2 focus:ring-primary/20 outline-none"
-                                                value={formData.date}
-                                                onChange={e => setFormData({ ...formData, date: e.target.value })}
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-bold text-gray-700 mb-1">Location</label>
-                                            <input
-                                                className="w-full border p-2 rounded focus:ring-2 focus:ring-primary/20 outline-none"
-                                                value={formData.location}
-                                                onChange={e => setFormData({ ...formData, location: e.target.value })}
-                                                required
-                                            />
-                                        </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Location</label>
+                                        <input
+                                            className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all"
+                                            value={formData.location}
+                                            onChange={e => setFormData({ ...formData, location: e.target.value })}
+                                            required
+                                            placeholder="City, State"
+                                        />
                                     </div>
-                                </>
-                            )}
-
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">Image source (URL or Upload)</label>
-                                <div className="flex gap-2">
-                                    <input
-                                        className="flex-1 border p-2 rounded focus:ring-2 focus:ring-primary/20 outline-none"
-                                        value={modalType === 'blog' ? formData.coverImage : (formData.images && formData.images[0] || '')}
-                                        onChange={e => {
-                                            const val = e.target.value;
-                                            if (modalType === 'blog') {
-                                                setFormData({ ...formData, coverImage: val });
-                                            } else {
-                                                setFormData({ ...formData, images: [val] });
-                                            }
-                                        }}
-                                        placeholder="https://... or upload"
-                                    />
-                                    <label className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded cursor-pointer transition-colors flex items-center">
-                                        Upload
-                                        <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
-                                    </label>
                                 </div>
-                            </div>
+                            </>
+                        )}
 
-                            <button type="submit" className="w-full bg-primary text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-lg">
-                                Save {modalType === 'blog' ? 'Article' : 'Event'}
-                            </button>
-                        </form>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Image source (URL or Upload)</label>
+                            <div className="flex gap-2">
+                                <input
+                                    className="flex-1 bg-gray-50 border border-gray-100 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all text-xs"
+                                    value={modalType === 'blog' ? formData.coverImage : (formData.images && formData.images[0] || '')}
+                                    onChange={e => {
+                                        const val = e.target.value;
+                                        if (modalType === 'blog') {
+                                            setFormData({ ...formData, coverImage: val });
+                                        } else {
+                                            setFormData({ ...formData, images: [val] });
+                                        }
+                                    }}
+                                    placeholder="https://... or upload"
+                                />
+                                <label className="bg-gray-900 text-white px-6 rounded-xl flex items-center justify-center cursor-pointer hover:bg-black transition-colors font-bold overflow-hidden shadow-sm">
+                                    Upload
+                                    <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                                </label>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            )}
+
+                    <div className="flex gap-3 pt-4">
+                        <button type="submit" className="flex-1 bg-gray-900 text-white font-bold py-4 rounded-2xl hover:bg-black transition-all shadow-xl active:scale-[0.98]">
+                            Save {modalType === 'blog' ? 'Article' : 'Event'}
+                        </button>
+                        <button type="button" onClick={() => setIsModalOpen(false)} className="px-8 bg-gray-100 text-gray-600 font-bold py-4 rounded-2xl hover:bg-gray-200 transition-all">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </Modal>
         </div>
     );
 };

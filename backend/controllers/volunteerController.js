@@ -2,13 +2,14 @@ const Volunteer = require('../models/Volunteer');
 const VolunteerTask = require('../models/VolunteerTask');
 const User = require('../models/User');
 const Role = require('../models/Role');
+const { createNotification } = require('./notificationController');
 
 // @desc    Register as Volunteer
 // @route   POST /api/volunteers/register
 // @access  Private (Any User)
 const registerVolunteer = async (req, res) => {
     try {
-        const { skills, availability, phone, address } = req.body;
+        const { availability, phone, address } = req.body;
 
         // Check if already registered
         const existing = await Volunteer.findOne({ user: req.user._id });
@@ -18,7 +19,6 @@ const registerVolunteer = async (req, res) => {
 
         const volunteer = await Volunteer.create({
             user: req.user._id,
-            skills,
             availability,
             phone,
             address,
@@ -33,6 +33,15 @@ const registerVolunteer = async (req, res) => {
         }
 
         await User.findByIdAndUpdate(req.user._id, { role: volunteerRole._id });
+
+        // Trigger Admin notification
+        await createNotification({
+            role: 'Admin',
+            title: 'New Volunteer Application',
+            message: `${req.user.name} has registered as a volunteer.`,
+            type: 'New Volunteer',
+            redirectLink: '/dashboard'
+        });
 
         res.status(201).json(volunteer);
     } catch (error) {
@@ -94,10 +103,28 @@ const submitTask = async (req, res) => {
 
         task.submissionText = submissionText;
         task.submissionImage = submissionImage;
-        task.status = 'Submitted';
+        task.status = 'Completed';
         task.submittedAt = new Date();
+        task.completedAt = new Date();
 
         await task.save();
+
+        // Automatically update the volunteer's stats
+        const volunteer = await Volunteer.findById(task.volunteer);
+        if (volunteer) {
+            volunteer.totalHours += task.assignedHours || 0;
+            volunteer.completedTasks += 1;
+            await volunteer.save();
+
+            // Trigger Admin notification
+            await createNotification({
+                role: 'Admin',
+                title: 'Volunteer Task Completed',
+                message: `${req.user.name} has completed the task: ${task.title}. (+${task.assignedHours || 0} hours)`,
+                type: 'Task Completed',
+                redirectLink: '/dashboard'
+            });
+        }
 
         res.json(task);
     } catch (error) {

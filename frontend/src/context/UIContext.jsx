@@ -19,7 +19,10 @@ export const UIProvider = ({ children }) => {
                 }
             }
         } catch (error) {
-            console.error("Failed to fetch unread count", error);
+            // Silence 401s as they are handled by the API interceptor
+            if (error.response?.status !== 401) {
+                console.warn("Failed to fetch unread count", error.message);
+            }
         }
     }, []);
 

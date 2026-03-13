@@ -3,8 +3,10 @@ const dotenv = require('dotenv');
 const Blog = require('./models/Blog');
 const Event = require('./models/Event');
 
+const path = require('path');
+
 // Load env vars
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const dummyEvents = [
     { title: 'Charity Marathon 2026', date: '2026-03-15', location: 'City Park', description: 'Join us for a 5k run to raise funds for education.', images: ['https://images.unsplash.com/photo-1595821557929-e1ae6724a7d6?q=80&w=800&auto=format&fit=crop'] },
@@ -21,8 +23,9 @@ const dummyBlogs = [
 
 const seedMedia = async () => {
     try {
+        console.log("Connecting to MongoDB...");
         await mongoose.connect(process.env.MONGO_URI);
-        console.log("Connected to MongoDB...");
+        console.log("Connected to MongoDB successfully.");
 
         // Seed Events
         for (const evt of dummyEvents) {

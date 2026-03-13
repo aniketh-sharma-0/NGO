@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import api from '../utils/api';
 import { FaHandHoldingHeart, FaBuilding, FaGlobe, FaUserFriends, FaTimes, FaRupeeSign, FaLandmark, FaHandshake, FaHeart, FaCheck } from 'react-icons/fa';
 import EditableText from '../components/cms/EditableText';
+import PhoneInputWithCountry from '../components/forms/PhoneInputWithCountry';
+import Modal from '../components/common/Modal';
 import SEO from '../components/common/SEO';
 import useBodyScrollLock from '../hooks/useBodyScrollLock';
 
@@ -120,100 +122,105 @@ const Donate = () => {
                 </div>
             </div>
 
-            {/* Modal */}
-            {selectedCategory && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in">
-                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-                        <div className="p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10">
-                            <h2 className="text-2xl font-bold text-gray-800">{selectedCategory} Enquiry</h2>
-                            <button onClick={closeModal} className="text-gray-500 hover:text-red-500 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full active:bg-gray-100 transition-colors">
-                                <FaTimes size={24} />
+            {/* Donation Enquiry Modal - Rendered via Portal */}
+            <Modal
+                isOpen={!!selectedCategory}
+                onClose={closeModal}
+                title={`${selectedCategory} Enquiry`}
+                maxWidth="max-w-xl"
+            >
+                <div className="space-y-6">
+                    {status === 'success' ? (
+                        <div className="text-center py-12 animate-fade-in">
+                            <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                                <FaCheck size={40} />
+                            </div>
+                            <h3 className="text-3xl font-bold text-gray-900 mb-3">It's Done!</h3>
+                            <p className="text-gray-600 font-medium">Your enquiry has been submitted.</p>
+                            <p className="text-sm text-gray-400 mt-2 max-w-xs mx-auto">Our team will contact you shortly to coordinate your donation.</p>
+                            <button onClick={closeModal} className="mt-8 px-10 py-3 bg-gray-900 text-white font-bold rounded-2xl hover:bg-black transition-all shadow-xl">
+                                Close Window
                             </button>
                         </div>
-
-                        <div className="p-6">
-                            {status === 'success' ? (
-                                <div className="text-center py-8 text-green-600">
-                                    <FaCheck className="text-6xl mx-auto mb-4" />
-                                    <h3 className="text-2xl font-bold">It's Done!</h3>
-                                    <p className="mt-2 text-gray-600">Your enquiry has been submitted.</p>
-                                    <p className="text-sm text-gray-500 mt-1">Our team will contact you shortly to coordinate your donation.</p>
+                    ) : (
+                        <>
+                            <div className="bg-blue-50/50 p-4 rounded-2xl flex items-center gap-4 text-blue-900 border border-blue-100/50 mb-4 transition-all animate-fade-in-down">
+                                <div className="p-3 bg-white rounded-xl shadow-sm">
+                                    <FaHandHoldingHeart className="text-blue-600 text-xl" />
                                 </div>
-                            ) : (
-                                <form onSubmit={handleSubmit} className="space-y-4">
-                                    <div className="bg-blue-50 p-4 rounded-lg flex items-center gap-3 text-blue-900 text-sm mb-4">
-                                        <FaHandHoldingHeart className="text-xl shrink-0" />
-                                        <p>Thank you for choosing to support us. Please fill in your details to proceed.</p>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">Full Name</label>
+                                <p className="text-sm font-medium leading-relaxed">Thank you for your support. Please share your details to proceed.</p>
+                            </div>
+                            
+                            <form onSubmit={handleSubmit} className="space-y-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Full Name</label>
                                         <input
                                             name="name"
-                                            value={formData.name} onChange={handleInputChange}
-                                            className="w-full bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                                            value={formData.name}
+                                            onChange={handleInputChange}
+                                            className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all font-medium"
+                                            placeholder="Your Name"
                                             required
                                         />
                                     </div>
-
-                                    {/* Amount Field Removed */}
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-bold text-gray-700 mb-1">Email</label>
-                                            <input
-                                                name="email" type="email"
-                                                value={formData.email} onChange={handleInputChange}
-                                                className="w-full bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-bold text-gray-700 mb-1">Phone</label>
-                                            <input
-                                                name="phone"
-                                                value={formData.phone} onChange={handleInputChange}
-                                                className="w-full bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {/* Show Organization ONLY if NOT Voluntary */}
-                                    {selectedCategory !== 'Voluntary' && (
-                                        <div>
-                                            <label className="block text-sm font-bold text-gray-700 mb-1">Organization Name</label>
-                                            <input
-                                                name="organization"
-                                                value={formData.organization} onChange={handleInputChange}
-                                                className="w-full bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
-                                                required={selectedCategory !== 'Voluntary'}
-                                            />
-                                        </div>
-                                    )}
-
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">Message (Optional)</label>
-                                        <textarea
-                                            name="message"
-                                            value={formData.message} onChange={handleInputChange}
-                                            className="w-full bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-3 h-24 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-sm resize-none"
+                                    <div className="space-y-1.5">
+                                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Email Address</label>
+                                        <input
+                                            type="email"
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={handleInputChange}
+                                            className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all font-medium"
+                                            placeholder="you@example.com"
+                                            required
                                         />
                                     </div>
-
-                                    <button
-                                        type="submit"
-                                        className="w-full bg-blue-900 text-white py-4 min-h-[44px] rounded-lg font-bold shadow-lg hover:bg-opacity-90 active:bg-blue-800 hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                                        disabled={status === 'submitting'}
-                                    >
-                                        {status === 'submitting' ? 'Sending...' : 'Submit Enquiry'}
-                                    </button>
-                                </form>
-                            )}
-                        </div>
-                    </div>
-                </div >
-            )}
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="space-y-1.5 flex flex-col">
+                                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Phone Number</label>
+                                        <PhoneInputWithCountry
+                                            value={formData.phone}
+                                            onChange={(val) => setFormData({ ...formData, phone: val })}
+                                            className="w-full"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Organization (Optional)</label>
+                                        <input
+                                            name="organization"
+                                            value={formData.organization}
+                                            onChange={handleInputChange}
+                                            className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all font-medium"
+                                            placeholder="Company name"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Message</label>
+                                    <textarea
+                                        name="message"
+                                        value={formData.message}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl h-24 focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all resize-none font-medium"
+                                        placeholder="Any specific heart for this donation?"
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    disabled={status === 'submitting'}
+                                    className="w-full bg-gray-900 text-white font-bold py-4 rounded-2xl hover:bg-black transition-all shadow-xl active:scale-[0.98] disabled:opacity-50 mt-4 h-14 flex items-center justify-center"
+                                >
+                                    {status === 'submitting' ? (
+                                        <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                                    ) : 'Submit Enquiry'}
+                                </button>
+                            </form>
+                        </>
+                    )}
+                </div>
+            </Modal>
         </div >
     );
 };

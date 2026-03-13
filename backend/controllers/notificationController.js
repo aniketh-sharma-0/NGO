@@ -1,0 +1,78 @@
+const Notification = require('../models/Notification');
+
+// @desc    Get user notifications
+// @route   GET /api/notifications
+// @access  Private
+const getNotifications = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const role = req.user.role?.name;
+        
+        // Fetch notifications specific to the user OR specific to their role if they are an Admin
+        let query;
+        if (role === 'Admin') {
+            query = { $or: [{ role: 'Admin' }, { userId }] };
+        } else {
+            query = { userId };
+        }
+        
+        const notifications = await Notification.find(query).sort({ createdAt: -1 }).limit(50);
+        res.json(notifications);
+    } catch (error) {
+        console.error('Error fetching notifications:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// @desc    Mark notification as read
+// @route   PATCH /api/notifications/:id/read
+// @access  Private
+const markAsRead = async (req, res) => {
+    try {
+        const notification = await Notification.findById(req.params.id);
+        
+        if (!notification) {
+            return res.status(404).json({ message: 'Notification not found' });
+        }
+        
+        // Ensure that the user marking it as read is either the target user or an admin
+        const userId = req.user.id;
+        const role = req.user.role?.name;
+
+        if (notification.userId && notification.userId.toString() !== userId && role !== 'Admin') {
+            return res.status(403).json({ message: 'Not authorized to update this notification' });
+        }
+        
+        notification.isRead = true;
+        await notification.save();
+        
+        res.json({ success: true, notification });
+    } catch (error) {
+        console.error('Error marking notification as read:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// Internal utility method
+const createNotification = async ({ userId, role, title, message, type, redirectLink }) => {
+    try {
+        const notification = new Notification({
+            userId,
+            role,
+            title,
+            message,
+            type,
+            redirectLink
+        });
+        await notification.save();
+        return notification;
+    } catch (error) {
+        console.error('Error creating notification:', error);
+    }
+};
+
+module.exports = {
+    getNotifications,
+    markAsRead,
+    createNotification
+};

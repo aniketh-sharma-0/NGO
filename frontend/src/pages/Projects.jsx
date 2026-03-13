@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import api from '../utils/api';
 import { useSearchParams } from 'react-router-dom';
+import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
-import { FaFilter, FaPlus, FaChevronDown } from 'react-icons/fa';
-import SEO from '../components/common/SEO';
+import { useCMS } from '../context/CMSContext';
 import { useUI } from '../context/UIContext';
+import { FaFilter, FaPlus, FaChevronDown, FaEdit, FaTrash, FaTimes, FaGlobe, FaLayerGroup, FaCalendarAlt, FaUsers, FaArrowRight, FaMapMarkerAlt, FaUsersCog, FaHandshake } from 'react-icons/fa';
+import CMSIconButton from '../components/common/CMSIconButton';
+import Modal from '../components/common/Modal';
+import SEO from '../components/common/SEO';
 import useBodyScrollLock from '../hooks/useBodyScrollLock';
 
 const getDemoProjects = () => [
@@ -454,9 +457,14 @@ const Projects = () => {
                                                         View Details &rarr;
                                                     </button>
                                                     {isAdmin && (
-                                                        <button onClick={() => openModal(project, 'edit')} className="text-gray-400 hover:text-blue-600">
-                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                                        </button>
+                                                        <CMSIconButton 
+                                                            icon={FaEdit}
+                                                            onClick={() => openModal(project, 'edit')}
+                                                            title="Edit Project"
+                                                            variant="default"
+                                                            className="!min-w-[32px] !min-h-[32px] !shadow-none border-none bg-transparent"
+                                                            size={14}
+                                                        />
                                                     )}
                                                 </div>
                                             </div>
@@ -469,219 +477,266 @@ const Projects = () => {
                 )}
             </div>
 
-            {/* Admin/Details Modal */}
-            {isModalOpen && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in">
-                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-                        <div className="p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10">
-                            <h2 className="text-2xl font-bold text-gray-800">
-                                {viewMode === 'edit' ? (editProject ? 'Edit Project' : 'Add New Project') : 'Project Details'}
-                            </h2>
-                            <div className="flex gap-2">
-                                {viewMode === 'details' && isAdmin && (
-                                    <button onClick={() => setViewMode('edit')} className="px-4 py-2 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 font-medium">Edit Project</button>
-                                )}
-                                <button onClick={closeModal} className="text-gray-500 hover:text-red-500">
-                                    <span className="text-2xl">&times;</span>
-                                </button>
+            {/* Project Details & Management Modal - Rendered via Portal */}
+            <Modal
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                title={viewMode === 'edit' ? (editProject ? 'Edit Project' : 'Add New Project') : 'Project Details'}
+                maxWidth="max-w-5xl"
+            >
+                <div className="space-y-8">
+                    {viewMode === 'details' ? (
+                        <div className="space-y-8 animate-fade-in">
+                            {/* Header Info */}
+                            <div className="flex flex-col md:flex-row gap-10">
+                                <div className="flex-1 space-y-6">
+                                    <div className="flex items-center gap-4">
+                                        <span className={`px-3 py-1.5 rounded-xl text-[10px] font-bold text-white uppercase tracking-widest shadow-sm
+                                            ${formData.status === 'Upcoming' ? 'bg-blue-500' :
+                                                formData.status === 'Ongoing' ? 'bg-green-500' : 'bg-gray-500'}`}>
+                                            {formData.status}
+                                        </span>
+                                        <span className="text-gray-400 font-bold text-[10px] uppercase tracking-widest">{formData.category}</span>
+                                    </div>
+                                    <h1 className="text-3xl md:text-4xl font-black text-gray-900 leading-tight">{formData.title}</h1>
+
+                                    {/* Key Details Grid */}
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-gray-50/50 p-6 rounded-3xl border border-gray-100 mb-8">
+                                        <div className="space-y-1">
+                                            <span className="block text-[9px] text-gray-400 font-bold uppercase tracking-widest">Location</span>
+                                            <div className="flex items-center gap-2 text-gray-700">
+                                                <FaMapMarkerAlt className="text-gray-400" size={12} />
+                                                <span className="text-sm font-bold">{formData.location || 'N/A'}</span>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <span className="block text-[9px] text-gray-400 font-bold uppercase tracking-widest">Impact</span>
+                                            <div className="flex items-center gap-2 text-gray-700">
+                                                <FaUsers className="text-gray-400" size={12} />
+                                                <span className="text-sm font-bold">{formData.beneficiaries || 'N/A'}</span>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <span className="block text-[9px] text-gray-400 font-bold uppercase tracking-widest">Sponsor</span>
+                                            <div className="flex items-center gap-2 text-gray-700">
+                                                <FaHandshake className="text-gray-400" size={12} />
+                                                <span className="text-sm font-bold">{formData.sponsor || 'Self-Funded'}</span>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <span className="block text-[9px] text-gray-400 font-bold uppercase tracking-widest">Timeline</span>
+                                            <div className="flex items-center gap-2 text-gray-700">
+                                                <FaCalendarAlt className="text-gray-400" size={12} />
+                                                <span className="text-sm font-bold">{formData.status}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="prose prose-blue max-w-none">
+                                        <p className="text-gray-600 leading-relaxed text-lg italic border-l-4 border-gray-200 pl-6 py-2">{formData.description}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Images Grid */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="group relative aspect-video rounded-3xl overflow-hidden bg-gray-100 shadow-xl border border-gray-100">
+                                    {formData.image1 ? (
+                                        <>
+                                            <img src={formData.image1} alt="Primary" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                                        </>
+                                    ) : (
+                                        <div className="w-full h-full flex flex-col items-center justify-center text-gray-300 gap-2">
+                                            <FaGlobe size={32} />
+                                            <span className="text-xs font-bold uppercase tracking-widest">Primary Media N/A</span>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="group relative aspect-video rounded-3xl overflow-hidden bg-gray-100 shadow-xl border border-gray-100">
+                                    {formData.image2 ? (
+                                        <>
+                                            <img src={formData.image2} alt="Secondary" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                                        </>
+                                    ) : (
+                                        <div className="w-full h-full flex flex-col items-center justify-center text-gray-300 gap-2">
+                                            <FaLayerGroup size={32} />
+                                            <span className="text-xs font-bold uppercase tracking-widest">Secondary Media N/A</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col lg:flex-row gap-10 border-t border-gray-100 pt-10">
+                                {/* Members Involved */}
+                                <div className="flex-1 space-y-6">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="text-xl font-bold text-gray-900 flex items-center gap-3">
+                                            <FaUsersCog className="text-gray-400" /> Crew & Roles
+                                        </h3>
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{formData.members?.length || 0} Members</span>
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {formData.members && formData.members.map((m, i) => (
+                                            <div key={i} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:bg-white hover:shadow-md transition-all group/member">
+                                                <div>
+                                                    <span className="block font-bold text-gray-900 group-hover/member:text-blue-600 transition-colors">{m.name}</span>
+                                                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{m.position}</span>
+                                                </div>
+                                                <div className="w-8 h-8 rounded-full bg-white border border-gray-100 flex items-center justify-center shadow-sm">
+                                                    <span className="text-[10px] font-bold text-gray-400">{m.name.charAt(0)}</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        {(!formData.members || formData.members.length === 0) && (
+                                            <div className="col-span-full py-10 bg-gray-50/50 rounded-3xl border border-dashed border-gray-200 text-center">
+                                                <p className="text-gray-400 text-sm font-medium">No team members specified.</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Doc Reports */}
+                                <div className="w-full lg:w-80 space-y-6">
+                                    <h3 className="text-xl font-bold text-gray-900">Project Data</h3>
+                                    <div className="space-y-4">
+                                        <a 
+                                            href={formData.projectReport} 
+                                            target="_blank" 
+                                            rel="noreferrer" 
+                                            className={`group/link flex items-center justify-between p-5 rounded-2xl border transition-all
+                                                ${formData.projectReport ? 'bg-blue-50/30 border-blue-100 hover:bg-blue-50 hover:shadow-lg' : 'bg-gray-50 border-gray-100 pointer-events-none grayscale'}`}
+                                        >
+                                            <div>
+                                                <h4 className="font-bold text-gray-900 group-hover/link:text-blue-600 transition-colors">Project Report</h4>
+                                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Operational Audit</p>
+                                            </div>
+                                            <FaArrowRight className="text-gray-300 group-hover/link:text-blue-500 group-hover/link:translate-x-1 transition-all" />
+                                        </a>
+                                        <a 
+                                            href={formData.financialReport} 
+                                            target="_blank" 
+                                            rel="noreferrer" 
+                                            className={`group/link flex items-center justify-between p-5 rounded-2xl border transition-all
+                                                ${formData.financialReport ? 'bg-green-50/30 border-green-100 hover:bg-green-50 hover:shadow-lg' : 'bg-gray-50 border-gray-100 pointer-events-none grayscale'}`}
+                                        >
+                                            <div>
+                                                <h4 className="font-bold text-gray-900 group-hover/link:text-green-600 transition-colors">Financial View</h4>
+                                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Budget Allocation</p>
+                                            </div>
+                                            <FaArrowRight className="text-gray-300 group-hover/link:text-green-500 group-hover/link:translate-x-1 transition-all" />
+                                        </a>
+                                    </div>
+                                    
+                                    {isAdmin && (
+                                        <button 
+                                            onClick={() => setViewMode('edit')} 
+                                            className="w-full py-4 bg-gray-900 text-white font-bold rounded-2xl hover:bg-black transition-all shadow-xl flex items-center justify-center gap-3 active:scale-[0.98]"
+                                        >
+                                            <FaEdit /> Modify Mission
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </div>
-
-                        <div className="p-6">
-                            {viewMode === 'details' ? (
-                                <div className="space-y-8">
-                                    {/* Header Info */}
-                                    <div className="flex flex-col md:flex-row gap-6">
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-3 mb-3 md:mb-2">
-                                                <span className={`px-3 py-1 rounded-full text-xs font-bold text-white
-                                                    ${formData.status === 'Upcoming' ? 'bg-blue-500' :
-                                                        formData.status === 'Ongoing' ? 'bg-green-500' : 'bg-gray-500'}`}>
-                                                    {formData.status}
-                                                </span>
-                                                <span className="text-primary font-bold text-xs md:text-sm tracking-wide">{formData.category.toUpperCase()}</span>
-                                            </div>
-                                            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6 leading-tight">{formData.title}</h1>
-
-                                            {/* Key Details Grid */}
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 bg-gray-50 p-4 rounded-lg border border-gray-100">
-                                                <div>
-                                                    <span className="block text-xs text-gray-400 font-bold uppercase">Location</span>
-                                                    <span className="text-gray-700 font-medium">{formData.location || 'N/A'}</span>
-                                                </div>
-                                                <div>
-                                                    <span className="block text-xs text-gray-400 font-bold uppercase">Beneficiaries</span>
-                                                    <span className="text-gray-700 font-medium">{formData.beneficiaries || 'N/A'}</span>
-                                                </div>
-                                                <div>
-                                                    <span className="block text-xs text-gray-400 font-bold uppercase">Supported By</span>
-                                                    <span className="text-gray-700 font-medium">{formData.sponsor || 'Self-Funded'}</span>
-                                                </div>
-                                                <div>
-                                                    <span className="block text-xs text-gray-400 font-bold uppercase">Timeline</span>
-                                                    <span className="text-gray-700 font-medium">{formData.status}</span>
-                                                </div>
-                                            </div>
-
-                                            <p className="text-gray-600 leading-relaxed text-base md:text-lg mb-4">{formData.description}</p>
+                    ) : (
+                        <form onSubmit={handleSubmit} className="space-y-8 animate-fade-in">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-6">
+                                    <div className="space-y-1.5">
+                                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Mission Identifier (Title)</label>
+                                        <input name="title" value={formData.title} onChange={handleInputChange} className="w-full bg-gray-50 border border-gray-100 p-4 rounded-2xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all font-bold text-gray-900" required placeholder="Project Name" />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1.5">
+                                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Category</label>
+                                            <select name="category" value={formData.category} onChange={handleInputChange} className="w-full bg-gray-50 border border-gray-100 p-4 rounded-2xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all font-medium text-gray-700">
+                                                <option value="Government">Government</option>
+                                                <option value="CSR">CSR</option>
+                                                <option value="Client">Client</option>
+                                            </select>
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Status</label>
+                                            <select name="status" value={formData.status} onChange={handleInputChange} className="w-full bg-gray-50 border border-gray-100 p-4 rounded-2xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all font-medium text-gray-700">
+                                                <option value="Upcoming">Upcoming</option>
+                                                <option value="Ongoing">Ongoing</option>
+                                                <option value="Completed">Completed</option>
+                                            </select>
                                         </div>
                                     </div>
-
-                                    {/* Images */}
+                                    <div className="space-y-1.5">
+                                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Operation Description</label>
+                                        <textarea name="description" value={formData.description} onChange={handleInputChange} className="w-full bg-gray-50 border border-gray-100 p-4 rounded-2xl h-32 focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all resize-none text-sm leading-relaxed" required placeholder="Detailed timeline and goals..." />
+                                    </div>
+                                </div>
+                                <div className="space-y-6">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="h-64 rounded-lg overflow-hidden bg-gray-100 shadow-inner">
-                                            {formData.image1 ? (
-                                                <img src={formData.image1} alt="Primary" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-gray-400">No Image 1</div>
-                                            )}
+                                        <div className="space-y-1.5">
+                                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Primary Asset URL</label>
+                                            <input name="image1" value={formData.image1} onChange={handleInputChange} className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl text-xs" placeholder="https://..." />
                                         </div>
-                                        <div className="h-64 rounded-lg overflow-hidden bg-gray-100 shadow-inner">
-                                            {formData.image2 ? (
-                                                <img src={formData.image2} alt="Secondary" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-gray-400">No Image 2</div>
-                                            )}
+                                        <div className="space-y-1.5">
+                                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Secondary Asset URL</label>
+                                            <input name="image2" value={formData.image2} onChange={handleInputChange} className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl text-xs" placeholder="https://..." />
                                         </div>
                                     </div>
-
-                                    <div className="flex flex-col md:flex-row gap-8">
-                                        {/* Members */}
-                                        <div className="flex-1">
-                                            <h3 className="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Modules & Members Involved</h3>
-                                            <div className="space-y-3">
-                                                {formData.members && formData.members.map((m, i) => (
-                                                    <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
-                                                        <span className="font-bold text-gray-700">{m.name}</span>
-                                                        <span className="text-sm text-gray-500 bg-white px-2 py-1 rounded border shadow-sm">{m.position}</span>
-                                                    </div>
-                                                ))}
-                                                {(!formData.members || formData.members.length === 0) && <p className="text-gray-400 italic">No members listed.</p>}
-                                            </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div className="space-y-1.5">
+                                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Location</label>
+                                            <input name="location" value={formData.location} onChange={handleInputChange} className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl text-xs" placeholder="e.g. District" />
                                         </div>
-
-                                        {/* Reports */}
-                                        <div className="w-full md:w-1/3 space-y-4">
-                                            <h3 className="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Project Reports</h3>
-
-                                            <div className="p-4 bg-soft-blue rounded-lg border border-blue-100">
-                                                <h4 className="font-bold text-primary mb-1">Project Report</h4>
-                                                {formData.projectReport ? (
-                                                    <a href={formData.projectReport} target="_blank" rel="noreferrer" className="text-accent hover:underline text-sm break-all">
-                                                        View Document &rarr;
-                                                    </a>
-                                                ) : <span className="text-gray-400 text-sm">Not Available</span>}
-                                            </div>
-
-                                            <div className="p-4 bg-green-50 rounded-lg border border-green-100">
-                                                <h4 className="font-bold text-green-800 mb-1">Financial Report</h4>
-                                                {formData.financialReport ? (
-                                                    <a href={formData.financialReport} target="_blank" rel="noreferrer" className="text-green-600 hover:underline text-sm break-all">
-                                                        View Document &rarr;
-                                                    </a>
-                                                ) : <span className="text-gray-400 text-sm">Not Available</span>}
-                                            </div>
+                                        <div className="space-y-1.5">
+                                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Reach</label>
+                                            <input name="beneficiaries" value={formData.beneficiaries} onChange={handleInputChange} className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl text-xs" placeholder="e.g. 500 Farmers" />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Funder</label>
+                                            <input name="sponsor" value={formData.sponsor} onChange={handleInputChange} className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl text-xs" placeholder="Govt/CSR" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4 p-5 bg-gray-50 rounded-3xl border border-gray-100">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Personnel Management</label>
+                                            <button type="button" onClick={addMember} className="px-3 py-1 bg-gray-900 text-white text-[10px] font-bold rounded-lg hover:bg-black transition-all">+ Add Crew</button>
+                                        </div>
+                                        <div className="space-y-2 max-h-32 overflow-y-auto custom-scrollbar pr-2">
+                                            {formData.members.map((member, index) => (
+                                                <div key={index} className="flex gap-2 animate-fade-in-down">
+                                                    <input placeholder="Name" value={member.name} onChange={(e) => handleMemberChange(index, 'name', e.target.value)} className="flex-1 bg-white border border-gray-100 p-2 text-xs rounded-lg outline-none focus:ring-1 focus:ring-gray-900 shadow-sm" />
+                                                    <input placeholder="Role" value={member.position} onChange={(e) => handleMemberChange(index, 'position', e.target.value)} className="flex-1 bg-white border border-gray-100 p-2 text-xs rounded-lg outline-none focus:ring-1 focus:ring-gray-900 shadow-sm" />
+                                                    <button type="button" onClick={() => removeMember(index)} className="w-8 h-8 rounded-lg text-red-400 hover:bg-red-50 transition-colors">&times;</button>
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
                                 </div>
-                            ) : (
-                                <form onSubmit={handleSubmit} className="space-y-6">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div>
-                                            <label className="block text-sm font-bold text-gray-700 mb-1">Mission Name (Title)</label>
-                                            <input name="title" value={formData.title} onChange={handleInputChange} className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-primary/20 outline-none" required />
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-sm font-bold text-gray-700 mb-1">Category</label>
-                                                <select name="category" value={formData.category} onChange={handleInputChange} className="w-full border border-gray-300 p-3 rounded-lg bg-white">
-                                                    <option value="Government">Government</option>
-                                                    <option value="CSR">CSR</option>
-                                                    <option value="Client">Client</option>
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-bold text-gray-700 mb-1">Status</label>
-                                                <select name="status" value={formData.status} onChange={handleInputChange} className="w-full border border-gray-300 p-3 rounded-lg bg-white">
-                                                    <option value="Upcoming">Upcoming</option>
-                                                    <option value="Ongoing">Ongoing</option>
-                                                    <option value="Completed">Completed</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
+                            </div>
 
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
-                                        <textarea name="description" value={formData.description} onChange={handleInputChange} className="w-full border border-gray-300 p-3 rounded-lg h-32 focus:ring-2 focus:ring-primary/20 outline-none" required />
-                                    </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+                                <div className="space-y-1.5">
+                                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Operational Report Document</label>
+                                    <input name="projectReport" value={formData.projectReport} onChange={handleInputChange} className="w-full bg-gray-50 border border-gray-100 p-4 rounded-2xl text-xs" placeholder="URL to PDF/Doc" />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Financial Statement Document</label>
+                                    <input name="financialReport" value={formData.financialReport} onChange={handleInputChange} className="w-full bg-gray-50 border border-gray-100 p-4 rounded-2xl text-xs" placeholder="URL to PDF/Doc" />
+                                </div>
+                            </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div>
-                                            <label className="block text-sm font-bold text-gray-700 mb-1">Image 1 URL</label>
-                                            <input name="image1" value={formData.image1} onChange={handleInputChange} className="w-full border border-gray-300 p-3 rounded-lg" placeholder="https://..." />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-bold text-gray-700 mb-1">Image 2 URL</label>
-                                            <input name="image2" value={formData.image2} onChange={handleInputChange} className="w-full border border-gray-300 p-3 rounded-lg" placeholder="https://..." />
-                                        </div>
-                                    </div>
-
-
-
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        <div>
-                                            <label className="block text-sm font-bold text-gray-700 mb-1">Location</label>
-                                            <input name="location" value={formData.location} onChange={handleInputChange} className="w-full border border-gray-300 p-3 rounded-lg" placeholder="e.g. District HQ" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-bold text-gray-700 mb-1">Beneficiaries</label>
-                                            <input name="beneficiaries" value={formData.beneficiaries} onChange={handleInputChange} className="w-full border border-gray-300 p-3 rounded-lg" placeholder="e.g. 500 Farmers" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-bold text-gray-700 mb-1">Sponsor/Donor</label>
-                                            <input name="sponsor" value={formData.sponsor} onChange={handleInputChange} className="w-full border border-gray-300 p-3 rounded-lg" placeholder="e.g. Govt/CSR" />
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                                        <div className="flex justify-between items-center">
-                                            <label className="block text-sm font-bold text-gray-700">Members Involved</label>
-                                            <button type="button" onClick={addMember} className="text-xs bg-primary text-white px-2 py-1 rounded hover:bg-blue-800">+ Add Member</button>
-                                        </div>
-                                        {formData.members.map((member, index) => (
-                                            <div key={index} className="flex gap-2">
-                                                <input placeholder="Name" value={member.name} onChange={(e) => handleMemberChange(index, 'name', e.target.value)} className="flex-1 border p-2 rounded" />
-                                                <input placeholder="Position" value={member.position} onChange={(e) => handleMemberChange(index, 'position', e.target.value)} className="flex-1 border p-2 rounded" />
-                                                <button type="button" onClick={() => removeMember(index)} className="text-red-500 hover:bg-red-50 px-2 rounded">&times;</button>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div>
-                                            <label className="block text-sm font-bold text-gray-700 mb-1">Project Report URL</label>
-                                            <input name="projectReport" value={formData.projectReport} onChange={handleInputChange} className="w-full border border-gray-300 p-3 rounded-lg" placeholder="#" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-bold text-gray-700 mb-1">Financial Report URL</label>
-                                            <input name="financialReport" value={formData.financialReport} onChange={handleInputChange} className="w-full border border-gray-300 p-3 rounded-lg" placeholder="#" />
-                                        </div>
-                                    </div>
-
-                                    <div className="flex justify-end gap-3 pt-6 border-t">
-                                        <button type="button" onClick={() => setViewMode('details')} className="px-6 py-2 border rounded-lg hover:bg-gray-50 font-medium">Cancel</button>
-                                        <button type="submit" className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-blue-800 font-bold shadow-lg hover:shadow-xl transition-all">
-                                            Save Changes
-                                        </button>
-                                    </div>
-                                </form>
-                            )}
-                        </div>
-                    </div>
+                            <div className="flex gap-4 pt-8 border-t border-gray-50">
+                                <button type="submit" className="flex-1 bg-gray-900 text-white font-bold py-5 rounded-3xl hover:bg-black transition-all shadow-xl active:scale-[0.98]">
+                                    Synchronize Database
+                                </button>
+                                <button type="button" onClick={() => setViewMode('details')} className="px-10 bg-gray-100 text-gray-600 font-bold py-5 rounded-3xl hover:bg-gray-200 transition-all">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    )}
                 </div>
-            )
-            }
+            </Modal>
         </div >
     );
 };

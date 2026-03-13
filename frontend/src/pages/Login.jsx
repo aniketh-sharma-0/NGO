@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaEnvelope } from 'react-icons/fa';
+import PasswordInput from '../components/forms/PasswordInput';
 import SEO from '../components/common/SEO';
 
 const Login = () => {
@@ -11,6 +12,7 @@ const Login = () => {
     const { login, register } = useAuth();
     const navigate = useNavigate();
     const [error, setError] = useState('');
+    const [fieldErrors, setFieldErrors] = useState({});
     const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -18,6 +20,7 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setFieldErrors({});
         setLoading(true);
 
         if (!isLogin && formData.password !== formData.confirmPassword) {
@@ -41,7 +44,16 @@ const Login = () => {
                     navigate('/'); // Or admin dashboard
                 }
             } else {
-                setError(result.message || 'Authentication failed');
+                if (result.validationErrors) {
+                    const formattedErrors = {};
+                    result.validationErrors.forEach(err => {
+                        formattedErrors[err.path || err.param] = err.msg;
+                    });
+                    setFieldErrors(formattedErrors);
+                    setError('Please correct the highlighted errors.');
+                } else {
+                    setError(result.message || 'Authentication failed');
+                }
             }
         } catch (err) {
             setError('An unexpected error occurred');
@@ -83,64 +95,57 @@ const Login = () => {
 
                     <form onSubmit={handleSubmit} className="space-y-4" autoComplete="on">
                         {!isLogin && (
-                            <div className="relative">
-                                <FaEnvelope className="absolute top-3.5 left-3 text-gray-400" />
-                                <input
-                                    name="name"
-                                    type="text"
-                                    placeholder="Full Name"
-                                    value={formData.name} onChange={handleChange}
-                                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-gray-50"
-                                    required
-                                    autoComplete="name"
-                                />
+                            <div>
+                                <div className={`relative ${fieldErrors.name ? 'ring-2 ring-red-500 rounded-lg' : ''}`}>
+                                    <FaEnvelope className="absolute top-3.5 left-3 text-gray-400" />
+                                    <input
+                                        name="name"
+                                        type="text"
+                                        placeholder="Full Name"
+                                        value={formData.name} onChange={handleChange}
+                                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-gray-50"
+                                        required
+                                        autoComplete="name"
+                                    />
+                                </div>
+                                {fieldErrors.name && <p className="text-red-500 text-xs font-bold mt-1 pl-1">{fieldErrors.name}</p>}
                             </div>
                         )}
-                        <div className="relative">
-                            <FaEnvelope className="absolute top-3.5 left-3 text-gray-400" />
-                            <input
-                                type="email" name="email"
-                                placeholder="Email Address"
-                                value={formData.email} onChange={handleChange}
-                                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-gray-50"
-                                required
-                                autoComplete="username"
-                            />
+                        <div>
+                            <div className={`relative ${fieldErrors.email ? 'ring-2 ring-red-500 rounded-lg' : ''}`}>
+                                <FaEnvelope className="absolute top-3.5 left-3 text-gray-400" />
+                                <input
+                                    type="email" name="email"
+                                    placeholder="Email Address"
+                                    value={formData.email} onChange={handleChange}
+                                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-gray-50"
+                                    required
+                                    autoComplete="username"
+                                />
+                            </div>
+                            {fieldErrors.email && <p className="text-red-500 text-xs font-bold mt-1 pl-1">{fieldErrors.email}</p>}
                         </div>
 
                         {/* Password Field */}
-                        <div className="relative">
-                            <FaLock className="absolute top-3.5 left-3 text-gray-400 z-10" />
-                            <input
-                                type={showPassword ? "text" : "password"}
-                                name="password"
-                                placeholder="Password"
-                                value={formData.password} onChange={handleChange}
-                                className="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-gray-50"
-                                required
-                                autoComplete={isLogin ? "current-password" : "new-password"}
+                        <div>
+                            <PasswordInput 
+                                value={formData.password}
+                                onChange={handleChange}
+                                showStrengthConfig={!isLogin}
+                                className={fieldErrors.password ? 'ring-2 ring-red-500' : ''}
                             />
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute top-3.5 right-4 text-gray-400 hover:text-gray-600 focus:outline-none z-10"
-                            >
-                                {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
-                            </button>
+                            {fieldErrors.password && <p className="text-red-500 text-xs font-bold mt-1 pl-1">{fieldErrors.password}</p>}
                         </div>
 
                         {/* Confirm Password Field - Only for Register */}
                         {!isLogin && (
-                            <div className="relative">
-                                <FaLock className="absolute top-3.5 left-3 text-gray-400" />
-                                <input
-                                    type="password"
+                            <div>
+                                <PasswordInput 
                                     name="confirmPassword"
                                     placeholder="Confirm Password"
-                                    value={formData.confirmPassword} onChange={handleChange}
-                                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-gray-50"
-                                    required
-                                    autoComplete="new-password"
+                                    value={formData.confirmPassword}
+                                    onChange={handleChange}
+                                    showStrengthConfig={false}
                                 />
                             </div>
                         )}
@@ -162,6 +167,7 @@ const Login = () => {
                             onClick={() => {
                                 setIsLogin(!isLogin);
                                 setError('');
+                                setFieldErrors({});
                                 setFormData({ name: '', email: '', password: '', confirmPassword: '' });
                             }}
                             className="text-primary font-bold ml-1 hover:underline outline-none"

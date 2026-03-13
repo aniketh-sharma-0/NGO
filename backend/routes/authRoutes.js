@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const { registerUser, loginUser, getMe, googleLogin } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
+const { registerValidationRules, loginValidationRules, validate } = require('../middleware/validationMiddleware');
 
-router.post('/register', registerUser);
-router.post('/login', loginUser);
+router.post('/register', registerValidationRules(), validate, registerUser);
+router.post('/login', loginValidationRules(), validate, loginUser);
 router.post('/google', googleLogin);
 router.get('/me', protect, getMe);
 

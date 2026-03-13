@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../utils/api';
-import { useAuth } from '../../context/AuthContext';
-import { useCMS } from '../../context/CMSContext';
-import DynamicList from '../cms/DynamicList';
+import { FaPen, FaSave, FaTimes, FaPlus } from 'react-icons/fa';
+import CMSIconButton from '../common/CMSIconButton';
+import Modal from '../common/Modal';
+import SectionTitle from '../common/SectionTitle';
+import ImageWithFallback from '../common/ImageWithFallback';
 import EditableText from '../cms/EditableText';
 import EditableImage from '../cms/EditableImage';
-import ImageWithFallback from '../common/ImageWithFallback';
-import { FaPen, FaSave, FaTimes } from 'react-icons/fa';
-import SectionTitle from '../common/SectionTitle';
+import DynamicList from '../cms/DynamicList';
+import { useAuth } from '../../context/AuthContext';
+import { useCMS } from '../../context/CMSContext';
+import api from '../../utils/api';
 
 
 const MemberItem = ({ member, updateMember, isAdmin, isEditMode }) => {
     const [isEditing, setIsEditing] = useState(false);
-    const [isTapped, setIsTapped] = useState(false);
     const [tempName, setTempName] = useState(member.name);
     const [tempRole, setTempRole] = useState(member.role);
     const [tempImage, setTempImage] = useState(member.image);
@@ -46,102 +47,122 @@ const MemberItem = ({ member, updateMember, isAdmin, isEditMode }) => {
     return (
         <div
             className="flex-none w-64 bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100 group relative"
-            onClick={() => setIsTapped(!isTapped)}
         >
             <div className="h-64 w-full relative overflow-hidden bg-gray-200">
                 <ImageWithFallback
-                    src={isEditing ? tempImage : member.image}
+                    src={member.image}
                     alt={member.name}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
 
-                {/* Image URL Input & Upload - Only visible when Editing */}
-                {isEditing && (
-                    <div className="absolute bottom-2 left-2 right-2 flex gap-1">
-                        <input
-                            value={tempImage}
-                            onChange={(e) => setTempImage(e.target.value)}
-                            className="flex-1 text-xs bg-white/90 p-1 rounded border shadow-sm outline-none focus:ring-2 focus:ring-primary"
-                            placeholder="Image URL..."
-                        />
-                        <label className="bg-primary text-white p-1 rounded cursor-pointer hover:bg-blue-700 shadow-sm flex items-center justify-center w-8" title="Upload Image">
-                            <span className="text-xs font-bold">+</span>
-                            <input
-                                type="file"
-                                className="hidden"
-                                accept="image/*"
-                                onChange={async (e) => {
-                                    const file = e.target.files[0];
-                                    if (!file) return;
-                                    const formData = new FormData();
-                                    formData.append('image', file);
-                                    try {
-                                        const res = await api.post('/admin/upload', formData, {
-                                            headers: {
-                                                'Content-Type': 'multipart/form-data'
-                                            }
-                                        });
-                                        setTempImage(res.data.filePath);
-                                    } catch (err) {
-                                        console.error(err);
-                                        alert('Upload Failed');
-                                    }
-                                }}
-                            />
-                        </label>
-                    </div>
-                )}
-
-                {/* Edit Trigger Button - Pushed inside image container per user request */}
-                {isAdmin && isEditMode && !isEditing && (
-                    <button
+                {/* Edit Trigger Button - Always stable in the container */}
+                {isAdmin && isEditMode && (
+                    <CMSIconButton 
+                        icon={FaPen}
                         onClick={handleEdit}
-                        className={`absolute bottom-2 right-2 bg-white/90 p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-gray-800 shadow-md hover:bg-white hover:text-primary transition-all opacity-0 group-hover:opacity-100 z-10 active:bg-gray-100 ${isTapped ? 'opacity-100' : ''}`}
                         title="Edit Member"
-                    >
-                        <FaPen size={14} />
-                    </button>
+                        className="absolute bottom-2 right-2"
+                    />
                 )}
             </div>
 
             <div className="p-4 text-center">
                 <h5 className="font-bold text-lg text-gray-800">
-                    {isEditing ? (
-                        <input
-                            value={tempName}
-                            onChange={(e) => setTempName(e.target.value)}
-                            className="w-full text-center bg-gray-50 border-b border-gray-300 focus:border-primary focus:outline-none"
-                            placeholder="Name"
-                        />
-                    ) : (
-                        <span>{member.name}</span>
-                    )}
+                    <span>{member.name}</span>
                 </h5>
                 <p className="text-blue-600 text-sm font-medium mt-1">
-                    {isEditing ? (
-                        <input
-                            value={tempRole}
-                            onChange={(e) => setTempRole(e.target.value)}
-                            className="w-full text-center bg-gray-50 border-b border-gray-300 focus:border-secondary focus:outline-none"
-                            placeholder="Role"
-                        />
-                    ) : (
-                        <span>{member.role}</span>
-                    )}
+                    <span>{member.role}</span>
                 </p>
+            </div>
 
-                {/* Edit Controls */}
-                {isEditing && (
-                    <div className="flex justify-center gap-3 mt-4">
-                        <button onClick={handleSave} className="bg-green-600 text-white px-3 py-2 min-h-[44px] min-w-[80px] rounded flex justify-center items-center gap-2 hover:bg-green-700 font-bold active:bg-green-800 transition-colors">
-                            <FaSave /> Save
+            {/* Stable Member Edit Modal - Rendered via Portal */}
+            <Modal
+                isOpen={isEditing}
+                onClose={handleCancel}
+                title="Edit Team Member"
+                maxWidth="max-w-md"
+            >
+                <div className="space-y-6">
+                    {/* Profile Preview */}
+                    <div className="flex justify-center">
+                        <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-50 shadow-xl">
+                            <img src={tempImage} alt="Preview" className="w-full h-full object-cover" />
+                        </div>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div>
+                            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5 block">Full Name</label>
+                            <input
+                                value={tempName}
+                                onChange={(e) => setTempName(e.target.value)}
+                                className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all font-medium"
+                                placeholder="Member Name"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5 block">Designation / Role</label>
+                            <input
+                                value={tempRole}
+                                onChange={(e) => setTempRole(e.target.value)}
+                                className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all font-medium text-blue-600"
+                                placeholder="e.g. Field Coordinator"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5 block">Profile Photo URL</label>
+                            <div className="flex gap-2">
+                                <input
+                                    value={tempImage}
+                                    onChange={(e) => setTempImage(e.target.value)}
+                                    className="flex-1 bg-gray-50 border border-gray-100 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all text-xs"
+                                    placeholder="https://images.unsplash.com/..."
+                                />
+                                <label className="bg-gray-900 text-white w-12 h-12 rounded-xl flex items-center justify-center cursor-pointer hover:bg-black transition-colors flex-shrink-0" title="Upload Image">
+                                    <FaPlus size={14} />
+                                    <input
+                                        type="file"
+                                        className="hidden"
+                                        accept="image/*"
+                                        onChange={async (e) => {
+                                            const file = e.target.files[0];
+                                            if (!file) return;
+
+                                            if (file.size > 5 * 1024 * 1024) {
+                                                alert('File size too large (Max 5MB)');
+                                                return;
+                                            }
+
+                                            const formData = new FormData();
+                                            formData.append('image', file);
+                                            try {
+                                                const res = await api.post('/admin/upload', formData, {
+                                                    headers: { 'Content-Type': 'multipart/form-data' }
+                                                });
+                                                setTempImage(res.data.filePath);
+                                            } catch (err) {
+                                                console.error(err);
+                                                alert('Upload Failed');
+                                            }
+                                        }}
+                                    />
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex gap-3 pt-2">
+                        <button onClick={handleSave} className="flex-1 bg-green-600 text-white py-3.5 rounded-2xl flex justify-center items-center gap-2 hover:bg-green-700 font-bold active:scale-95 transition-all shadow-lg shadow-green-200">
+                            <FaSave /> Save Changes
                         </button>
-                        <button onClick={handleCancel} className="bg-red-600 text-white px-3 py-2 min-h-[44px] min-w-[80px] rounded flex justify-center items-center gap-2 hover:bg-red-700 font-bold active:bg-red-800 transition-colors">
-                            <FaTimes /> Cancel
+                        <button onClick={handleCancel} className="bg-gray-100 text-gray-600 px-6 py-3.5 rounded-2xl flex justify-center items-center gap-2 hover:bg-gray-200 font-bold active:scale-95 transition-all">
+                            Cancel
                         </button>
                     </div>
-                )}
-            </div>
+                </div>
+            </Modal>
         </div>
     );
 };

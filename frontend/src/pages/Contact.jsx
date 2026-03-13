@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import api from '../utils/api';
 import { FaWhatsapp, FaPhoneVolume, FaEnvelopeOpenText, FaComments, FaPaperPlane } from 'react-icons/fa';
+import PhoneInputWithCountry from '../components/forms/PhoneInputWithCountry';
+
 import EditableText from '../components/cms/EditableText';
 import SelectInput from '../components/common/SelectInput';
 import SEO from '../components/common/SEO';
@@ -15,6 +17,7 @@ const Contact = () => {
         organization: ''
     });
     const [status, setStatus] = useState('');
+    const [fieldErrors, setFieldErrors] = useState({});
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -23,12 +26,20 @@ const Contact = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setStatus('submitting');
+        setFieldErrors({});
         try {
             await api.post('/contact', formData);
             setStatus('success');
             setFormData({ name: '', email: '', phone: '', message: '', inquiryType: 'General', organization: '' });
         } catch (error) {
             console.error(error);
+            if (error.response?.data?.errors) {
+                const formattedErrors = {};
+                error.response.data.errors.forEach(err => {
+                    formattedErrors[err.path || err.param] = err.msg;
+                });
+                setFieldErrors(formattedErrors);
+            }
             setStatus('error');
         }
     };
@@ -177,39 +188,32 @@ const Contact = () => {
                                         <input
                                             name="name"
                                             value={formData.name} onChange={handleChange}
-                                            className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-lg py-3 px-4 rounded-xl focus:outline-none focus:bg-white focus:border-blue-900 focus:ring-4 focus:ring-blue-100 transition-all"
+                                            className={`w-full bg-gray-50 border ${fieldErrors.name ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200'} text-gray-800 text-lg py-3 px-4 rounded-xl focus:outline-none focus:bg-white focus:border-blue-900 focus:ring-4 focus:ring-blue-100 transition-all`}
                                             placeholder="Your Name"
                                             required
                                         />
+                                        {fieldErrors.name && <p className="text-red-500 text-xs font-bold mt-1 pl-1">{fieldErrors.name}</p>}
                                     </div>
                                     <div>
                                         <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Email</label>
                                         <input
                                             type="email" name="email"
                                             value={formData.email} onChange={handleChange}
-                                            className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-lg py-3 px-4 rounded-xl focus:outline-none focus:bg-white focus:border-blue-900 focus:ring-4 focus:ring-blue-100 transition-all"
+                                            className={`w-full bg-gray-50 border ${fieldErrors.email ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200'} text-gray-800 text-lg py-3 px-4 rounded-xl focus:outline-none focus:bg-white focus:border-blue-900 focus:ring-4 focus:ring-blue-100 transition-all`}
                                             placeholder="email@example.com"
                                             required
                                         />
+                                        {fieldErrors.email && <p className="text-red-500 text-xs font-bold mt-1 pl-1">{fieldErrors.email}</p>}
                                     </div>
                                 </div>
 
-                                <div>
+                                <div className={fieldErrors.phone ? 'ring-2 ring-red-500 rounded-xl' : ''}>
                                     <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Phone</label>
-                                    <input
-                                        type="tel"
-                                        name="phone"
+                                    <PhoneInputWithCountry
                                         value={formData.phone}
-                                        onChange={(e) => {
-                                            const numericValue = e.target.value.replace(/\D/g, ''); // Strip non-numeric
-                                            if (numericValue.length <= 10) {
-                                                setFormData({ ...formData, phone: numericValue });
-                                            }
-                                        }}
-                                        className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-lg py-3 px-4 rounded-xl focus:outline-none focus:bg-white focus:border-blue-900 focus:ring-4 focus:ring-blue-100 transition-all"
-                                        placeholder="Mobile Number (10 digits)"
-                                        maxLength="10"
+                                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                     />
+                                    {fieldErrors.phone && <p className="text-red-500 text-xs font-bold mt-1 pl-1">{fieldErrors.phone}</p>}
                                 </div>
 
                                 <div>
@@ -217,10 +221,11 @@ const Contact = () => {
                                     <textarea
                                         name="message"
                                         value={formData.message} onChange={handleChange}
-                                        className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-lg p-4 rounded-xl h-40 focus:outline-none focus:bg-white focus:border-blue-900 focus:ring-4 focus:ring-blue-100 transition-all resize-none"
+                                        className={`w-full bg-gray-50 border ${fieldErrors.message ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200'} text-gray-800 text-lg p-4 rounded-xl h-40 focus:outline-none focus:bg-white focus:border-blue-900 focus:ring-4 focus:ring-blue-100 transition-all resize-none`}
                                         placeholder="How can we help you?"
                                         required
                                     ></textarea>
+                                    {fieldErrors.message && <p className="text-red-500 text-xs font-bold mt-1 pl-1">{fieldErrors.message}</p>}
                                 </div>
 
                                 <button

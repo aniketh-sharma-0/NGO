@@ -13,11 +13,17 @@ const donationSchema = new mongoose.Schema({
     // Donor Details
     name: {
         type: String,
-        required: true
+        required: true,
+        trim: true,
+        minlength: [2, 'Name must be at least 2 characters long'],
+        maxlength: [50, 'Name cannot exceed 50 characters'],
+        match: [/^[a-zA-Z\s]+$/, 'Name can only contain letters and spaces']
     },
     email: {
         type: String,
-        required: true
+        required: true,
+        trim: true,
+        lowercase: true
     },
     phone: {
         type: String

@@ -12,10 +12,9 @@ const VolunteerDashboard = () => {
 
     // Modal State
     const [selectedTask, setSelectedTask] = useState(null);
+    const [viewingTask, setViewingTask] = useState(null);
 
-    // Structured Report State
     const [reportData, setReportData] = useState({
-        hours: '',
         work: '',
         challenges: ''
     });
@@ -23,7 +22,7 @@ const VolunteerDashboard = () => {
     const [submissionImage, setSubmissionImage] = useState(null);
     const [submitting, setSubmitting] = useState(false);
 
-    useBodyScrollLock(!!selectedTask);
+    useBodyScrollLock(!!selectedTask || !!viewingTask);
 
     useEffect(() => {
         fetchData();
@@ -36,8 +35,8 @@ const VolunteerDashboard = () => {
                 const profileRes = await api.get('/volunteers/me');
                 setProfile(profileRes.data);
 
-                // 2. If Active, Get Tasks
-                if (profileRes.data.status === 'Active') {
+                // 2. If Approved, Get Tasks
+                if (profileRes.data.status === 'Approved') {
                     const tasksRes = await api.get('/volunteers/me/tasks');
                     setTasks(tasksRes.data);
                 }
@@ -86,7 +85,6 @@ const VolunteerDashboard = () => {
             const formattedSubmission = `
 DAILY REPORT
 ------------
-Hours Worked: ${reportData.hours}
 Work Description: ${reportData.work}
 Challenges/Notes: ${reportData.challenges}
             `.trim();
@@ -110,7 +108,7 @@ Challenges/Notes: ${reportData.challenges}
 
     const openModal = (task) => {
         setSelectedTask(task);
-        setReportData({ hours: '', work: '', challenges: '' });
+        setReportData({ work: '', challenges: '' });
         setSubmissionImage(null);
     };
 
@@ -132,10 +130,22 @@ Challenges/Notes: ${reportData.challenges}
                     </div>
                     <div className="mt-4 md:mt-0">
                         <span className={`px-4 py-1.5 rounded-full font-bold text-sm flex items-center gap-2
-                            ${profile.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                            <span className={`w-2 h-2 rounded-full ${profile.status === 'Active' ? 'bg-green-500' : 'bg-yellow-500'}`}></span>
+                            ${profile.status === 'Approved' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                            <span className={`w-2 h-2 rounded-full ${profile.status === 'Approved' ? 'bg-green-500' : 'bg-yellow-500'}`}></span>
                             {profile.status}
                         </span>
+                    </div>
+                </div>
+
+                {/* Volunteer Statistics */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+                        <span className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-1">Total Hours Contributed</span>
+                        <span className="text-3xl font-bold text-green-600">{profile.totalHours || 0}</span>
+                    </div>
+                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+                        <span className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-1">Completed Tasks</span>
+                        <span className="text-3xl font-bold text-blue-600">{profile.completedTasks || 0}</span>
                     </div>
                 </div>
 
@@ -146,6 +156,14 @@ Challenges/Notes: ${reportData.challenges}
                         </div>
                         <h2 className="text-2xl font-bold text-gray-800 mb-2 font-heading">Application Under Review</h2>
                         <p className="text-gray-500 max-w-md mx-auto">Thank you for your interest. Our team is currently reviewing your application. You will be notified once approved.</p>
+                    </div>
+                ) : profile.status === 'Rejected' ? (
+                    <div className="text-center py-20 bg-white rounded-2xl shadow-sm max-w-2xl mx-auto">
+                        <div className="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">
+                            <FaTimes />
+                        </div>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-2 font-heading">Application Declined</h2>
+                        <p className="text-gray-500 max-w-md mx-auto">We are unable to accept your volunteer application at this time. Thank you for your interest.</p>
                     </div>
                 ) : (
                     <div className="grid lg:grid-cols-3 gap-8">
@@ -176,21 +194,24 @@ Challenges/Notes: ${reportData.challenges}
                                                                 Due: {new Date(task.dueDate).toLocaleDateString()}
                                                             </span>
                                                         )}
+                                                        <span className="text-xs text-purple-600 font-medium bg-purple-50 px-2 py-0.5 rounded flex items-center gap-1">
+                                                            <FaClock size={10} /> {task.assignedHours || 1} hrs
+                                                        </span>
                                                     </div>
                                                     <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-3 font-heading">{task.title}</h3>
                                                     <p className="text-gray-600 mb-6 leading-relaxed text-sm md:text-base">{task.description}</p>
 
                                                     {/* Status Badge */}
                                                     <span className={`inline-block px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wide
-                                                        ${task.status === 'Assigned' ? 'bg-blue-50 text-blue-700' :
-                                                            task.status === 'Submitted' ? 'bg-yellow-50 text-yellow-700' :
-                                                                task.status === 'Approved' ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-600'}`}>
+                                                        ${(task.status === 'Assigned' || task.status === 'Pending') ? 'bg-blue-50 text-blue-700' :
+                                                            (task.status === 'Submitted' || task.status === 'Completed') ? 'bg-green-50 text-green-700' :
+                                                                'bg-gray-50 text-gray-600'}`}>
                                                         {task.status}
                                                     </span>
                                                 </div>
 
                                                 <div className="flex-shrink-0 w-full md:w-auto">
-                                                    {task.status === 'Assigned' ? (
+                                                    {(task.status === 'Assigned' || task.status === 'Pending') ? (
                                                         <button
                                                             onClick={() => openModal(task)}
                                                             className="w-full md:w-auto bg-gray-900 text-white px-6 py-3 rounded-xl font-bold hover:bg-black transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 transform active:scale-95 text-sm"
@@ -198,9 +219,12 @@ Challenges/Notes: ${reportData.challenges}
                                                             <FaClipboardList /> Report
                                                         </button>
                                                     ) : (
-                                                        <div className="bg-gray-50 px-5 py-2.5 rounded-xl text-sm text-gray-500 font-bold text-center border border-gray-100">
-                                                            Submitted
-                                                        </div>
+                                                        <button 
+                                                            onClick={() => setViewingTask(task)} 
+                                                            className="w-full md:w-auto bg-blue-50 text-blue-600 px-6 py-3 rounded-xl font-bold hover:bg-blue-100 transition-all shadow-sm flex items-center justify-center gap-2 text-sm border border-blue-100"
+                                                        >
+                                                            <FaClipboardList /> View Report
+                                                        </button>
                                                     )}
                                                 </div>
                                             </div>
@@ -261,24 +285,6 @@ Challenges/Notes: ${reportData.challenges}
                             <div className="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar">
                                 {/* Structured Questionnaire */}
                                 <div className="space-y-5">
-                                    {/* Hours */}
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-                                            Hours Worked <span className="text-red-500">*</span>
-                                        </label>
-                                        <input
-                                            type="number"
-                                            name="hours"
-                                            value={reportData.hours}
-                                            onChange={handleReportChange}
-                                            placeholder="0.0"
-                                            className="w-full border border-gray-200 bg-gray-50 p-3 rounded-lg focus:bg-white focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all font-bold text-lg"
-                                            required
-                                            min="0"
-                                            step="0.5"
-                                        />
-                                    </div>
-
                                     {/* Accomplishments */}
                                     <div>
                                         <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
@@ -347,12 +353,54 @@ Challenges/Notes: ${reportData.challenges}
                                 <button
                                     type="submit"
                                     disabled={submitting}
-                                    className={`px-6 py-2.5 bg-gray-900 text-white font-bold rounded-lg shadow-md hover:bg-black transform active:scale-95 transition-all flex items-center gap-2 text-sm ${submitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                    className={`px-6 py-2.5 bg-green-600 text-white font-bold rounded-lg shadow-md hover:bg-green-700 transform active:scale-95 transition-all flex items-center gap-2 text-sm ${submitting ? 'opacity-70 cursor-not-allowed' : ''}`}
                                 >
-                                    {submitting ? 'Sending...' : 'Submit Report'}
+                                    {submitting ? 'Sending...' : 'Mark as Completed'}
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* View Submission Modal */}
+            {viewingTask && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl flex flex-col max-h-[90vh] overflow-hidden">
+                        <div className="flex-none p-5 border-b border-gray-100 flex justify-between items-center bg-gray-900">
+                            <div>
+                                <h3 className="text-lg font-bold text-white">Task Report Overview</h3>
+                                <p className="text-xs text-gray-400 mt-1">Task: <span className="font-medium text-blue-400">{viewingTask.title}</span></p>
+                            </div>
+                            <button onClick={() => setViewingTask(null)} className="text-gray-400 hover:text-white transition-colors p-2 rounded-full">
+                                <FaTimes className="w-4 h-4" />
+                            </button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar bg-gray-50">
+                            <div>
+                                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Submission Details</p>
+                                <div className="text-sm text-gray-800 whitespace-pre-wrap font-medium bg-white p-4 border border-gray-200 rounded-xl leading-relaxed shadow-sm">
+                                    {viewingTask.submissionText || 'No text submitted.'}
+                                </div>
+                            </div>
+                            {viewingTask.submissionImage && (
+                                <div>
+                                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Proof of Work</p>
+                                    <a href={viewingTask.submissionImage} target="_blank" rel="noopener noreferrer" className="block w-full max-w-sm rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-shadow group bg-white p-2">
+                                        <img src={viewingTask.submissionImage} alt="Task proof" className="w-full h-auto object-cover rounded-lg transform group-hover:scale-[1.02] transition-transform duration-300" />
+                                    </a>
+                                    <p className="text-[10px] text-gray-400 mt-2 font-bold uppercase tracking-wider pl-1">Click image to enlarge</p>
+                                </div>
+                            )}
+                            <div className="flex gap-4 text-sm font-bold text-gray-700 bg-white p-4 rounded-xl border border-blue-100 shadow-sm items-center justify-between mt-8 relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                                <span className="flex items-center gap-2 pl-2"><FaClock className="text-blue-500" /> Time Contributed:</span>
+                                <span className="text-blue-700 text-lg">{viewingTask.assignedHours} hrs</span>
+                            </div>
+                            <div className="text-[10px] font-bold text-gray-400 uppercase text-right pt-4 border-t border-gray-200">
+                                Submitted: {viewingTask.submittedAt ? new Date(viewingTask.submittedAt).toLocaleString() : 'N/A'}
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}

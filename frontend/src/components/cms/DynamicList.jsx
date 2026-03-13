@@ -1,10 +1,10 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { FaTrash, FaPlus } from 'react-icons/fa';
+import CMSIconButton from '../common/CMSIconButton';
+import EditableText from './EditableText';
 import api from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 import { useCMS } from '../../context/CMSContext';
-import { FaTrash } from 'react-icons/fa';
-import EditableText from './EditableText';
 
 const DynamicList = ({ contentKey, section, defaultItems, renderItem, className, maxItems, newItemTemplate }) => {
     const { user } = useAuth();
@@ -84,13 +84,14 @@ const DynamicList = ({ contentKey, section, defaultItems, renderItem, className,
                     {renderItem(item, (field, val) => updateItem(item.id, field, val))}
 
                     {isAdmin && isEditMode && (
-                        <button
+                        <CMSIconButton 
+                            icon={FaTrash}
                             onClick={() => deleteItem(item.id)}
-                            className="absolute top-2 right-2 bg-white/90 text-red-600 p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 hover:text-white"
                             title="Delete Item"
-                        >
-                            <FaTrash size={12} />
-                        </button>
+                            variant="danger"
+                            className="absolute top-2 right-2 opacity-80 group-hover:opacity-100"
+                            size={12}
+                        />
                     )}
                 </div>
             ))}

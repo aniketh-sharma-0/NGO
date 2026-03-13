@@ -1,4 +1,5 @@
 const Contact = require('../models/Contact');
+const { createNotification } = require('./notificationController');
 
 // @desc    Submit Contact Form
 // @route   POST /api/contact
@@ -15,6 +16,15 @@ const submitContactForm = async (req, res) => {
             inquiryType,
             organization,
             message
+        });
+
+        // Trigger Admin notification
+        await createNotification({
+            role: 'Admin',
+            title: 'New Contact Enquiry',
+            message: `${name} has submitted a new ${inquiryType} enquiry.`,
+            type: 'New Enquiry',
+            redirectLink: '/dashboard'
         });
 
         res.status(201).json({ message: 'Message sent successfully', contact });

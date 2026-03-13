@@ -1,4 +1,5 @@
 const Donation = require('../models/Donation');
+const { createNotification } = require('./notificationController');
 
 // @desc    Create a new donation entry
 // @route   POST /api/donations
@@ -18,6 +19,15 @@ const createDonation = async (req, res) => {
             pan,
             message,
             status: 'Pending' // Default to pending until processed (manual or gateway)
+        });
+
+        // Trigger Admin notification
+        await createNotification({
+            role: 'Admin',
+            title: 'New Donation Received',
+            message: `${name} has made a new donation.`,
+            type: 'New Donation',
+            redirectLink: '/dashboard'
         });
 
         res.status(201).json(donation);

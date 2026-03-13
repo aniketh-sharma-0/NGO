@@ -3,6 +3,7 @@ const Project = require('../models/Project');
 const Volunteer = require('../models/Volunteer');
 const VolunteerTask = require('../models/VolunteerTask');
 const logActivity = require('../utils/activityLogger');
+const { createNotification } = require('./notificationController');
 
 // === CONTENT MANAGEMENT ===
 
@@ -137,6 +138,15 @@ const verifyVolunteer = async (req, res) => {
 
         await logActivity(req.user._id, 'VERIFY_VOLUNTEER', 'Volunteer', volunteer._id, { status });
 
+        // Trigger Volunteer notification
+        await createNotification({
+            userId: volunteer.user,
+            title: `Volunteer Application ${status}`,
+            message: `Your volunteer application has been ${status.toLowerCase()}.`,
+            type: 'Volunteer Status',
+            redirectLink: '/volunteer/dashboard'
+        });
+
         res.json(volunteer);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -147,7 +157,7 @@ const verifyVolunteer = async (req, res) => {
 // @route   POST /api/admin/volunteers/:id/assign
 // @access  Admin
 const assignTask = async (req, res) => {
-    const { title, description, projectId, dueDate } = req.body;
+    const { title, description, projectId, dueDate, assignedHours } = req.body;
 
     try {
         const task = await VolunteerTask.create({
@@ -155,12 +165,39 @@ const assignTask = async (req, res) => {
             project: projectId,
             title,
             description,
-            dueDate
+            dueDate,
+            assignedHours,
+            createdByAdmin: req.user._id,
+            status: 'Pending'
         });
 
         await logActivity(req.user._id, 'ASSIGN_TASK', 'VolunteerTask', task._id, { title, volunteerId: req.params.id });
 
+        // Trigger Volunteer notification
+        const volunteer = await Volunteer.findById(req.params.id);
+        if (volunteer) {
+            await createNotification({
+                userId: volunteer.user,
+                title: 'New Task Assigned',
+                message: `You have been assigned a new task: ${title}`,
+                type: 'Task Assigned',
+                redirectLink: '/volunteer/dashboard'
+            });
+        }
+
         res.status(201).json(task);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Get Volunteer Tasks
+// @route   GET /api/admin/volunteers/:id/tasks
+// @access  Admin
+const getVolunteerTasks = async (req, res) => {
+    try {
+        const tasks = await VolunteerTask.find({ volunteer: req.params.id }).populate('project', 'title').sort({ createdAt: -1 });
+        res.json(tasks);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -174,5 +211,6 @@ module.exports = {
     updateProjectStatus,
     getVolunteers,
     verifyVolunteer,
-    assignTask
+    assignTask,
+    getVolunteerTasks
 };

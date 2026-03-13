@@ -7,7 +7,6 @@ const volunteerSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    skills: [String],
     availability: {
         type: String
     },
@@ -17,10 +16,21 @@ const volunteerSchema = new mongoose.Schema({
         default: 'Pending'
     },
     phone: {
-        type: String
+        type: String,
+        trim: true,
+        unique: true,
+        sparse: true
     },
     address: {
         type: String
+    },
+    totalHours: {
+        type: Number,
+        default: 0
+    },
+    completedTasks: {
+        type: Number,
+        default: 0
     }
 }, {
     timestamps: true

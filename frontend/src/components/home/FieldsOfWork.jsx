@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../utils/api';
-import { useAuth } from '../../context/AuthContext';
-import { useCMS } from '../../context/CMSContext'; // Import useCMS
-import DynamicList from '../cms/DynamicList';
-import EditableText from '../cms/EditableText';
-import EditableImage from '../cms/EditableImage';
-import ImageWithFallback from '../common/ImageWithFallback';
 import { FaPen, FaSave, FaTimes } from 'react-icons/fa';
+import CMSIconButton from '../common/CMSIconButton';
+import Modal from '../common/Modal';
 import SectionTitle from '../common/SectionTitle';
+import EditableImage from '../cms/EditableImage';
+import EditableText from '../cms/EditableText';
+import DynamicList from '../cms/DynamicList';
+import { useAuth } from '../../context/AuthContext';
+import { useCMS } from '../../context/CMSContext';
+import api from '../../utils/api';
 
 // Sub-component for individual Field Item to manage its own Edit state
 const FieldItem = ({ field, updateField, isAdmin, isEditMode }) => {
     const [isEditingTitle, setIsEditingTitle] = useState(false);
-    const [isTapped, setIsTapped] = useState(false);
     const [tempTitle, setTempTitle] = useState(field.title);
 
     const handleEditTitle = () => {
@@ -33,7 +33,6 @@ const FieldItem = ({ field, updateField, isAdmin, isEditMode }) => {
     return (
         <div
             className="flex-none w-60 md:w-72 lg:w-80 relative group overflow-hidden rounded-xl shadow-lg cursor-pointer"
-            onClick={() => setIsTapped(!isTapped)}
         >
             <div className="h-96 w-full relative">
                 <EditableImage
@@ -51,41 +50,50 @@ const FieldItem = ({ field, updateField, isAdmin, isEditMode }) => {
 
                 <div className="absolute bottom-0 left-0 w-full p-4 md:p-6 z-10">
                     <h3 className="text-lg md:text-xl font-bold text-white mb-2">
-                        {isEditingTitle ? (
-                            <input
-                                value={tempTitle}
-                                onChange={(e) => setTempTitle(e.target.value)}
-                                className="bg-transparent text-white border-b border-white/30 focus:border-white focus:outline-none w-full font-bold placeholder-gray-300"
-                                autoFocus
-                            />
-                        ) : (
-                            <span>{field.title}</span>
-                        )}
+                        <span>{field.title}</span>
                     </h3>
 
                     {/* Title Edit Trigger */}
-                    {isAdmin && isEditMode && !isEditingTitle && (
-                        <button
+                    {isAdmin && isEditMode && (
+                        <CMSIconButton 
+                            icon={FaPen}
                             onClick={handleEditTitle}
-                            className={`absolute top-2 right-2 bg-white/20 p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-white hover:bg-white/40 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto active:bg-white/50 ${isTapped ? 'opacity-100' : ''}`}
                             title="Edit Title"
-                        >
-                            <FaPen size={14} />
-                        </button>
-                    )}
-
-                    {isEditingTitle && (
-                        <div className="flex gap-3 mt-4 pointer-events-auto">
-                            <button onClick={handleSaveTitle} className="bg-green-600 text-white px-4 py-2 min-h-[44px] rounded text-sm flex items-center justify-center gap-1 flex-1 font-bold active:bg-green-700 transition-colors">
-                                <FaSave size={14} /> Save
-                            </button>
-                            <button onClick={handleCancelTitle} className="bg-red-600 text-white px-4 py-2 min-h-[44px] rounded text-sm flex items-center justify-center gap-1 flex-1 font-bold active:bg-red-700 transition-colors">
-                                <FaTimes size={14} /> Cancel
-                            </button>
-                        </div>
+                            variant="ghost"
+                            className="absolute top-2 right-2"
+                        />
                     )}
                 </div>
             </div>
+
+            {/* Stable Title Edit Modal - Rendered via Portal */}
+            <Modal
+                isOpen={isEditingTitle}
+                onClose={handleCancelTitle}
+                title="Edit Field Title"
+                maxWidth="max-w-sm"
+            >
+                <div className="space-y-4">
+                    <div>
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">Category Title</label>
+                        <input
+                            value={tempTitle}
+                            onChange={(e) => setTempTitle(e.target.value)}
+                            className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all font-bold"
+                            placeholder="e.g. Education"
+                            autoFocus
+                        />
+                    </div>
+                    <div className="flex gap-2">
+                        <button onClick={handleSaveTitle} className="flex-1 bg-gray-900 text-white py-3 rounded-xl flex items-center justify-center gap-2 font-bold hover:bg-black transition-all">
+                            <FaSave size={14} /> Save
+                        </button>
+                        <button onClick={handleCancelTitle} className="bg-gray-100 text-gray-400 px-4 py-3 rounded-xl font-bold hover:bg-gray-200 transition-all">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 };

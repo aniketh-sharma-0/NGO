@@ -4,6 +4,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './context/AuthContext';
 import { CMSProvider } from './context/CMSContext';
 import { UIProvider } from './context/UIContext';
+import { NotificationProvider } from './context/NotificationContext';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import PrivateRoute from './utils/PrivateRoute';
@@ -55,9 +56,10 @@ function App() {
   return (
     <HelmetProvider>
       <AuthProvider>
-        <CMSProvider>
-          <UIProvider>
-            <Router>
+        <NotificationProvider>
+          <CMSProvider>
+            <UIProvider>
+              <Router>
               <div className="flex flex-col min-h-screen bg-white">
                 <TopMarquee />
                 <Header />
@@ -90,6 +92,7 @@ function App() {
             </Router>
           </UIProvider>
         </CMSProvider>
+        </NotificationProvider>
       </AuthProvider>
     </HelmetProvider>
   );

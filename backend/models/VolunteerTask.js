@@ -14,13 +14,22 @@ const volunteerTaskSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    assignedHours: {
+        type: Number,
+        required: true,
+        default: 1 // Adding default for existing tasks avoiding validation errors
+    },
+    createdByAdmin: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
     description: {
         type: String
     },
     status: {
         type: String,
-        enum: ['Assigned', 'InProgress', 'Submitted', 'Approved', 'Rejected'],
-        default: 'Assigned'
+        enum: ['Pending', 'In Progress', 'Completed', 'Rejected', 'Assigned', 'Submitted', 'Approved'],
+        default: 'Pending'
     },
     dueDate: {
         type: Date
@@ -33,6 +42,9 @@ const volunteerTaskSchema = new mongoose.Schema({
         type: String
     },
     submittedAt: {
+        type: Date
+    },
+    completedAt: {
         type: Date
     },
     feedback: {

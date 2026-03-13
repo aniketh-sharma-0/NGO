@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Define the base URL. If VITE_API_URL is missing or empty, fallback to the production backend.
 let envUrl = import.meta.env.MODE === 'development'
-    ? 'http://localhost:5000'
+    ? 'http://localhost:3000'
     : import.meta.env.VITE_API_URL;
 // Defensive check: ensure it is a valid absolute URL (starts with http)
 if (envUrl && !envUrl.startsWith('http')) {
@@ -43,9 +43,9 @@ api.interceptors.response.use(
     (error) => {
         // Handle global errors here (e.g., 401 Unauthorized -> Logout)
         if (error.response && error.response.status === 401) {
-            // Optional: Dispatch a logout action or clear local storage
-            // localStorage.removeItem('token');
-            // window.location.href = '/login';
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
         }
         return Promise.reject(error);
     }

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import api from '../../utils/api';
 import { FaChevronLeft, FaChevronRight, FaPlus, FaTrash, FaTimes } from 'react-icons/fa';
+import CMSIconButton from '../common/CMSIconButton';
 import { useAuth } from '../../context/AuthContext';
 import { useCMS } from '../../context/CMSContext';
 import { useNavigate } from 'react-router-dom';
@@ -155,9 +156,13 @@ const CarouselSection = () => {
                                         Explore More
                                     </button>
                                     {isAdmin && isEditMode && (
-                                        <button onClick={() => deleteSlide(slide.id)} className="px-8 py-4 bg-red-500/80 md:bg-red-50 text-white md:text-red-600 rounded-full hover:bg-red-600 md:hover:bg-red-100 transition-colors w-full sm:w-auto text-center flex items-center justify-center gap-2 backdrop-blur-sm md:backdrop-blur-none shadow-lg md:shadow-none">
-                                            <FaTrash /> <span className="sm:hidden md:inline">Delete Slide</span>
-                                        </button>
+                                        <CMSIconButton 
+                                            icon={FaTrash}
+                                            onClick={() => deleteSlide(slide.id)}
+                                            title="Delete Slide"
+                                            variant="danger"
+                                            className="!shadow-none backdrop-blur-none"
+                                        />
                                     )}
                                 </div>
                             </div>

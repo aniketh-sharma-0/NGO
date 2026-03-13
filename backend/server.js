@@ -10,13 +10,11 @@ const rateLimit = require('express-rate-limit');
 
 dotenv.config();
 
-connectDB();
-
 const app = express();
 
 // Security Middleware
 app.use(helmet());
-app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173' }));
+app.use(cors({ origin: [process.env.CLIENT_URL, 'http://localhost:5173', 'http://127.0.0.1:5173'].filter(Boolean) }));
 app.use(mongoSanitize());
 app.use(xss());
 
@@ -43,6 +41,7 @@ app.use('/api/media', require('./routes/blogEventRoutes'));
 app.use('/api/contact', require('./routes/contactRoutes'));
 app.use('/api/chat', require('./routes/chatRoutes'));
 app.use('/api/security', require('./routes/securityRoutes'));
+app.use('/api/notifications', require('./routes/notificationRoutes'));
 
 app.use('/uploads', express.static('uploads'));
 
@@ -54,10 +53,19 @@ app.get("/", (req, res) => {
     res.send("Backend is running successfully 🚀");
 });
 
-// Port configuration (User requested 3000 default)
-const PORT = process.env.PORT || 3000;
+const startServer = async () => {
+    try {
+        await connectDB();
+        
+        const PORT = process.env.PORT || 3000;
+        app.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+            startKeepAlive();
+        });
+    } catch (error) {
+        console.error('Failed to start server:', error.message);
+        process.exit(1);
+    }
+};
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    startKeepAlive();
-});
+startServer();

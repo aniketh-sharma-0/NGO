@@ -2,18 +2,31 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCMS } from '../../context/CMSContext';
-import { FaBars, FaTimes, FaUserCircle } from 'react-icons/fa';
+import { FaBars, FaTimes, FaUserCircle, FaBell } from 'react-icons/fa';
 import EditableText from '../cms/EditableText';
 import EditableImage from '../cms/EditableImage';
 import { useUI } from '../../context/UIContext';
+import { useNotifications } from '../../context/NotificationContext';
 
 const Header = () => {
     const { user, logout } = useAuth();
     const { setIsEditMode } = useCMS();
     const navigate = useNavigate();
     const { isMobileMenuOpen, setIsMobileMenuOpen, unreadCount, fetchUnreadCount } = useUI();
+    const { notifications, unreadCount: notifUnread, markAsRead } = useNotifications();
     const [isProjectsDropdownOpen, setIsProjectsDropdownOpen] = useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+    const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] = useState(false);
+
+    const handleNotificationClick = async (notification) => {
+        if (!notification.isRead) {
+            await markAsRead(notification._id);
+        }
+        setIsNotificationDropdownOpen(false);
+        if (notification.redirectLink) {
+            navigate(notification.redirectLink);
+        }
+    };
 
     useEffect(() => {
         if (user && user.role?.name === 'Admin') {
@@ -83,7 +96,11 @@ const Header = () => {
                     <NavItem to="/volunteer" labelKey="nav_volunteer" defaultLabel="Volunteering" />
 
                     {/* Projects Dropdown */}
-                    <div className="relative group/dropdown h-full flex items-center">
+                    <div 
+                        className="relative group/dropdown h-full flex items-center"
+                        onMouseEnter={() => setIsProjectsDropdownOpen(true)}
+                        onMouseLeave={() => setIsProjectsDropdownOpen(false)}
+                    >
                         <div
                             role="button"
                             onClick={() => setIsProjectsDropdownOpen(!isProjectsDropdownOpen)}
@@ -102,7 +119,56 @@ const Header = () => {
                     <NavItem to="/contact" labelKey="nav_contact" defaultLabel="Contact Us" className="bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700 transition-colors h-auto flex-none flex items-center justify-center self-center font-sans leading-tight transform-gpu border-2 border-transparent" />
 
                     {user ? (
-                        <div className="relative group z-50 h-full flex items-center">
+                        <div className="flex items-center gap-1">
+                            {/* Notification Bell */}
+                            {(user.role?.name === 'Admin' || user.role?.name === 'Volunteer') && (
+                                <div className="relative group z-50 h-full flex items-center mr-1">
+                                    <button
+                                        onClick={() => setIsNotificationDropdownOpen(!isNotificationDropdownOpen)}
+                                        className="relative p-2 text-gray-500 hover:text-blue-600 transition-colors rounded-full hover:bg-gray-100"
+                                    >
+                                        <FaBell size={20} />
+                                        {notifUnread > 0 && (
+                                            <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full">
+                                                {notifUnread > 99 ? '99+' : notifUnread}
+                                            </span>
+                                        )}
+                                    </button>
+                                    
+                                    {/* Notification Dropdown Menu */}
+                                    <div className={`absolute right-0 top-full mt-2 w-80 bg-white shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] rounded-2xl border border-gray-100 transition-all duration-300 transform overflow-hidden z-50 ${isNotificationDropdownOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible translate-y-2'}`}>
+                                        <div className="px-4 py-3 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                                            <span className="font-bold text-gray-800 text-sm tracking-wide uppercase">Notifications</span>
+                                            {notifUnread > 0 && <span className="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full">{notifUnread} New</span>}
+                                        </div>
+                                        <div className="max-h-[320px] overflow-y-auto">
+                                            {notifications.length > 0 ? (
+                                                notifications.slice(0, 5).map(n => (
+                                                    <div key={n._id} onClick={() => handleNotificationClick(n)} className={`px-4 py-3 border-b border-gray-50 cursor-pointer hover:bg-gray-50 transition-colors ${!n.isRead ? 'bg-blue-50/30' : ''}`}>
+                                                        <div className="flex justify-between items-start gap-2">
+                                                            <p className={`text-sm leading-tight ${!n.isRead ? 'font-bold text-gray-900' : 'font-medium text-gray-700'}`}>{n.title}</p>
+                                                            {!n.isRead && <div className="w-2 h-2 rounded-full bg-blue-500 mt-1 flex-shrink-0"></div>}
+                                                        </div>
+                                                        <p className="text-xs text-gray-500 mt-1 line-clamp-2 leading-snug">{n.message}</p>
+                                                        <p className="text-[10px] text-gray-400 mt-1.5">{new Date(n.createdAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div className="px-4 py-8 text-center text-gray-500 text-sm flex flex-col items-center gap-2">
+                                                    <FaBell className="text-gray-300 text-2xl" />
+                                                    <p>All caught up!</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                        <div 
+                            className="relative group z-50 h-full flex items-center"
+                            onMouseEnter={() => setIsProfileDropdownOpen(true)}
+                            onMouseLeave={() => setIsProfileDropdownOpen(false)}
+                        >
                             <button
                                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                                 className="flex items-center gap-3 pl-1 pr-3 py-1.5 rounded-full hover:bg-blue-50 transition-all group-hover:bg-blue-50/50 border border-transparent hover:border-blue-100"
@@ -133,7 +199,7 @@ const Header = () => {
                                     {user.role?.name === 'Admin' && (
                                         <Link
                                             to="/dashboard"
-                                            onClick={() => setIsMobileMenuOpen(false)}
+                                            onClick={() => { setIsMobileMenuOpen(false); setIsProfileDropdownOpen(false); }}
                                             className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-50 text-gray-700 hover:text-gray-900 transition-colors group/item"
                                         >
                                             <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center group-hover/item:bg-blue-600 group-hover/item:text-white transition-colors relative">
@@ -151,7 +217,7 @@ const Header = () => {
                                     {user.role?.name === 'Volunteer' && (
                                         <Link
                                             to="/volunteer/dashboard"
-                                            onClick={() => setIsMobileMenuOpen(false)}
+                                            onClick={() => { setIsMobileMenuOpen(false); setIsProfileDropdownOpen(false); }}
                                             className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-50 text-gray-700 hover:text-gray-900 transition-colors group/item"
                                         >
                                             <div className="w-8 h-8 rounded-full bg-green-50 text-green-600 flex items-center justify-center group-hover/item:bg-green-600 group-hover/item:text-white transition-colors">
@@ -164,7 +230,7 @@ const Header = () => {
                                     <div className="h-px bg-gray-50 my-1 mx-2"></div>
 
                                     <button
-                                        onClick={handleLogout}
+                                        onClick={() => { setIsProfileDropdownOpen(false); handleLogout(); }}
                                         className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-red-50 text-gray-600 hover:text-red-600 transition-colors group/exit"
                                     >
                                         <div className="w-8 h-8 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center group-hover/exit:bg-red-200 group-hover/exit:text-red-600 transition-colors">
@@ -174,6 +240,7 @@ const Header = () => {
                                     </button>
                                 </div>
                             </div>
+                        </div>
                         </div>
                     ) : (
                         <Link to="/login" className="bg-blue-900 text-white px-6 py-2 rounded-full hover:bg-blue-800 transition-versions shadow-md hover:shadow-lg font-bold tracking-wide">

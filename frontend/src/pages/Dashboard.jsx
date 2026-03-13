@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import api from '../utils/api';
+import { FaUsers, FaTasks, FaHandHoldingHeart, FaCheck, FaTimes, FaPlus, FaSearch, FaTrash, FaEdit, FaInbox, FaEnvelope } from 'react-icons/fa';
+import CMSIconButton from '../components/common/CMSIconButton';
+import Modal from '../components/common/Modal';
+import useBodyScrollLock from '../hooks/useBodyScrollLock';
 import { useAuth } from '../context/AuthContext';
 import { useCMS } from '../context/CMSContext';
 import { useUI } from '../context/UIContext';
-import { FaUsers, FaTasks, FaHandHoldingHeart, FaCheck, FaTimes, FaPlus, FaSearch, FaTrash, FaEdit, FaInbox, FaEnvelope } from 'react-icons/fa';
-import useBodyScrollLock from '../hooks/useBodyScrollLock';
+import api from '../utils/api';
+import React, { useState, useEffect } from 'react';
 
 const Dashboard = () => {
     const { user } = useAuth();
@@ -22,8 +24,12 @@ const Dashboard = () => {
 
     // Task Assignment Modal
     const [selectedVolunteer, setSelectedVolunteer] = useState(null);
-    const [taskForm, setTaskForm] = useState({ title: '', description: '', dueDate: '' });
+    const [taskForm, setTaskForm] = useState({ title: '', description: '', dueDate: '', assignedHours: 1 });
     const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+    
+    // Volunteer Tasks Viewer
+    const [selectedVolunteerTasks, setSelectedVolunteerTasks] = useState([]);
+    const [isVolunteerTasksModalOpen, setIsVolunteerTasksModalOpen] = useState(false);
 
     // Chatbot Modal
     const [isBotModalOpen, setIsBotModalOpen] = useState(false);
@@ -44,8 +50,6 @@ const Dashboard = () => {
         document.addEventListener('click', handleClickOutside);
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
-
-    useBodyScrollLock(isTaskModalOpen || isBotModalOpen || isDonationModalOpen || isMessageModalOpen);
 
     const openDonationModal = (donation) => {
         setSelectedDonation(donation);
@@ -121,6 +125,10 @@ const Dashboard = () => {
         try {
             await api.put(`/admin/volunteers/${id}/verify`, { status });
             fetchData(); // Refresh
+            // If viewing this volunteer in modal, update selectedVolunteer state locally
+            if (selectedVolunteer && selectedVolunteer._id === id) {
+                setSelectedVolunteer({ ...selectedVolunteer, status });
+            }
         } catch (error) {
             alert('Action failed');
         }
@@ -143,11 +151,13 @@ const Dashboard = () => {
                 taskId: Date.now().toString(),
                 description: taskForm.description,
                 title: taskForm.title,
-                dueDate: taskForm.dueDate
+                dueDate: taskForm.dueDate,
+                assignedHours: Number(taskForm.assignedHours) || 1
             });
             alert('Task Assigned Successfully');
-            setIsTaskModalOpen(false);
-            setTaskForm({ title: '', description: '', dueDate: '' });
+            // Refresh tasks list for the selected volunteer
+            handleViewVolunteerDetails(selectedVolunteer);
+            setTaskForm({ title: '', description: '', dueDate: '', assignedHours: 1 });
         } catch (error) {
             alert('Failed to assign task');
         }
@@ -186,6 +196,17 @@ const Dashboard = () => {
         setIsTaskModalOpen(true);
     };
 
+    const handleViewVolunteerDetails = async (vol) => {
+        setSelectedVolunteer(vol);
+        try {
+            const res = await api.get(`/admin/volunteers/${vol._id}/tasks`);
+            setSelectedVolunteerTasks(res.data);
+            setIsVolunteerTasksModalOpen(true);
+        } catch (error) {
+            alert('Failed to fetch volunteer details');
+        }
+    };
+
     const openBotModal = (intent = null) => {
         if (intent) {
             setBotForm({
@@ -219,31 +240,44 @@ const Dashboard = () => {
                     <p className="text-xs text-gray-400 mt-1 uppercase tracking-wider font-bold">Management Suite</p>
                 </div>
                 <nav className="flex-1 p-6 space-y-2">
-                    {['Overview', 'Inbox', 'Volunteers', 'Donations', 'Chatbot'].map(tab => (
-                        <button
-                            key={tab}
-                            onClick={() => setActiveTab(tab)}
-                            className={`w-full text-left px-5 py-3.5 rounded-xl transition-all font-bold flex items-center justify-between ${activeTab === tab
-                                ? 'bg-gray-900 text-white shadow-lg shadow-gray-200 transform scale-105'
-                                : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
-                                }`}
-                        >
-                            <div className="flex items-center gap-3">
-                                {tab === 'Overview' && <FaSearch className="text-sm opacity-50" />} {/* Placeholder Icon */}
-                                {tab === 'Inbox' && <FaInbox className="text-sm opacity-50" />}
-                                {tab === 'Volunteers' && <FaUsers className="text-sm opacity-50" />}
-                                {tab === 'Donations' && <FaHandHoldingHeart className="text-sm opacity-50" />}
-                                {tab === 'Chatbot' && <FaTasks className="text-sm opacity-50" />}
-                                {tab === 'Donations' ? 'Enquiries' : tab}
-                            </div>
+                    {['Overview', 'Inbox', 'Volunteers', 'Donations', 'Chatbot'].map(tab => {
+                        let badgeCount = 0;
+                        if (tab === 'Inbox') badgeCount = unreadCount;
+                        if (tab === 'Volunteers') badgeCount = volunteers.filter(v => v.status === 'Pending').length;
+                        if (tab === 'Donations') badgeCount = donations.filter(d => d.status === 'Pending').length;
 
-                            {tab === 'Inbox' && unreadCount > 0 && (
-                                <span className={`text-[10px] px-2 py-0.5 rounded-full ${activeTab === tab ? 'bg-blue-500 text-white' : 'bg-blue-100 text-blue-600'}`}>
-                                    {unreadCount} New
-                                </span>
-                            )}
-                        </button>
-                    ))}
+                        return (
+                            <button
+                                key={tab}
+                                onClick={() => setActiveTab(tab)}
+                                className={`w-full text-left px-5 py-3.5 rounded-xl transition-all font-bold flex items-center justify-between ${activeTab === tab
+                                    ? 'bg-gray-900 text-white shadow-lg shadow-gray-200 transform scale-105'
+                                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+                                    }`}
+                            >
+                                <div className="flex items-center gap-3">
+                                    {tab === 'Overview' && <FaSearch className="text-sm opacity-50" />} 
+                                    {tab === 'Inbox' && <FaInbox className="text-sm opacity-50" />}
+                                    {tab === 'Volunteers' && <FaUsers className="text-sm opacity-50" />}
+                                    {tab === 'Donations' && <FaHandHoldingHeart className="text-sm opacity-50" />}
+                                    {tab === 'Chatbot' && <FaTasks className="text-sm opacity-50" />}
+                                    {tab === 'Donations' ? 'Enquiries' : tab}
+                                </div>
+
+                                {badgeCount > 0 && (
+                                    tab === 'Inbox' ? (
+                                        <span className={`text-[10px] px-2 py-0.5 rounded-full ${activeTab === tab ? 'bg-blue-500 text-white' : 'bg-blue-100 text-blue-600'}`}>
+                                            {badgeCount} New
+                                        </span>
+                                    ) : (
+                                        <span className={`w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold ${activeTab === tab ? 'bg-white text-gray-900' : 'bg-red-500 text-white'}`}>
+                                            {badgeCount}
+                                        </span>
+                                    )
+                                )}
+                            </button>
+                        );
+                    })}
                 </nav>
                 <div className="p-6 border-t border-gray-100">
                     <div className="bg-blue-50 rounded-xl p-4 flex items-center gap-3">
@@ -368,10 +402,15 @@ const Dashboard = () => {
                                             </td>
                                             <td className="p-5 text-right">
                                                 <div className="flex justify-end gap-2">
-                                                    <button className="text-blue-600 hover:text-blue-800 transition-colors font-bold text-sm bg-blue-50 px-3 py-1.5 rounded-lg">Read</button>
-                                                    <button onClick={(e) => handleDeleteMessage(e, msg._id)} className="text-red-500 hover:text-red-700 transition-colors bg-red-50 p-2 rounded-lg" title="Delete">
-                                                        <FaTrash size={14} />
-                                                    </button>
+                                                    <button className="text-blue-600 hover:text-blue-800 transition-colors font-bold text-sm bg-blue-50 px-4 py-2 rounded-lg">Read</button>
+                                                    <CMSIconButton 
+                                                        icon={FaTrash}
+                                                        onClick={(e) => handleDeleteMessage(e, msg._id)}
+                                                        title="Delete"
+                                                        variant="danger-light"
+                                                        className="!min-w-[38px] !min-h-[38px] !shadow-none"
+                                                        size={14}
+                                                    />
                                                 </div>
                                             </td>
                                         </tr>
@@ -397,7 +436,7 @@ const Dashboard = () => {
                                 <thead className="bg-gray-50 border-b border-gray-100">
                                     <tr>
                                         <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
-                                        <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Skills</th>
+                                        <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Stats</th>
                                         <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
                                         <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
                                     </tr>
@@ -416,48 +455,25 @@ const Dashboard = () => {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="p-6 text-sm text-gray-600">
-                                                <div className="flex flex-wrap gap-1">
-                                                    {vol.skills.slice(0, 3).map((s, i) => (
-                                                        <span key={i} className="px-2 py-0.5 bg-gray-100 rounded text-xs">{s}</span>
-                                                    ))}
-                                                    {vol.skills.length > 3 && <span className="px-2 py-0.5 bg-gray-100 rounded text-xs">+{vol.skills.length - 3}</span>}
+                                            <td className="p-6 text-sm">
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-gray-900 font-bold text-xs"><span className="text-gray-500 uppercase tracking-wider">Hrs:</span> {vol.totalHours || 0}</span>
+                                                    <span className="text-gray-900 font-bold text-xs"><span className="text-gray-500 uppercase tracking-wider">Tasks:</span> {vol.completedTasks || 0}</span>
                                                 </div>
                                             </td>
                                             <td className="p-6">
-                                                {vol.status === 'Pending' ? (
-                                                    activeActionId === `vol-${vol._id}` ? (
-                                                        <div className="flex gap-2 animate-fade-in w-max">
-                                                            <button onClick={(e) => { e.stopPropagation(); handleVerifyVolunteer(vol._id, 'Approved'); setActiveActionId(null); }} className="bg-green-100 text-green-600 p-2 rounded-lg hover:bg-green-200 transition-colors" title="Approve">
-                                                                <FaCheck />
-                                                            </button>
-                                                            <button onClick={(e) => { e.stopPropagation(); handleVerifyVolunteer(vol._id, 'Rejected'); setActiveActionId(null); }} className="bg-red-100 text-red-600 p-2 rounded-lg hover:bg-red-200 transition-colors" title="Reject">
-                                                                <FaTimes />
-                                                            </button>
-                                                        </div>
-                                                    ) : (
-                                                        <span
-                                                            onClick={(e) => { e.stopPropagation(); setActiveActionId(`vol-${vol._id}`); }}
-                                                            className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-yellow-100 text-yellow-700 cursor-pointer hover:bg-yellow-200 transition-all shadow-sm block w-max"
-                                                            title="Click to Verify"
-                                                        >
-                                                            Pending
-                                                        </span>
-                                                    )
-                                                ) : (
-                                                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide
-                                                        ${vol.status === 'Approved' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} w-max block`}>
-                                                        {vol.status}
-                                                    </span>
-                                                )}
+                                                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide
+                                                    ${vol.status === 'Approved' ? 'bg-green-100 text-green-700' :
+                                                        vol.status === 'Rejected' ? 'bg-red-100 text-red-700' :
+                                                            'bg-yellow-100 text-yellow-700'} w-max block`}>
+                                                    {vol.status}
+                                                </span>
                                             </td>
                                             <td className="p-6 text-right">
                                                 <div className="flex justify-end gap-2">
-                                                    {vol.status === 'Approved' && (
-                                                        <button onClick={() => openTaskModal(vol)} className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-black text-xs font-bold shadow-md transition-all">
-                                                            Assign Task
-                                                        </button>
-                                                    )}
+                                                    <button onClick={() => handleViewVolunteerDetails(vol)} className="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-100 text-xs font-bold shadow-sm transition-all border border-blue-100">
+                                                        View Details
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -551,8 +567,22 @@ const Dashboard = () => {
                                 <div key={intent._id} className="border border-gray-100 p-6 rounded-2xl hover:shadow-lg transition-all relative group bg-gray-50/30 hover:bg-white">
                                     {isEditMode && (
                                         <div className="absolute top-4 right-4 flex gap-2">
-                                            <button onClick={() => openBotModal(intent)} className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100"><FaEdit size={14} /></button>
-                                            <button onClick={() => handleDeleteIntent(intent._id)} className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100"><FaTrash size={14} /></button>
+                                            <CMSIconButton 
+                                                icon={FaEdit}
+                                                onClick={() => openBotModal(intent)}
+                                                title="Edit FAQ"
+                                                variant="default"
+                                                className="!min-w-[40px] !min-h-[40px]"
+                                                size={14}
+                                            />
+                                            <CMSIconButton 
+                                                icon={FaTrash}
+                                                onClick={() => handleDeleteIntent(intent._id)}
+                                                title="Delete FAQ"
+                                                variant="danger-light"
+                                                className="!min-w-[40px] !min-h-[40px]"
+                                                size={14}
+                                            />
                                         </div>
                                     )}
                                     <h3 className="font-bold text-lg mb-2 text-gray-900 pr-12">{intent.question}</h3>
@@ -572,255 +602,323 @@ const Dashboard = () => {
                     </div>
                 )}
             </div>
-
-            {/* Task Assign Modal */}
-            {isTaskModalOpen && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-xl font-bold text-gray-900">Assign Task</h3>
-                            <button onClick={() => setIsTaskModalOpen(false)} className="text-gray-400 hover:text-gray-600"><FaTimes /></button>
-                        </div>
-                        <form onSubmit={handleAssignTask} className="space-y-5">
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Task Title</label>
-                                <input
-                                    className="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none bg-gray-50"
-                                    value={taskForm.title}
-                                    onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
-                                    required
-                                    placeholder="e.g. Field Survey"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Description</label>
-                                <textarea
-                                    className="w-full border border-gray-200 p-3 rounded-xl h-28 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none bg-gray-50 resize-none"
-                                    value={taskForm.description}
-                                    onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })}
-                                    required
-                                    placeholder="Details about the task..."
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Due Date</label>
-                                <input
-                                    type="date"
-                                    className="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none bg-gray-50"
-                                    value={taskForm.dueDate}
-                                    onChange={(e) => setTaskForm({ ...taskForm, dueDate: e.target.value })}
-                                />
-                            </div>
-                            <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-50">
-                                <button type="button" onClick={() => setIsTaskModalOpen(false)} className="px-5 py-2.5 text-gray-600 font-bold hover:bg-gray-50 rounded-lg transition-colors">Cancel</button>
-                                <button type="submit" className="px-6 py-2.5 bg-gray-900 text-white font-bold rounded-lg hover:bg-black shadow-lg">Assign Task</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            {/* Chatbot Modal */}
-            {isBotModalOpen && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8">
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-xl font-bold text-gray-900">{botForm.id ? 'Edit Knowledge' : 'Add Knowledge'}</h3>
-                            <button onClick={() => setIsBotModalOpen(false)} className="text-gray-400 hover:text-gray-600"><FaTimes /></button>
-                        </div>
-                        <form onSubmit={handleSaveIntent} className="space-y-5">
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">User Question</label>
-                                <input
-                                    className="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none bg-gray-50"
-                                    value={botForm.question}
-                                    onChange={(e) => setBotForm({ ...botForm, question: e.target.value })}
-                                    required
-                                    placeholder="e.g. How do I donate?"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Bot Answer</label>
-                                <textarea
-                                    className="w-full border border-gray-200 p-3 rounded-xl h-32 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none bg-gray-50 resize-none"
-                                    value={botForm.answer}
-                                    onChange={(e) => setBotForm({ ...botForm, answer: e.target.value })}
-                                    required
-                                    placeholder="The exact response the bot should give..."
-                                />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
+            {/* Volunteer Details & Task History Modal - Rendered via Portal */}
+            <Modal
+                isOpen={isVolunteerTasksModalOpen}
+                onClose={() => setIsVolunteerTasksModalOpen(false)}
+                title={`Volunteer: ${selectedVolunteer?.user?.name}`}
+                maxWidth="max-w-5xl"
+            >
+                <div className="flex flex-col md:flex-row gap-8">
+                    {/* Left Column: Profile & Management */}
+                    <div className="w-full md:w-80 space-y-8 flex-shrink-0">
+                        <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100 space-y-6">
+                            <h4 className="font-bold text-gray-900 uppercase tracking-widest text-[10px]">Applicant Profile</h4>
+                            <div className="space-y-4">
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Keywords</label>
-                                    <input
-                                        className="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none bg-gray-50"
-                                        value={botForm.keywords}
-                                        onChange={(e) => setBotForm({ ...botForm, keywords: e.target.value })}
-                                        required
-                                        placeholder="donate, money"
-                                    />
+                                    <p className="text-[10px] font-bold text-gray-400 border-b border-gray-200/50 pb-1 mb-2 uppercase tracking-widest">Status</p>
+                                    <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider inline-block
+                                        ${selectedVolunteer?.status === 'Approved' ? 'bg-green-100 text-green-700' :
+                                        selectedVolunteer?.status === 'Rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                        {selectedVolunteer?.status}
+                                    </span>
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Category</label>
-                                    <select
-                                        className="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none bg-gray-50"
-                                        value={botForm.category}
-                                        onChange={(e) => setBotForm({ ...botForm, category: e.target.value })}
-                                    >
-                                        <option value="General">General</option>
-                                        <option value="Donation">Donation</option>
-                                        <option value="Volunteer">Volunteer</option>
-                                        <option value="Project">Project</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-50">
-                                <button type="button" onClick={() => setIsBotModalOpen(false)} className="px-5 py-2.5 text-gray-600 font-bold hover:bg-gray-50 rounded-lg transition-colors">Cancel</button>
-                                <button type="submit" className="px-6 py-2.5 bg-gray-900 text-white font-bold rounded-lg hover:bg-black shadow-lg">Save Knowledge</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-            {/* Donation Details Modal */}
-            {isDonationModalOpen && selectedDonation && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-0 overflow-hidden transform transition-all">
-                        <div className="bg-gray-900 p-6 flex justify-between items-center">
-                            <h3 className="text-xl font-bold text-white">Donation Receipt</h3>
-                            <button onClick={() => setIsDonationModalOpen(false)} className="text-gray-400 hover:text-white transition-colors">
-                                <FaTimes size={20} />
-                            </button>
-                        </div>
-                        <div className="p-8 max-h-[70vh] overflow-y-auto">
-                            <div className="text-center mb-8">
-                                <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mb-2">Enquiry Status</p>
-                                <span className="inline-block mt-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold uppercase">{selectedDonation.status}</span>
-                            </div>
-
-                            <div className="space-y-6">
-                                <div className="grid grid-cols-2 gap-6">
+                                <div className="grid grid-cols-1 gap-4">
                                     <div>
-                                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Donor Name</label>
-                                        <p className="text-gray-900 font-bold text-lg">{selectedDonation.name}</p>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Contact</p>
+                                        <p className="text-sm font-bold text-gray-900 truncate">{selectedVolunteer?.user?.email}</p>
+                                        <p className="text-sm text-gray-500">{selectedVolunteer?.phone || 'No Phone'}</p>
                                     </div>
-                                    <div className="text-right">
-                                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Date</label>
-                                        <p className="text-gray-900 font-medium">{new Date(selectedDonation.createdAt).toLocaleDateString()}</p>
-                                    </div>
-                                </div>
-                                <div className="border-t border-gray-100 pt-4">
-                                    <div className="grid grid-cols-2 gap-4 text-sm">
-                                        <div>
-                                            <span className="text-gray-500 block">Email</span>
-                                            <span className="text-gray-900 font-medium">{selectedDonation.email}</span>
-                                        </div>
-                                        <div>
-                                            <span className="text-gray-500 block">Phone</span>
-                                            <span className="text-gray-900 font-medium">{selectedDonation.phone || 'N/A'}</span>
-                                        </div>
-                                        <div>
-                                            <span className="text-gray-500 block">PAN</span>
-                                            <span className="text-gray-900 font-medium">{selectedDonation.pan || 'N/A'}</span>
-                                        </div>
-                                        <div>
-                                            <span className="text-gray-500 block">Category</span>
-                                            <span className="text-gray-900 font-medium">{selectedDonation.category}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                {selectedDonation.message && (
-                                    <div className="bg-gray-50 p-4 rounded-xl">
-                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Message</p>
-                                        <p className="text-gray-700 text-sm italic">"{selectedDonation.message}"</p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                        <div className="bg-gray-50 p-4 flex justify-center border-t border-gray-100">
-                            <button onClick={() => setIsDonationModalOpen(false)} className="text-gray-500 text-sm font-bold hover:text-gray-900">Close Receipt</button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Message Details Modal */}
-            {isMessageModalOpen && selectedMessage && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-0 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
-                        <div className="bg-blue-900 p-5 sm:p-6 flex justify-between items-center flex-shrink-0">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-blue-100">
-                                    <FaEnvelope size={18} />
-                                </div>
-                                <div>
-                                    <h3 className="text-lg font-bold text-white leading-tight">Message Details</h3>
-                                    <p className="text-blue-200 text-xs">Direct Inquiry</p>
-                                </div>
-                            </div>
-                            <button onClick={() => setIsMessageModalOpen(false)} className="text-blue-200 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors">
-                                <FaTimes size={16} />
-                            </button>
-                        </div>
-
-                        <div className="flex-1 overflow-y-auto p-6 sm:p-8 bg-gray-50">
-                            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
-                                <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-4 mb-6 pb-6 border-b border-gray-100">
                                     <div>
-                                        <h4 className="text-xl font-bold text-gray-900 mb-1">{selectedMessage.subject}</h4>
-                                        <div className="flex items-center gap-2 text-sm text-gray-500">
-                                            <span className="font-medium text-gray-700">{selectedMessage.name}</span>
-                                            <span>&bull;</span>
-                                            <a href={`mailto:${selectedMessage.email}`} className="hover:text-blue-600 transition-colors">{selectedMessage.email}</a>
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-col sm:items-end gap-2 text-sm">
-                                        <span className="text-gray-400 whitespace-nowrap">{new Date(selectedMessage.createdAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}</span>
-                                        <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest w-max">
-                                            {selectedMessage.inquiryType}
-                                        </span>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Availability</p>
+                                        <p className="text-sm font-medium text-gray-900">{selectedVolunteer?.availability}</p>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
 
-                                <div className="mb-6">
-                                    <p className="text-sm text-gray-500 font-bold uppercase tracking-wider mb-2">Message</p>
-                                    <div className="text-gray-800 text-sm sm:text-base leading-relaxed whitespace-pre-wrap bg-gray-50 p-5 rounded-xl border border-gray-100">
-                                        {selectedMessage.message}
+                        {selectedVolunteer?.status === 'Pending' && (
+                            <div className="bg-blue-50/30 rounded-2xl p-6 border border-blue-100/50 space-y-3">
+                                <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-2">Management Actions</p>
+                                <button onClick={() => handleVerifyVolunteer(selectedVolunteer._id, 'Approved')} className="w-full py-3 bg-white text-green-600 border border-green-100 hover:bg-green-50 font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2">
+                                    <FaCheck /> Approve
+                                </button>
+                                <button onClick={() => handleVerifyVolunteer(selectedVolunteer._id, 'Rejected')} className="w-full py-3 bg-white text-red-500 border border-red-100 hover:bg-red-50 font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2">
+                                    <FaTimes /> Reject
+                                </button>
+                            </div>
+                        )}
+
+                        {selectedVolunteer?.status === 'Approved' && (
+                            <div className="bg-gray-900 rounded-2xl p-6 shadow-xl space-y-4">
+                                <h4 className="font-bold text-white uppercase tracking-widest text-[10px]">Assign New Task</h4>
+                                <form onSubmit={handleAssignTask} className="space-y-3">
+                                    <input className="w-full bg-white/10 border border-white/10 p-3 text-sm rounded-xl focus:ring-1 focus:ring-white/30 outline-none text-white placeholder:text-gray-500" value={taskForm.title} onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })} required placeholder="Task Title" />
+                                    <textarea className="w-full bg-white/10 border border-white/10 p-3 text-sm rounded-xl h-24 focus:ring-1 focus:ring-white/30 outline-none text-white placeholder:text-gray-500 resize-none" value={taskForm.description} onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })} required placeholder="Task details..." />
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <input type="date" className="w-full bg-white/10 border border-white/10 p-3 text-xs rounded-xl text-white outline-none" value={taskForm.dueDate} onChange={(e) => setTaskForm({ ...taskForm, dueDate: e.target.value })} />
+                                        <input type="number" min="0.5" step="0.5" className="w-full bg-white/10 border border-white/10 p-3 text-xs rounded-xl text-white outline-none" value={taskForm.assignedHours} required placeholder="Hrs" onChange={(e) => setTaskForm({ ...taskForm, assignedHours: e.target.value })} />
                                     </div>
-                                </div>
+                                    <button type="submit" className="w-full py-3 bg-white text-gray-900 font-bold rounded-xl hover:bg-gray-100 transition-all text-sm shadow-lg active:scale-[0.98]">
+                                        Deliver Task
+                                    </button>
+                                </form>
+                            </div>
+                        )}
+                    </div>
 
-                                {(selectedMessage.phone || selectedMessage.organization) && (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm bg-blue-50/50 p-4 rounded-xl border border-blue-100/50">
-                                        {selectedMessage.phone && (
+                    {/* Right Column: Task History & Submissions */}
+                    <div className="flex-1 space-y-6">
+                        <div className="flex justify-between items-center bg-gray-50 p-4 rounded-2xl border border-gray-100 mb-6 sticky top-0 z-10">
+                            <h4 className="font-bold text-gray-900 uppercase tracking-widest text-[10px]">Activity & Submissions</h4>
+                            <span className="text-[10px] font-bold text-gray-400">{selectedVolunteerTasks.length} Tasks Total</span>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 gap-6 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                            {selectedVolunteerTasks.length === 0 ? (
+                                <div className="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-100">
+                                    <p className="text-gray-400 font-medium">No tasks assigned yet.</p>
+                                </div>
+                            ) : (
+                                [...selectedVolunteerTasks].reverse().map(task => (
+                                    <div key={task._id} className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
+                                        <div className="flex justify-between items-start mb-4">
                                             <div>
-                                                <span className="text-gray-400 block text-xs uppercase font-bold tracking-wider mb-1">Phone Number</span>
-                                                <a href={`tel:${selectedMessage.phone}`} className="text-gray-900 font-medium hover:text-blue-600 transition-colors">
-                                                    {selectedMessage.phone}
-                                                </a>
+                                                <h4 className="font-bold text-gray-900 text-lg group-hover:text-blue-600 transition-colors">{task.title}</h4>
+                                                <div className="flex gap-4 mt-1">
+                                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Hrs: {task.assignedHours}</span>
+                                                    {task.dueDate && <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Due: {new Date(task.dueDate).toLocaleDateString()}</span>}
+                                                </div>
                                             </div>
-                                        )}
-                                        {selectedMessage.organization && (
-                                            <div>
-                                                <span className="text-gray-400 block text-xs uppercase font-bold tracking-wider mb-1">Organization</span>
-                                                <span className="text-gray-900 font-medium">{selectedMessage.organization}</span>
+                                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm
+                                            ${task.status === 'Completed' ? 'bg-green-100 text-green-700' :
+                                                    task.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-600'}`}>
+                                                {task.status}
+                                            </span>
+                                        </div>
+                                        <p className="text-sm text-gray-600 mb-6 leading-relaxed">{task.description}</p>
+
+                                        {task.status === 'Completed' && (
+                                            <div className="bg-blue-50/30 rounded-2xl p-6 border border-blue-100/30 space-y-4">
+                                                <div className="flex justify-between items-center">
+                                                    <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Submission Report</p>
+                                                    <p className="text-[9px] text-gray-400 font-medium">{task.submittedAt ? new Date(task.submittedAt).toLocaleString() : 'N/A'}</p>
+                                                </div>
+                                                <div className="text-sm text-gray-800 whitespace-pre-wrap font-medium leading-relaxed italic border-l-2 border-blue-200 pl-4 py-1">
+                                                    "{task.submissionText}"
+                                                </div>
+                                                {task.submissionImage && (
+                                                    <div className="relative group/img overflow-hidden rounded-2xl border border-gray-200 aspect-video">
+                                                        <img src={task.submissionImage} alt="Proof" className="w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-110" />
+                                                        <a href={task.submissionImage} target="_blank" rel="noopener noreferrer" className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-all">
+                                                            <span className="text-white text-xs font-bold uppercase tracking-widest bg-white/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/30">View High Res</span>
+                                                        </a>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                     </div>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="p-4 sm:p-6 bg-white border-t border-gray-100 flex justify-between flex-shrink-0">
-                            <button onClick={(e) => handleDeleteMessage(e, selectedMessage._id)} className="px-6 py-2.5 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 transition-colors w-full sm:w-auto mb-2 sm:mb-0">
-                                Delete Message
-                            </button>
-                            <button onClick={() => setIsMessageModalOpen(false)} className="px-6 py-2.5 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors w-full sm:w-auto">
-                                Close Window
-                            </button>
+                                ))
+                            )}
                         </div>
                     </div>
                 </div>
-            )}
+            </Modal>
+
+            {/* Chatbot Knowledge Modal - Rendered via Portal */}
+            <Modal
+                isOpen={isBotModalOpen}
+                onClose={() => setIsBotModalOpen(false)}
+                title={botForm.id ? 'Edit Chatbot Knowledge' : 'Add Chatbot Knowledge'}
+                maxWidth="max-w-xl"
+            >
+                <form onSubmit={handleSaveIntent} className="space-y-6">
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">User Question</label>
+                            <input
+                                className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all font-medium"
+                                value={botForm.question}
+                                onChange={(e) => setBotForm({ ...botForm, question: e.target.value })}
+                                required
+                                placeholder="e.g. How do I donate?"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Bot Answer</label>
+                            <textarea
+                                className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl h-40 focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all resize-none custom-scrollbar"
+                                value={botForm.answer}
+                                onChange={(e) => setBotForm({ ...botForm, answer: e.target.value })}
+                                required
+                                placeholder="The exact response the bot should give..."
+                            />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Keywords</label>
+                                <input
+                                    className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all"
+                                    value={botForm.keywords}
+                                    onChange={(e) => setBotForm({ ...botForm, keywords: e.target.value })}
+                                    required
+                                    placeholder="donate, money"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Category</label>
+                                <select
+                                    className="w-full bg-gray-50 border border-gray-100 p-3 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all outline-none"
+                                    value={botForm.category}
+                                    onChange={(e) => setBotForm({ ...botForm, category: e.target.value })}
+                                >
+                                    <option value="General">General</option>
+                                    <option value="Donation">Donation</option>
+                                    <option value="Volunteer">Volunteer</option>
+                                    <option value="Project">Project</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex gap-3 pt-4 border-t border-gray-50">
+                        <button type="submit" className="flex-1 bg-gray-900 text-white font-bold py-4 rounded-2xl hover:bg-black transition-all shadow-xl active:scale-[0.98]">
+                            Save Knowledge
+                        </button>
+                        <button type="button" onClick={() => setIsBotModalOpen(false)} className="px-8 bg-gray-100 text-gray-600 font-bold py-4 rounded-2xl hover:bg-gray-200 transition-all">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </Modal>
+            {/* Donation Receipt Modal - Rendered via Portal */}
+            <Modal
+                isOpen={isDonationModalOpen}
+                onClose={() => setIsDonationModalOpen(false)}
+                title="Donation Receipt"
+                maxWidth="max-w-lg"
+            >
+                <div className="space-y-8">
+                    <div className="text-center">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Enquiry Status</p>
+                        <span className="inline-block px-4 py-1.5 bg-green-100 text-green-700 rounded-full text-[10px] font-bold uppercase tracking-wider">{selectedDonation?.status}</span>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100 space-y-6">
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Donor Name</label>
+                                <p className="text-gray-900 font-bold text-xl">{selectedDonation?.name}</p>
+                            </div>
+                            <div className="text-right">
+                                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Date</label>
+                                <p className="text-gray-900 font-bold text-sm">{selectedDonation?.createdAt && new Date(selectedDonation.createdAt).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-y-4 gap-x-6 pt-4 border-t border-gray-200/50 text-sm">
+                            <div>
+                                <span className="text-gray-400 block text-[10px] font-bold uppercase tracking-widest mb-1">Email</span>
+                                <span className="text-gray-900 font-medium">{selectedDonation?.email}</span>
+                            </div>
+                            <div>
+                                <span className="text-gray-400 block text-[10px] font-bold uppercase tracking-widest mb-1">Phone</span>
+                                <span className="text-gray-900 font-medium">{selectedDonation?.phone || 'N/A'}</span>
+                            </div>
+                            <div>
+                                <span className="text-gray-400 block text-[10px] font-bold uppercase tracking-widest mb-1">PAN</span>
+                                <span className="text-gray-900 font-medium">{selectedDonation?.pan || 'N/A'}</span>
+                            </div>
+                            <div>
+                                <span className="text-gray-400 block text-[10px] font-bold uppercase tracking-widest mb-1">Category</span>
+                                <span className="text-gray-900 font-medium">{selectedDonation?.category}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {selectedDonation?.message && (
+                        <div className="p-6 bg-blue-50/30 rounded-2xl border border-blue-100/50">
+                            <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-2">Message from Donor</p>
+                            <p className="text-gray-700 text-sm italic leading-relaxed">"{selectedDonation.message}"</p>
+                        </div>
+                    )}
+
+                    <button onClick={() => setIsDonationModalOpen(false)} className="w-full bg-gray-900 text-white font-bold py-4 rounded-2xl hover:bg-black transition-all shadow-xl">
+                        Close Receipt
+                    </button>
+                </div>
+            </Modal>
+
+            {/* Message Details Modal - Rendered via Portal */}
+            <Modal
+                isOpen={isMessageModalOpen}
+                onClose={() => setIsMessageModalOpen(false)}
+                title="Message Details"
+                maxWidth="max-w-2xl"
+            >
+                <div className="space-y-8">
+                    <div className="bg-gray-50 rounded-2xl p-8 border border-gray-100">
+                        <div className="flex flex-col sm:flex-row justify-between items-start gap-6 pb-6 border-b border-gray-200/50">
+                            <div>
+                                <h4 className="text-2xl font-bold text-gray-900 mb-2 leading-tight">{selectedMessage?.subject}</h4>
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-gray-900 text-white flex items-center justify-center font-bold text-xs">
+                                        {selectedMessage?.name?.charAt(0)}
+                                    </div>
+                                    <div className="text-sm">
+                                        <p className="font-bold text-gray-900">{selectedMessage?.name}</p>
+                                        <a href={`mailto:${selectedMessage?.email}`} className="text-gray-500 hover:text-gray-900 transition-colors">{selectedMessage?.email}</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex flex-col sm:items-end gap-3 self-stretch sm:self-auto">
+                                <span className="text-xs font-bold text-gray-400">{selectedMessage?.createdAt && new Date(selectedMessage.createdAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                                <span className="bg-white border border-gray-200 text-gray-600 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm">
+                                    {selectedMessage?.inquiryType}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="py-8">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Message Snippet</p>
+                            <div className="text-gray-800 text-lg leading-relaxed whitespace-pre-wrap font-medium">
+                                {selectedMessage?.message}
+                            </div>
+                        </div>
+
+                        {(selectedMessage?.phone || selectedMessage?.organization) && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-8 border-t border-gray-200/50">
+                                {selectedMessage?.phone && (
+                                    <div>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Phone Number</p>
+                                        <a href={`tel:${selectedMessage.phone}`} className="text-gray-900 font-bold hover:text-blue-600 transition-colors flex items-center gap-2">
+                                            <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                            {selectedMessage.phone}
+                                        </a>
+                                    </div>
+                                )}
+                                {selectedMessage?.organization && (
+                                    <div>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Organization</p>
+                                        <p className="text-gray-900 font-bold flex items-center gap-2">
+                                            <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                                            {selectedMessage.organization}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="flex gap-4">
+                        <button onClick={(e) => handleDeleteMessage(e, selectedMessage?._id)} className="flex-1 bg-red-50 text-red-600 font-bold py-4 rounded-2xl hover:bg-red-100 transition-all active:scale-[0.98]">
+                            Delete Message
+                        </button>
+                        <button onClick={() => setIsMessageModalOpen(false)} className="flex-1 bg-gray-900 text-white font-bold py-4 rounded-2xl hover:bg-black transition-all shadow-xl active:scale-[0.98]">
+                            Close Window
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 
