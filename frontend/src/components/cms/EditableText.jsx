@@ -45,31 +45,54 @@ const EditableText = ({ contentKey, section, defaultText, className, type = 'tex
 
     if (isEditing) {
         return (
-            <span className="flex gap-2 items-center text-base font-normal z-50">
+            <span className={`relative inline-block w-full min-h-[40px] ${className}`}>
                 {type === 'textarea' ? (
                     <textarea
-                        className="border border-gray-300 p-2 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-green-500 shadow-sm text-sm text-gray-800"
+                        className="w-full border-2 border-primary p-2 rounded-lg focus:outline-none bg-white shadow-xl text-gray-800 transition-all font-inherit"
+                        style={{ 
+                            fontSize: 'inherit', 
+                            fontWeight: 'inherit', 
+                            fontFamily: 'inherit',
+                            lineHeight: 'inherit',
+                            minHeight: '100px'
+                        }}
                         value={value}
                         onChange={(e) => setValue(e.target.value)}
                         autoComplete="off"
-                        rows={3}
+                        autoFocus
                     />
                 ) : (
                     <input
                         type="text"
-                        className="border border-gray-300 p-1.5 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-green-500 shadow-sm text-sm text-gray-800"
+                        className="w-full border-2 border-primary p-2 rounded-lg focus:outline-none bg-white shadow-xl text-gray-800 transition-all font-inherit"
+                        style={{ 
+                            fontSize: 'inherit', 
+                            fontWeight: 'inherit', 
+                            fontFamily: 'inherit',
+                            lineHeight: 'inherit'
+                        }}
                         value={value}
                         onChange={(e) => setValue(e.target.value)}
                         autoComplete="off"
+                        autoFocus
                     />
                 )}
-                <button 
-                    onClick={handleSave} 
-                    className="flex-shrink-0 w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center hover:bg-green-600 transition-colors shadow-sm"
-                    title="Save"
-                >
-                    <FaCheck size={12} />
-                </button>
+                <div className="absolute -top-12 right-0 flex gap-2 z-[60] bg-white p-1 rounded-full shadow-lg border border-gray-100 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                    <button 
+                        onClick={handleSave} 
+                        className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center hover:bg-green-600 transition-all transform hover:scale-110 active:scale-95 shadow-md"
+                        title="Save"
+                    >
+                        <FaCheck size={12} />
+                    </button>
+                    <button 
+                        onClick={handleCancel} 
+                        className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-all transform hover:scale-110 active:scale-95 shadow-md"
+                        title="Cancel"
+                    >
+                        <FaTimes size={12} />
+                    </button>
+                </div>
             </span>
         );
     }

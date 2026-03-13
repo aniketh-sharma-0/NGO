@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { FaEnvelope } from 'react-icons/fa';
+import { FaEnvelope, FaUser } from 'react-icons/fa';
 import PasswordInput from '../components/forms/PasswordInput';
+import EmailValidationInput from '../components/forms/EmailValidationInput';
 import SEO from '../components/common/SEO';
 
 const Login = () => {
@@ -15,7 +16,15 @@ const Login = () => {
     const [fieldErrors, setFieldErrors] = useState({});
     const [loading, setLoading] = useState(false);
 
-    const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        if (name === 'name') {
+            const filteredValue = value.replace(/[0-9]/g, '');
+            setFormData({ ...formData, [name]: filteredValue });
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -97,13 +106,13 @@ const Login = () => {
                         {!isLogin && (
                             <div>
                                 <div className={`relative ${fieldErrors.name ? 'ring-2 ring-red-500 rounded-lg' : ''}`}>
-                                    <FaEnvelope className="absolute top-3.5 left-3 text-gray-400" />
+                                    <FaUser className="absolute top-3.5 left-3 text-gray-400" />
                                     <input
                                         name="name"
                                         type="text"
                                         placeholder="Full Name"
                                         value={formData.name} onChange={handleChange}
-                                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-gray-50"
+                                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-gray-50 text-gray-900 placeholder-gray-400 font-medium"
                                         required
                                         autoComplete="name"
                                     />
@@ -112,17 +121,11 @@ const Login = () => {
                             </div>
                         )}
                         <div>
-                            <div className={`relative ${fieldErrors.email ? 'ring-2 ring-red-500 rounded-lg' : ''}`}>
-                                <FaEnvelope className="absolute top-3.5 left-3 text-gray-400" />
-                                <input
-                                    type="email" name="email"
-                                    placeholder="Email Address"
-                                    value={formData.email} onChange={handleChange}
-                                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-gray-50"
-                                    required
-                                    autoComplete="username"
-                                />
-                            </div>
+                            <EmailValidationInput 
+                                value={formData.email} 
+                                onChange={handleChange}
+                                className={fieldErrors.email ? 'ring-2 ring-red-500 rounded-lg' : ''}
+                            />
                             {fieldErrors.email && <p className="text-red-500 text-xs font-bold mt-1 pl-1">{fieldErrors.email}</p>}
                         </div>
 
@@ -159,6 +162,18 @@ const Login = () => {
                         >
                             {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')}
                         </button>
+
+                        {isLogin && (
+                            <div className="text-center mt-4">
+                                <button 
+                                    type="button"
+                                    onClick={() => navigate('/forgot-password')}
+                                    className="text-sm font-semibold text-[#1A1A5E] hover:text-blue-600 transition-colors"
+                                >
+                                    Forgot your password?
+                                </button>
+                            </div>
+                        )}
                     </form>
 
                     <div className="mt-6 text-center text-sm pb-4">

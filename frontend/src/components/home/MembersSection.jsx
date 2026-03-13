@@ -88,19 +88,10 @@ const MembersSection = () => {
             <div className="container mx-auto px-4">
                 <SectionTitle subtitle="WHO WE ARE">
                     <EditableText
-                        contentKey="team_section_title_prefix"
+                        contentKey="team_section_title"
                         section="Home"
-                        defaultText={homeContent.team_section_title_prefix || "Our"}
-                        className="inline-block"
+                        defaultText={homeContent.team_section_title || "Our Leadership"}
                     />
-                    <span className="ml-3 inline-block">
-                        <EditableText
-                            contentKey="team_section_title_suffix"
-                            section="Home"
-                            defaultText={homeContent.team_section_title_suffix || "Leadership"}
-                            className="inline-block"
-                        />
-                    </span>
                 </SectionTitle>
 
                 {/* Founder / President Section */}

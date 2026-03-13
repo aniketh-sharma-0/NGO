@@ -88,7 +88,7 @@ const DynamicList = ({ contentKey, section, defaultItems, renderItem, className,
                             icon={FaTrash}
                             onClick={() => deleteItem(item.id)}
                             title="Delete Item"
-                            variant="danger"
+                            variant="danger-light"
                             className="absolute top-2 right-2 opacity-80 group-hover:opacity-100"
                             size={12}
                         />

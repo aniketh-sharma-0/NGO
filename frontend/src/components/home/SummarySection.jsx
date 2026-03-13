@@ -73,17 +73,11 @@ const SummarySection = () => {
 
                         <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-black leading-tight font-heading">
                             <EditableText
-                                contentKey="summary_title_prefix"
+                                contentKey="summary_title"
                                 section="Home"
-                                defaultText={content.summary_title_prefix || "Driving Change Through"}
+                                type="textarea"
+                                defaultText={content.summary_title || "Driving Change Through\nCommunity Action"}
                             />
-                            <span className="block mt-2">
-                                <EditableText
-                                    contentKey="summary_title_suffix"
-                                    section="Home"
-                                    defaultText={content.summary_title_suffix || "Community Action"}
-                                />
-                            </span>
                         </h2>
 
                         <div className="text-base md:text-lg text-gray-700 leading-relaxed font-light">

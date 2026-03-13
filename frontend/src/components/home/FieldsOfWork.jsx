@@ -28,16 +28,12 @@ const FieldItem = ({ field, updateField, isAdmin, isEditMode }) => {
 
                 <div className="absolute bottom-0 left-0 w-full p-4 md:p-6 z-10">
                     <h3 className="text-lg md:text-xl font-bold text-white mb-2">
-                        {isAdmin && isEditMode ? (
-                            <textarea
-                                value={field.title}
-                                onChange={(e) => updateField('title', e.target.value)}
-                                className="w-full bg-black/20 hover:bg-black/40 focus:bg-black/60 text-white rounded px-2 py-1 outline-none border border-white/20 focus:border-white transition-all resize-none overflow-hidden"
-                                rows={1}
-                            />
-                        ) : (
-                            <span>{field.title}</span>
-                        )}
+                        <EditableText
+                            defaultText={field.title}
+                            onSave={(val) => updateField('title', val)}
+                            editable={isAdmin && isEditMode}
+                            className="w-full inline-block"
+                        />
                     </h3>
                 </div>
             </div>
@@ -85,19 +81,10 @@ const FieldsOfWork = () => {
             <div className="container mx-auto px-4">
                 <SectionTitle subtitle="WHAT WE DO">
                     <EditableText
-                        contentKey="fields_title_prefix"
+                        contentKey="fields_title"
                         section="Home"
-                        defaultText={homeContent.fields_title_prefix || "Our Fields"}
-                        className="inline-block"
+                        defaultText={homeContent.fields_title || "Our Fields of Work"}
                     />
-                    <span className="ml-2 sm:ml-3 inline-block">
-                        <EditableText
-                            contentKey="fields_title_suffix"
-                            section="Home"
-                            defaultText={homeContent.fields_title_suffix || "of Work"}
-                            className="inline-block"
-                        />
-                    </span>
                 </SectionTitle>
 
                 <DynamicList

@@ -19,6 +19,8 @@ import VolunteerLanding from './pages/Volunteer/VolunteerLanding';
 import VolunteerDashboard from './pages/Volunteer/VolunteerDashboard';
 import BlogsEvents from './pages/BlogsEvents';
 import Contact from './pages/Contact';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 import TopMarquee from './components/home/TopMarquee';
 import ChatWidget from './components/chat/ChatWidget';
@@ -75,6 +77,8 @@ function App() {
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/volunteer" element={<VolunteerLanding />} />
                     <Route path="/login" element={<Login />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/reset-password/:token" element={<ResetPassword />} />
                     {/* Protected Routes */}
                     <Route element={<PrivateRoute />}>
                       <Route path="/dashboard" element={<Dashboard />} />
