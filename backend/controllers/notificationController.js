@@ -3,7 +3,7 @@ const Notification = require('../models/Notification');
 // @desc    Get user notifications
 // @route   GET /api/notifications
 // @access  Private
-const getNotifications = async (req, res) => {
+const getNotifications = async (req, res, next) => {
     try {
         const userId = req.user.id;
         const role = req.user.role?.name;
@@ -20,14 +20,14 @@ const getNotifications = async (req, res) => {
         res.json(notifications);
     } catch (error) {
         console.error('Error fetching notifications:', error);
-        res.status(500).json({ message: 'Server Error' });
+        next(error);
     }
 };
 
 // @desc    Mark notification as read
 // @route   PATCH /api/notifications/:id/read
 // @access  Private
-const markAsRead = async (req, res) => {
+const markAsRead = async (req, res, next) => {
     try {
         const notification = await Notification.findById(req.params.id);
         
@@ -49,7 +49,7 @@ const markAsRead = async (req, res) => {
         res.json({ success: true, notification });
     } catch (error) {
         console.error('Error marking notification as read:', error);
-        res.status(500).json({ message: 'Server Error' });
+        next(error);
     }
 };
 

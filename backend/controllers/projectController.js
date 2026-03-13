@@ -3,7 +3,7 @@ const Project = require('../models/Project');
 // @desc    Get all Projects (with filters)
 // @route   GET /api/projects
 // @access  Public
-const getProjects = async (req, res) => {
+const getProjects = async (req, res, next) => {
     try {
         const { category, status } = req.query;
         let query = {};
@@ -28,14 +28,14 @@ const getProjects = async (req, res) => {
 
         res.json(projects);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
 // @desc    Get Single Project
 // @route   GET /api/projects/:id
 // @access  Public
-const getProjectById = async (req, res) => {
+const getProjectById = async (req, res, next) => {
     try {
         const project = await Project.findById(req.params.id);
         if (project) {
@@ -44,7 +44,7 @@ const getProjectById = async (req, res) => {
             res.status(404).json({ message: 'Project not found' });
         }
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 

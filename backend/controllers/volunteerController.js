@@ -7,7 +7,7 @@ const { createNotification } = require('./notificationController');
 // @desc    Register as Volunteer
 // @route   POST /api/volunteers/register
 // @access  Private (Any User)
-const registerVolunteer = async (req, res) => {
+const registerVolunteer = async (req, res, next) => {
     try {
         const { availability, phone, address } = req.body;
 
@@ -51,14 +51,14 @@ const registerVolunteer = async (req, res) => {
 
         res.status(201).json(volunteer);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
 // @desc    Get My Volunteer Profile
 // @route   GET /api/volunteers/me
 // @access  Private
-const getMyProfile = async (req, res) => {
+const getMyProfile = async (req, res, next) => {
     try {
         const volunteer = await Volunteer.findOne({ user: req.user._id });
         if (!volunteer) {
@@ -66,14 +66,14 @@ const getMyProfile = async (req, res) => {
         }
         res.json(volunteer);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
 // @desc    Get My Tasks
 // @route   GET /api/volunteers/me/tasks
 // @access  Private
-const getMyTasks = async (req, res) => {
+const getMyTasks = async (req, res, next) => {
     try {
         const volunteer = await Volunteer.findOne({ user: req.user._id });
         if (!volunteer) {
@@ -83,14 +83,14 @@ const getMyTasks = async (req, res) => {
         const tasks = await VolunteerTask.find({ volunteer: volunteer._id }).populate('project', 'title').sort({ createdAt: -1 });
         res.json(tasks);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
 // @desc    Submit Task
 // @route   PUT /api/volunteers/tasks/:id/submit
 // @access  Private
-const submitTask = async (req, res) => {
+const submitTask = async (req, res, next) => {
     const { submissionText, submissionImage } = req.body;
 
     try {
@@ -135,7 +135,7 @@ const submitTask = async (req, res) => {
 
         res.json(task);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 

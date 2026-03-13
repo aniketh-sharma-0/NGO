@@ -10,7 +10,7 @@ const { createNotification } = require('./notificationController');
 // @desc    Update or Create Page Content
 // @route   PUT /api/admin/content
 // @access  Admin
-const updatePageContent = async (req, res) => {
+const updatePageContent = async (req, res, next) => {
     const { key, value, section } = req.body;
 
     try {
@@ -25,7 +25,7 @@ const updatePageContent = async (req, res) => {
 
         res.json(content);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
@@ -46,7 +46,7 @@ const uploadImage = (req, res) => {
 // @desc    Create Project
 // @route   POST /api/admin/projects
 // @access  Admin
-const createProject = async (req, res) => {
+const createProject = async (req, res, next) => {
     try {
         const project = await Project.create(req.body);
 
@@ -54,14 +54,14 @@ const createProject = async (req, res) => {
 
         res.status(201).json(project);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
 // @desc    Update Full Project
 // @route   PUT /api/admin/projects/:id
 // @access  Admin
-const updateProject = async (req, res) => {
+const updateProject = async (req, res, next) => {
     try {
         const project = await Project.findById(req.params.id);
 
@@ -79,11 +79,11 @@ const updateProject = async (req, res) => {
 
         res.json(updatedProject);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
-const updateProjectStatus = async (req, res) => {
+const updateProjectStatus = async (req, res, next) => {
     const { status, priority } = req.body;
 
     try {
@@ -101,7 +101,7 @@ const updateProjectStatus = async (req, res) => {
 
         res.json(project);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
@@ -111,7 +111,7 @@ const updateProjectStatus = async (req, res) => {
 // @desc    Get All Volunteers
 // @route   GET /api/admin/volunteers
 // @access  Admin
-const getVolunteers = async (req, res) => {
+const getVolunteers = async (req, res, next) => {
     try {
         const volunteers = await Volunteer.find().populate('user', 'name email');
         
@@ -143,14 +143,14 @@ const getVolunteers = async (req, res) => {
 
         res.json(volunteersWithStats);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
 // @desc    Verify/Approve Volunteer
 // @route   PUT /api/admin/volunteers/:id/verify
 // @access  Admin/Super Admin
-const verifyVolunteer = async (req, res) => {
+const verifyVolunteer = async (req, res, next) => {
     const { status } = req.body; // 'Approved', 'Rejected'
 
     try {
@@ -176,14 +176,14 @@ const verifyVolunteer = async (req, res) => {
 
         res.json(volunteer);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
 // @desc    Assign Task to Volunteer
 // @route   POST /api/admin/volunteers/:id/assign
 // @access  Admin
-const assignTask = async (req, res) => {
+const assignTask = async (req, res, next) => {
     const { title, description, projectId, dueDate, assignedHours } = req.body;
 
     try {
@@ -214,14 +214,14 @@ const assignTask = async (req, res) => {
 
         res.status(201).json(task);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
 // @desc    Get Volunteer Tasks
 // @route   GET /api/admin/volunteers/:id/tasks
 // @access  Admin
-const getVolunteerTasks = async (req, res) => {
+const getVolunteerTasks = async (req, res, next) => {
     try {
         console.log(`[Admin] Fetching tasks for volunteer ID: ${req.params.id}`);
         const tasks = await VolunteerTask.find({ volunteer: req.params.id }).populate('project', 'title').sort({ createdAt: -1 });
@@ -229,14 +229,14 @@ const getVolunteerTasks = async (req, res) => {
         res.json(tasks);
     } catch (error) {
         console.error(`[Admin] Error fetching volunteer tasks for ID ${req.params.id}:`, error);
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
 // @desc    Update Volunteer Task Status (Approve/Reject)
 // @route   PUT /api/admin/volunteers/tasks/:taskId/status
 // @access  Admin
-const updateTaskStatus = async (req, res) => {
+const updateTaskStatus = async (req, res, next) => {
     const { status, feedback } = req.body; // 'Approved', 'Rejected'
 
     try {
@@ -282,7 +282,7 @@ const updateTaskStatus = async (req, res) => {
 
         res.json(task);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 

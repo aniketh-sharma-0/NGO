@@ -22,6 +22,7 @@ import BlogsEvents from './pages/BlogsEvents';
 import Contact from './pages/Contact';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import { useIdleTimer } from 'react-idle-timer';
 
 import TopMarquee from './components/home/TopMarquee';
 import ChatWidget from './components/chat/ChatWidget';
@@ -56,49 +57,62 @@ function App() {
     setRoundedFavicon();
   }, []);
 
+  const handleOnIdle = () => {
+    console.log('User is idle. Logging out...');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  };
+
+  useIdleTimer({
+    timeout: 1000 * 60 * 30, // 30 minutes
+    onIdle: handleOnIdle,
+    debounce: 500
+  });
+
   return (
     <HelmetProvider>
       <AuthProvider>
         <ToastProvider>
           <NotificationProvider>
-          <CMSProvider>
-            <UIProvider>
-              <Router>
-              <div className="flex flex-col min-h-screen bg-white">
-                <TopMarquee />
-                <Header />
-                <ChatWidget />
-                <EditToggle />
-                <main className="flex-grow">
-                  <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/about" element={<About />} />
-                    <Route path="/projects" element={<Projects />} />
-                    <Route path="/donate" element={<Donate />} />
-                    <Route path="/media" element={<BlogsEvents />} />
-                    <Route path="/contact" element={<Contact />} />
-                    <Route path="/volunteer" element={<VolunteerLanding />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/forgot-password" element={<ForgotPassword />} />
-                    <Route path="/reset-password/:token" element={<ResetPassword />} />
-                    {/* Protected Routes */}
-                    <Route element={<PrivateRoute />}>
-                      <Route path="/dashboard" element={<Dashboard />} />
-                      <Route path="/volunteer/register" element={<VolunteerRegister />} />
+            <CMSProvider>
+              <UIProvider>
+                <Router>
+                  <div className="flex flex-col min-h-screen bg-white">
+                    <TopMarquee />
+                    <Header />
+                    <ChatWidget />
+                    <EditToggle />
+                    <main className="flex-grow">
+                      <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/about" element={<About />} />
+                        <Route path="/projects" element={<Projects />} />
+                        <Route path="/donate" element={<Donate />} />
+                        <Route path="/media" element={<BlogsEvents />} />
+                        <Route path="/contact" element={<Contact />} />
+                        <Route path="/volunteer" element={<VolunteerLanding />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/forgot-password" element={<ForgotPassword />} />
+                        <Route path="/reset-password/:token" element={<ResetPassword />} />
+                        {/* Protected Routes */}
+                        <Route element={<PrivateRoute />}>
+                          <Route path="/dashboard" element={<Dashboard />} />
+                          <Route path="/volunteer/register" element={<VolunteerRegister />} />
 
-                      {/* Volunteer Only Routes */}
-                      <Route element={<RoleRoute allowedRoles={['Volunteer']} />}>
-                        <Route path="/volunteer/dashboard" element={<VolunteerDashboard />} />
-                      </Route>
-                    </Route>
-                  </Routes>
-                </main>
-                <Footer />
-              </div>
-            </Router>
-          </UIProvider>
-        </CMSProvider>
-        </NotificationProvider>
+                          {/* Volunteer Only Routes */}
+                          <Route element={<RoleRoute allowedRoles={['Volunteer']} />}>
+                            <Route path="/volunteer/dashboard" element={<VolunteerDashboard />} />
+                          </Route>
+                        </Route>
+                      </Routes>
+                    </main>
+                    <Footer />
+                  </div>
+                </Router>
+              </UIProvider>
+            </CMSProvider>
+          </NotificationProvider>
         </ToastProvider>
       </AuthProvider>
     </HelmetProvider>

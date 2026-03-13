@@ -3,7 +3,7 @@ const ChatIntent = require('../models/ChatIntent');
 // @desc    Process User Message
 // @route   POST /api/chat/message
 // @access  Public
-const handleMessage = async (req, res) => {
+const handleMessage = async (req, res, next) => {
     try {
         const { message } = req.body;
         if (!message) return res.status(400).json({ reply: "Please say something." });
@@ -38,26 +38,26 @@ const handleMessage = async (req, res) => {
         }
 
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
 // @desc    Get All Intents (Admin)
 // @route   GET /api/chat/intents
 // @access  Private/Admin
-const getIntents = async (req, res) => {
+const getIntents = async (req, res, next) => {
     try {
         const intents = await ChatIntent.find().sort({ category: 1 });
         res.json(intents);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
 // @desc    Create Intent (Admin)
 // @route   POST /api/chat/intents
 // @access  Private/Admin
-const createIntent = async (req, res) => {
+const createIntent = async (req, res, next) => {
     try {
         const { keywords, question, answer, category } = req.body;
         // Ensure keywords is array
@@ -71,14 +71,14 @@ const createIntent = async (req, res) => {
         });
         res.status(201).json(intent);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
 // @desc    Update Intent (Admin)
 // @route   PUT /api/chat/intents/:id
 // @access  Private/Admin
-const updateIntent = async (req, res) => {
+const updateIntent = async (req, res, next) => {
     try {
         const { keywords, question, answer, category } = req.body;
         const kwArray = Array.isArray(keywords) ? keywords : keywords.split(',').map(s => s.trim());
@@ -92,19 +92,19 @@ const updateIntent = async (req, res) => {
 
         res.json(intent);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
 // @desc    Delete Intent (Admin)
 // @route   DELETE /api/chat/intents/:id
 // @access  Private/Admin
-const deleteIntent = async (req, res) => {
+const deleteIntent = async (req, res, next) => {
     try {
         await ChatIntent.findByIdAndDelete(req.params.id);
         res.json({ message: 'Intent deleted' });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 

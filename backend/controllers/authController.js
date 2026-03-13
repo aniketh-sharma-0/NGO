@@ -11,14 +11,14 @@ const generateToken = (id) => {
     // Use fallback if env var is missing to prevent crash
     const secret = process.env.JWT_SECRET || 'fallback_secret_key_123';
     return jwt.sign({ id }, secret, {
-        expiresIn: '30d',
+        expiresIn: '24h',
     });
 };
 
 // @desc    Google Login
 // @route   POST /api/auth/google
 // @access  Public
-const googleLogin = async (req, res) => {
+const googleLogin = async (req, res, next) => {
     try {
         const { token } = req.body;
         const ticket = await client.verifyIdToken({
@@ -52,16 +52,16 @@ const googleLogin = async (req, res) => {
             role: user.role
         });
     } catch (error) {
-        console.error('Google Login Error:', error);
-        res.status(400).json({ message: 'Google login failed' });
+        next(error);
     }
 };
 
 // @desc    Register new user
 // @route   POST /api/auth/register
 // @access  Public
-const registerUser = async (req, res) => {
-    const { name, email, password } = req.body;
+const registerUser = async (req, res, next) => {
+    try {
+        const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
         return res.status(400).json({ message: 'Please add all fields' });
@@ -85,22 +85,25 @@ const registerUser = async (req, res) => {
         password: hashedPassword,
     });
 
-    if (user) {
-        res.status(201).json({
-            _id: user.id,
-            name: user.name,
-            email: user.email,
-            token: generateToken(user.id),
-        });
-    } else {
-        res.status(400).json({ message: 'Invalid user data' });
+        if (user) {
+            res.status(201).json({
+                _id: user.id,
+                name: user.name,
+                email: user.email,
+                token: generateToken(user.id),
+            });
+        } else {
+            res.status(400).json({ message: 'Invalid user data' });
+        }
+    } catch (error) {
+        next(error);
     }
 };
 
 // @desc    Authenticate a user
 // @route   POST /api/auth/login
 // @access  Public
-const loginUser = async (req, res) => {
+const loginUser = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
@@ -119,8 +122,7 @@ const loginUser = async (req, res) => {
             res.status(400).json({ message: 'Invalid credentials' });
         }
     } catch (error) {
-        console.error('Login Error:', error);
-        res.status(500).json({ message: error.message || 'Server Error' });
+        next(error);
     }
 };
 
@@ -138,7 +140,7 @@ const crypto = require('crypto');
 // @desc    Forgot Password
 // @route   POST /api/auth/forgotpassword
 // @access  Public
-const forgotPassword = async (req, res) => {
+const forgotPassword = async (req, res, next) => {
     try {
         const user = await User.findOne({ email: req.body.email });
 
@@ -169,15 +171,14 @@ const forgotPassword = async (req, res) => {
 
         res.status(200).json({ success: true, message: 'Reset link sent to console' });
     } catch (error) {
-        console.error('Forgot Password Error:', error);
-        res.status(500).json({ message: 'Error processing request' });
+        next(error);
     }
 };
 
 // @desc    Reset Password
 // @route   PUT /api/auth/resetpassword/:resettoken
 // @access  Public
-const resetPassword = async (req, res) => {
+const resetPassword = async (req, res, next) => {
     try {
         // Get hashed token
         const resetPasswordToken = crypto
@@ -208,15 +209,14 @@ const resetPassword = async (req, res) => {
             token: generateToken(user.id)
         });
     } catch (error) {
-        console.error('Reset Password Error:', error);
-        res.status(500).json({ message: 'Error resetting password' });
+        next(error);
     }
 };
 
 // @desc    Direct Reset Password (Insecure - as requested by user)
 // @route   POST /api/auth/direct-reset
 // @access  Public
-const directResetPassword = async (req, res) => {
+const directResetPassword = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
@@ -246,8 +246,7 @@ const directResetPassword = async (req, res) => {
             token: generateToken(user.id)
         });
     } catch (error) {
-        console.error('Direct Reset Error:', error);
-        res.status(500).json({ message: 'Error updating password' });
+        next(error);
     }
 };
 

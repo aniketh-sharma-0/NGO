@@ -4,7 +4,7 @@ const { createNotification } = require('./notificationController');
 // @desc    Create a new donation entry
 // @route   POST /api/donations
 // @access  Public
-const createDonation = async (req, res) => {
+const createDonation = async (req, res, next) => {
     try {
         const { category, amount, name, email, phone, organization, address, pan, message } = req.body;
 
@@ -32,26 +32,26 @@ const createDonation = async (req, res) => {
 
         res.status(201).json(donation);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
 // @desc    Get all donations (Admin)
 // @route   GET /api/donations
 // @access  Private/Admin
-const getDonations = async (req, res) => {
+const getDonations = async (req, res, next) => {
     try {
         const donations = await Donation.find().sort({ createdAt: -1 });
         res.json(donations);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
 // @desc    Update donation status (Admin)
 // @route   PUT /api/donations/:id/status
 // @access  Private/Admin
-const updateDonationStatus = async (req, res) => {
+const updateDonationStatus = async (req, res, next) => {
     const { status } = req.body;
 
     try {
@@ -66,7 +66,7 @@ const updateDonationStatus = async (req, res) => {
 
         res.json(donation);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 

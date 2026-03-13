@@ -8,6 +8,8 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const rateLimit = require('express-rate-limit');
+const morgan = require('morgan');
+const { errorHandler } = require('./middleware/errorMiddleware');
 
 dotenv.config();
 
@@ -70,12 +72,27 @@ app.use(xss());
 const authLimiter = rateLimit({ 
     windowMs: 15 * 60 * 1000, 
     max: 20, 
-    message: "Too many login attempts, please try again later" 
+    message: { message: "Too many login attempts, please try again later" } 
 });
 app.use('/api/auth/', authLimiter);
 
+// Global Rate Limiter to protect against Request Flooding / DDoS
+const globalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 300, // Limit each IP to 300 requests per 15 minutes API-wide
+    message: { message: "Too many requests from this IP, please try again later." }
+});
+app.use('/api/', globalLimiter); // Apply to all /api routes
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// HTTP Request Logger
+if (process.env.NODE_ENV !== 'production') {
+    app.use(morgan('dev'));
+} else {
+    app.use(morgan('combined')); // More detailed logs for production
+}
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -93,6 +110,16 @@ app.use('/api/notifications', notificationRoutes);
 app.get('/api/health', (req, res) => {
     res.send('Server running');
 });
+
+// Generic 404 handler for unknown endpoints
+app.use((req, res, next) => {
+    const error = new Error(`Not Found - ${req.originalUrl}`);
+    res.status(404);
+    next(error);
+});
+
+// Centralized Error Handling Middleware (must be exactly here, after all routes)
+app.use(errorHandler);
 
 app.get("/", (req, res) => {
     res.send("Backend is running successfully - v1.0.9 - Notification Fix 🚀");

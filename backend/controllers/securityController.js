@@ -2,28 +2,28 @@ const Role = require('../models/Role');
 const Permission = require('../models/Permission');
 
 // Roles
-const listRoles = async (req, res) => {
+const listRoles = async (req, res, next) => {
     try {
         const roles = await Role.find().populate('permissions');
         res.json(roles);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server Error' });
+        next(error);
     }
 };
 
-const getRole = async (req, res) => {
+const getRole = async (req, res, next) => {
     try {
         const role = await Role.findById(req.params.id).populate('permissions');
         if (!role) return res.status(404).json({ message: 'Role not found' });
         res.json(role);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server Error' });
+        next(error);
     }
 };
 
-const createRole = async (req, res) => {
+const createRole = async (req, res, next) => {
     try {
         const { name, permissions = [] } = req.body;
         const role = new Role({ name, permissions });
@@ -31,11 +31,11 @@ const createRole = async (req, res) => {
         res.status(201).json(role);
     } catch (error) {
         console.error(error);
-        res.status(400).json({ message: 'Invalid data' });
+        next(error);
     }
 };
 
-const updateRole = async (req, res) => {
+const updateRole = async (req, res, next) => {
     try {
         const { name, permissions } = req.body;
         const role = await Role.findById(req.params.id);
@@ -46,44 +46,44 @@ const updateRole = async (req, res) => {
         res.json(role);
     } catch (error) {
         console.error(error);
-        res.status(400).json({ message: 'Invalid data' });
+        next(error);
     }
 };
 
-const deleteRole = async (req, res) => {
+const deleteRole = async (req, res, next) => {
     try {
         const role = await Role.findByIdAndDelete(req.params.id);
         if (!role) return res.status(404).json({ message: 'Role not found' });
         res.json({ message: 'Role deleted' });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server Error' });
+        next(error);
     }
 };
 
 // Permissions
-const listPermissions = async (req, res) => {
+const listPermissions = async (req, res, next) => {
     try {
         const permissions = await Permission.find();
         res.json(permissions);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server Error' });
+        next(error);
     }
 };
 
-const getPermission = async (req, res) => {
+const getPermission = async (req, res, next) => {
     try {
         const permission = await Permission.findById(req.params.id);
         if (!permission) return res.status(404).json({ message: 'Permission not found' });
         res.json(permission);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server Error' });
+        next(error);
     }
 };
 
-const createPermission = async (req, res) => {
+const createPermission = async (req, res, next) => {
     try {
         const { name, description } = req.body;
         const permission = new Permission({ name, description });
@@ -91,11 +91,11 @@ const createPermission = async (req, res) => {
         res.status(201).json(permission);
     } catch (error) {
         console.error(error);
-        res.status(400).json({ message: 'Invalid data' });
+        next(error);
     }
 };
 
-const updatePermission = async (req, res) => {
+const updatePermission = async (req, res, next) => {
     try {
         const { name, description } = req.body;
         const permission = await Permission.findById(req.params.id);
@@ -106,18 +106,18 @@ const updatePermission = async (req, res) => {
         res.json(permission);
     } catch (error) {
         console.error(error);
-        res.status(400).json({ message: 'Invalid data' });
+        next(error);
     }
 };
 
-const deletePermission = async (req, res) => {
+const deletePermission = async (req, res, next) => {
     try {
         const permission = await Permission.findByIdAndDelete(req.params.id);
         if (!permission) return res.status(404).json({ message: 'Permission not found' });
         res.json({ message: 'Permission deleted' });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server Error' });
+        next(error);
     }
 };
 
