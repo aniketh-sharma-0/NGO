@@ -17,7 +17,7 @@ export const NotificationProvider = ({ children }) => {
     const fetchNotifications = useCallback(async (isInitial = false) => {
         if (!user) return;
         try {
-            const res = await api.get('/notifications');
+            const res = await api.get(`/notifications?t=${Date.now()}`);
             const data = res.data;
             
             setNotifications(data);

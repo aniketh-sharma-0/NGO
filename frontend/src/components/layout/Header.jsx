@@ -9,7 +9,8 @@ import { useUI } from '../../context/UIContext';
 import { useNotifications } from '../../context/NotificationContext';
 
 const Header = () => {
-    const { user, logout } = useAuth();
+    const auth = useAuth() || {};
+    const { user, logout } = auth;
     const { setIsEditMode } = useCMS();
     const navigate = useNavigate();
     const { isMobileMenuOpen, setIsMobileMenuOpen, unreadCount, fetchUnreadCount } = useUI();

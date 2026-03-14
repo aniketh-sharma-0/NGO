@@ -1,23 +1,29 @@
 const mongoose = require('mongoose');
-require('dotenv').config();
+const dotenv = require('dotenv');
+dotenv.config();
 
-async function checkRoles() {
-    await mongoose.connect(process.env.MONGO_URI);
-    const db = mongoose.connection.db;
-    
-    const roles = await db.collection('roles').find({}).toArray();
-    console.log("ROLES IN DB:");
-    roles.forEach(r => console.log(` - ${r.name} (${r._id})`));
-    
-    const users = await db.collection('users').find({}).toArray();
-    console.log("\nUSERS WITH ADMIN ROLE:");
-    for (const u of users) {
-        const role = roles.find(r => r._id.toString() === u.role?.toString());
-        if (role && role.name === 'Admin') {
-            console.log(` - ${u.name} (${u.email}) -> Role: ${role.name}`);
-        }
+const roleSchema = new mongoose.Schema({ name: String });
+const Role = mongoose.models.Role || mongoose.model('Role', roleSchema);
+
+const userSchema = new mongoose.Schema({ name: String, role: { type: mongoose.Schema.Types.ObjectId, ref: 'Role' } });
+const User = mongoose.models.User || mongoose.model('User', userSchema);
+
+const checkRoles = async () => {
+    try {
+        await mongoose.connect(process.env.MONGODB_URI);
+        const roles = await Role.find();
+        console.log('--- ALL ROLES ---');
+        roles.forEach(r => console.log(`Role: "${r.name}", ID: ${r._id}`));
+        
+        const users = await User.find().populate('role');
+        console.log('\n--- USERS BY ROLE ---');
+        users.forEach(u => console.log(`User: ${u.name}, Role: ${u.role?.name || 'NONE'}`));
+        
+        process.exit(0);
+    } catch (e) {
+        console.error(e);
+        process.exit(1);
     }
-    process.exit(0);
-}
+};
 
 checkRoles();

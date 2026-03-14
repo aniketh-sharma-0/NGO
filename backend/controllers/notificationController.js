@@ -53,21 +53,37 @@ const markAsRead = async (req, res, next) => {
     }
 };
 
-// Internal utility method
-const createNotification = async ({ userId, role, title, message, type, redirectLink }) => {
+// @desc    Create notification
+// @route   POST /api/notifications
+// @access  Private
+const createNotification = async (req, res) => {
+    // Check if called as express route handler
+    const isExpress = req && req.body;
+    const data = isExpress ? req.body : req;
+
     try {
+        const { userId, role, title, message, type, redirectLink } = data;
+        
         const notification = new Notification({
             userId,
             role,
             title,
             message,
-            type,
+            type: type || 'Info',
             redirectLink
         });
+        
         await notification.save();
+        
+        if (isExpress) {
+            return res.status(201).json(notification);
+        }
         return notification;
     } catch (error) {
         console.error('Error creating notification:', error);
+        if (isExpress) {
+            res.status(500).json({ message: 'Server Error' });
+        }
     }
 };
 
