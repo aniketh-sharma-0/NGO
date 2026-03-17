@@ -24,7 +24,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import { useIdleTimer } from 'react-idle-timer';
 
-import TopMarquee from './components/home/TopMarquee';
+import { TopMarquee } from './components/home/HomeSections';
 import ChatWidget from './components/chat/ChatWidget';
 import EditToggle from './components/cms/EditToggle';
 

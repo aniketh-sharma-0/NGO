@@ -1,8 +1,5 @@
 import React from 'react';
-import CarouselSection from '../components/home/CarouselSection';
-import SummarySection from '../components/home/SummarySection';
-import FieldsOfWork from '../components/home/FieldsOfWork';
-import MembersSection from '../components/home/MembersSection';
+import { CarouselSection, SummarySection, FieldsOfWork, MembersSection } from '../components/home/HomeSections';
 
 import SEO from '../components/common/SEO';
 
